@@ -27,15 +27,15 @@ let raf = 0;
 let _leve = false;
 let _angulo = 0;               // rotação horizontal da câmara (rad)
 const CAM_PITCH = Math.PI / 4; // inclinação fixa (45°)
-const CAM_DIST  = 18;          // distância câmara–alvo
+const CAM_DIST = 18;          // distância câmara–alvo
 
 /* meshes e grupos que persistem entre frames */
-const _chaoMesh    = new Map(); // key='tipo' → Mesh
-const _predioMesh  = new Map(); // key='objId' → Group
-const _pessoaMesh  = new Map(); // key=personagem.id → {rig, t, ap}
-const _arvoreMesh  = [];
-let   _cenaId      = null;      // para detectar mudança de cena
-let   _infoTimer   = 0;
+const _chaoMesh = new Map(); // key='tipo' → Mesh
+const _predioMesh = new Map(); // key='objId' → Group
+const _pessoaMesh = new Map(); // key=personagem.id → {rig, t, ap}
+const _arvoreMesh = [];
+let _cenaId = null;      // para detectar mudança de cena
+let _infoTimer = 0;
 
 /* métricas */
 const info = { fps: 0, calls: 0, tris: 0, geo: 0, tex: 0, mb: null };
@@ -56,7 +56,7 @@ function init() {
   renderer = new T.WebGLRenderer({ canvas: canvas3d, antialias: !_leve, alpha: true, powerPreference: 'high-performance' });
   renderer.setPixelRatio(_leve ? 1 : Math.min(window.devicePixelRatio, 2));
   renderer.shadowMap.enabled = !_leve;
-  renderer.shadowMap.type = T.PCFSoftShadowMap;
+  renderer.shadowMap.type = T.PCFShadowMap;
   renderer.outputColorSpace = T.SRGBColorSpace;
   _resize();
 
@@ -92,9 +92,9 @@ function _buildLights() {
   if (_sunLight.castShadow) {
     _sunLight.shadow.mapSize.set(1024, 1024);
     _sunLight.shadow.camera.near = 1;
-    _sunLight.shadow.camera.far  = 120;
+    _sunLight.shadow.camera.far = 120;
     _sunLight.shadow.camera.left = _sunLight.shadow.camera.bottom = -40;
-    _sunLight.shadow.camera.right = _sunLight.shadow.camera.top  =  40;
+    _sunLight.shadow.camera.right = _sunLight.shadow.camera.top = 40;
     _sunLight.shadow.bias = -0.001;
   }
   scene.add(_sunLight);
@@ -114,19 +114,19 @@ function mat(hex, opts = {}) {
   }
   return matCache.get(key);
 }
-const MAT_CHAO_TERRA   = mat('#c8b98a');
+const MAT_CHAO_TERRA = mat('#c8b98a');
 const MAT_CHAO_CIMENTO = mat('#b0a898');
-const MAT_CHAO_HERBA   = mat('#6aad4c');
-const MAT_CHAO_AREIA   = mat('#d8c89a');
-const MAT_ESTRADA      = mat('#404040');
-const MAT_FAIXA        = mat('#ffffff');
-const MAT_PAREDE       = mat('#d8c8a8');
-const MAT_TELHADO_ZC   = mat('#8a7a68');
-const MAT_TELHADO_PL   = mat('#a09080');
-const MAT_TELHADO_TL   = mat('#c05030');
-const MAT_VIDRO        = mat('#89cff0', { alpha: 0.4, double: true });
-const MAT_PORTA3D      = mat('#8b4513');
-const MAT_SOMBRA       = mat('#000000', { alpha: 0.18, double: true });
+const MAT_CHAO_HERBA = mat('#6aad4c');
+const MAT_CHAO_AREIA = mat('#d8c89a');
+const MAT_ESTRADA = mat('#404040');
+const MAT_FAIXA = mat('#ffffff');
+const MAT_PAREDE = mat('#d8c8a8');
+const MAT_TELHADO_ZC = mat('#8a7a68');
+const MAT_TELHADO_PL = mat('#a09080');
+const MAT_TELHADO_TL = mat('#c05030');
+const MAT_VIDRO = mat('#89cff0', { alpha: 0.4, double: true });
+const MAT_PORTA3D = mat('#8b4513');
+const MAT_SOMBRA = mat('#000000', { alpha: 0.18, double: true });
 
 /* ── helpers geométricos ───────────────────────────────────── */
 
@@ -159,7 +159,7 @@ function _buildChao(cena) {
       ? '#d8c89a'
       : spec?.chao?.base || '#c8b98a';
 
-  const geo  = new T.PlaneGeometry(W, H);
+  const geo = new T.PlaneGeometry(W, H);
   const mesh = new T.Mesh(geo, mat(corChao));
   mesh.rotation.x = -Math.PI / 2;
   mesh.position.set(W / 2, 0, H / 2);
@@ -175,15 +175,15 @@ function _buildChao(cena) {
 
     for (let q = 0; q <= grade; q++) {
       const px = q * TileSz;
-      const ew  = new T.PlaneGeometry(1.6, H);
-      const em  = new T.Mesh(ew, mat(corE));
+      const ew = new T.PlaneGeometry(1.6, H);
+      const em = new T.Mesh(ew, mat(corE));
       em.rotation.x = -Math.PI / 2;
       em.position.set(px + 0.8, 0.01, H / 2);
       em.receiveShadow = true;
       em.userData.chao = true;
       scene.add(em);
 
-      const eh  = new T.PlaneGeometry(W, 1.6);
+      const eh = new T.PlaneGeometry(W, 1.6);
       const em2 = new T.Mesh(eh, mat(corE));
       em2.rotation.x = -Math.PI / 2;
       em2.position.set(W / 2, 0.01, px + 0.8);
@@ -236,7 +236,7 @@ function _buildObjetos(cena) {
 
 function _makeEdificio(o) {
   const g = new T.Group();
-  const hPx  = (o.h || 24) * 0.03;  // px → unidades Three.js
+  const hPx = (o.h || 24) * 0.03;
   const w = o.w || 3, d = o.d || 3;
 
   /* paredes */
@@ -249,8 +249,8 @@ function _makeEdificio(o) {
 
   /* telhado */
   const tCor = o.telhado === 'zinco' ? '#8a7a68'
-             : o.telhado === 'telha' ? '#c05030'
-             : '#a09080';
+    : o.telhado === 'telha' ? '#c05030'
+      : '#a09080';
   const tg = new T.BoxGeometry(w + 0.1, 0.12, d + 0.1);
   const tm = new T.Mesh(tg, mat(tCor));
   tm.position.set(w / 2, hPx + 0.06, d / 2);
@@ -297,14 +297,12 @@ function _makeMovel(o) {
 function _makeDecor(o) {
   const g = new T.Group();
   if (o.tipo === 'palmeira' || o.tipo === 'arvore' || o.tipo === 'baobab') {
-    /* tronco */
     const tg = new T.CylinderGeometry(0.1, 0.14, 1.2, _leve ? 5 : 8);
     const tm = new T.Mesh(tg, mat(o.tipo === 'palmeira' ? '#8b6914' : '#6b4f28'));
     tm.position.y = 0.6;
     tm.castShadow = !_leve;
     g.add(tm);
 
-    /* copa */
     const cg = new T.SphereGeometry(o.tipo === 'baobab' ? 0.9 : 0.6, _leve ? 5 : 8, _leve ? 4 : 6);
     const cm = new T.Mesh(cg, mat(o.tipo === 'palmeira' ? '#3d8c40' : '#2d7030'));
     cm.position.y = o.tipo === 'palmeira' ? 1.5 : 1.3;
@@ -329,12 +327,10 @@ function _makeEscada(o) {
 
 function _makeCandeeiro(o) {
   const g = new T.Group();
-  /* poste */
   const pg = new T.CylinderGeometry(0.04, 0.04, 2.0, 5);
   const pm = new T.Mesh(pg, mat('#404040'));
   pm.position.set(0.5, 1.0, 0.5);
   g.add(pm);
-  /* luz pontual */
   if (!_leve) {
     const pl = new T.PointLight(0xffe0a0, 1.2, 8);
     pl.position.set(0.5, 2.1, 0.5);
@@ -351,7 +347,6 @@ function _makeVeiculo(o) {
   corpo.position.set(w / 2, 0.4, d / 2);
   corpo.castShadow = !_leve;
   g.add(corpo);
-  /* tecto */
   const tecto = box(w * 0.65, 0.35, d * 0.5, mat(o.cor || '#3d7cc9'));
   tecto.position.set(w / 2, 0.83, d / 2);
   g.add(tecto);
@@ -360,13 +355,13 @@ function _makeVeiculo(o) {
 }
 
 /* ── pessoas ─────────────────────────────────────────────────── */
-const PELES = ['#FFDBB4','#C68642','#8D5524','#4A2912','#F1C27D','#E8A87C','#7B4F3A','#A0522D'];
+const PELES = ['#FFDBB4', '#C68642', '#8D5524', '#4A2912', '#F1C27D', '#E8A87C', '#7B4F3A', '#A0522D'];
 
 function _pessoaCor(camada, ap) {
-  if (camada === 'pele')   return PELES[ap.pele ?? 3] || PELES[3];
-  if (camada === 'cima')   return ap.camisa  || '#e0313f';
-  if (camada === 'baixo')  return ap.calca   || '#2a3b55';
-  if (camada === 'cabelo') return ap.corCabelo ? '#' + ap.corCabelo.replace('#','') : '#1a0a00';
+  if (camada === 'pele') return PELES[ap.pele ?? 3] || PELES[3];
+  if (camada === 'cima') return ap.camisa || '#e0313f';
+  if (camada === 'baixo') return ap.calca || '#2a3b55';
+  if (camada === 'cabelo') return ap.corCabelo ? '#' + String(ap.corCabelo).replace('#', '') : '#1a0a00';
   return null;
 }
 
@@ -388,7 +383,6 @@ function _buildPessoa(id, ap) {
     return rig;
   } catch (e) {
     console.warn('mundo3d: pessoaRig falhou', e);
-    /* fallback: simples cápsula */
     const g = new T.Group();
     const corpo = box(0.4, 1.0, 0.25, mat(ap.camisa || '#e0313f'));
     corpo.position.y = 0.5;
@@ -412,7 +406,6 @@ function _atualizarPessoas(lista, noite) {
     const apStr = JSON.stringify(p.ap || {});
     let entry = _pessoaMesh.get(id);
 
-    /* reconstruir se a aparência mudou */
     if (!entry || entry.ap !== apStr) {
       if (entry) scene.remove(entry.rig);
       entry = null;
@@ -421,17 +414,14 @@ function _atualizarPessoas(lista, noite) {
     const rig = entry ? entry.rig : _buildPessoa(id, p.ap || {});
     if (!rig) continue;
 
-    /* posição */
     rig.position.set(p.x, 0, p.y);
 
-    /* rotação a partir de dir/d8 */
     if (p.d8 != null) {
       rig.rotation.y = -(p.d8 * Math.PI / 4) + Math.PI;
     } else {
       rig.rotation.y = p.dir < 0 ? Math.PI : 0;
     }
 
-    /* animação de andar */
     if (typeof rig.userData.animar === 'function') {
       rig.userData.animar(p.t || 0, p.andando || false, p.pose?.tipo || null);
     }
@@ -439,7 +429,6 @@ function _atualizarPessoas(lista, noite) {
     rig.visible = true;
   }
 
-  /* esconder personagens que saíram */
   for (const [id, entry] of _pessoaMesh) {
     if (!vivos.has(id)) entry.rig.visible = false;
   }
@@ -449,7 +438,7 @@ function _atualizarPessoas(lista, noite) {
 function _posicionarCamera(cam, cena) {
   const alvoX = cam.x + (cena?.W || 10) * 0.0;
   const alvoZ = cam.y + (cena?.H || 10) * 0.0;
-  const alvo  = new T.Vector3(alvoX, 0, alvoZ);
+  const alvo = new T.Vector3(alvoX, 0, alvoZ);
 
   const dist = CAM_DIST / Math.max(0.45, cam.z);
   const ex = alvoX + Math.sin(_angulo) * dist;
@@ -479,12 +468,11 @@ function escolher(sx, sy, npcs) {
   if (!renderer || !scene || !camera) return {};
 
   const ndc = new T.Vector2(
-    (sx / innerWidth)  * 2 - 1,
+    (sx / innerWidth) * 2 - 1,
     -(sy / innerHeight) * 2 + 1,
   );
   raycaster.setFromCamera(ndc, camera);
 
-  /* verificar pessoas */
   for (const p of npcs) {
     const entry = _pessoaMesh.get(p.id ?? 'eu');
     if (!entry || !entry.rig.visible) continue;
@@ -492,7 +480,6 @@ function escolher(sx, sy, npcs) {
     if (hits.length) return { pessoa: p };
   }
 
-  /* verificar objetos */
   const objs = [];
   _predioMesh.forEach(g => objs.push(g));
   const hits = raycaster.intersectObjects(objs, true);
@@ -502,12 +489,10 @@ function escolher(sx, sy, npcs) {
     if (g.userData.obj3d) {
       const o = g.userData.obj3d;
       if (o.kind === 'escada' || o.spec || o.kind === 'movel' || o.kind === 'veiculo') return { obj: o };
-      /* porta: face frontal (z=0) de qualquer prédio */
       if ((o.kind === 'predio' || o.kind === 'casinha') && hits[0].point.z < o.y + 0.5) return { obj: PORTA };
     }
   }
 
-  /* chão */
   const chaoMeshes = scene.children.filter(c => c.userData.chao);
   const hitsChao = raycaster.intersectObjects(chaoMeshes);
   if (hitsChao.length) {
@@ -520,11 +505,9 @@ function escolher(sx, sy, npcs) {
 
 /* ── arrastar câmara (pan) ────────────────────────────────────── */
 function arrastar(dx, dy, zoom) {
-  /* converte movimento de ecrã (px) em movimento de mundo */
   const escala = CAM_DIST / (zoom * 400);
   window._cam3dPanX = (window._cam3dPanX || 0) - dx * escala;
   window._cam3dPanY = (window._cam3dPanY || 0) - dy * escala;
-  /* jogo.js controla cam.x/cam.y; comunicamos de volta via callback */
   if (typeof _onPan === 'function') _onPan(dx * escala, dy * escala);
 }
 let _onPan = null;
@@ -562,25 +545,22 @@ function normal() {
 
 /* ── quadro principal ────────────────────────────────────────── */
 function quadro({ cena, eu, lista, cam, t, noite, tempo, deco }) {
-  /* inicializar se for a primeira chamada */
   if (!renderer) init();
   if (!renderer) return;
 
   renderer.domElement.style.display = '';
 
-  /* reconstruir cena se mudou */
   if (cena.id !== _cenaId || cena.tipo + (cena.andar || 0) !== (_cenaTag || '')) {
-    _cenaId  = cena.id;
+    _cenaId = cena.id;
     _cenaTag = cena.tipo + (cena.andar || 0);
     _buildChao(cena);
     _buildObjetos(cena);
   }
 
-  /* iluminação noturna */
   if (_ambLight && _sunLight) {
     const n = noite || 0;
     _ambLight.intensity = 0.55 - n * 0.35;
-    _sunLight.intensity = 1.1  - n * 0.8;
+    _sunLight.intensity = 1.1 - n * 0.8;
     scene.background = noite > 0.3
       ? new T.Color(0x0a0820)
       : (cena.tipo === 'casa' || cena.tipo === 'interior')
@@ -588,26 +568,20 @@ function quadro({ cena, eu, lista, cam, t, noite, tempo, deco }) {
         : new T.Color(0x87ceeb);
   }
 
-  /* câmara */
   _posicionarCamera(cam, cena);
-
-  /* pessoas */
   _atualizarPessoas(lista, noite);
-
-  /* render */
   renderer.render(scene, camera);
 
-  /* métricas */
   _fpsN++;
   const now = performance.now();
   if (now - _fpsT >= 1000) {
-    info.fps   = Math.round(_fpsN * 1000 / (now - _fpsT));
+    info.fps = Math.round(_fpsN * 1000 / (now - _fpsT));
     _fpsN = 0; _fpsT = now;
     const ren = renderer.info;
     info.calls = ren.render.calls;
-    info.tris  = ren.render.triangles;
-    info.geo   = ren.memory.geometries;
-    info.tex   = ren.memory.textures;
+    info.tris = ren.render.triangles;
+    info.geo = ren.memory.geometries;
+    info.tex = ren.memory.textures;
   }
 }
 let _cenaTag = '';
