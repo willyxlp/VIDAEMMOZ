@@ -50,7 +50,7 @@ function init() {
 
   const canvas3d = document.createElement('canvas');
   canvas3d.id = 'tela3d';
-  canvas3d.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;';
+  canvas3d.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;';
   document.body.prepend(canvas3d);
 
   renderer = new T.WebGLRenderer({ canvas: canvas3d, antialias: !_leve, alpha: true, powerPreference: 'high-performance' });
@@ -561,11 +561,7 @@ function quadro({ cena, eu, lista, cam, t, noite, tempo, deco }) {
     const n = noite || 0;
     _ambLight.intensity = 0.55 - n * 0.35;
     _sunLight.intensity = 1.1 - n * 0.8;
-    scene.background = noite > 0.3
-      ? new T.Color(0x0a0820)
-      : (cena.tipo === 'casa' || cena.tipo === 'interior')
-        ? new T.Color(0x1a1510)
-        : new T.Color(0x87ceeb);
+    scene.background = null; // transparente — mapa 2D mostra por baixo
   }
 
   _posicionarCamera(cam, cena);
