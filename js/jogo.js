@@ -954,11 +954,11 @@ async function mobiliaDaCena(f) {
   return data || [];
 }
 // é teu (ou do teu lar / cônjuge) e por isso podes mexer-lhe? (os móveis do senhorio só se usam)
-const meuMovel = mb => mb && (mb.jogador_id === uid || mb.jogador_id === donoLar() || (casal && mb.jogador_id === casal.id));
+const meuMovel = mb => mb && (mb.dono === uid || mb.dono === donoLar() || (casal && mb.dono === casal.id));
 async function carregarMinhaMobilia(dono) {
   const id = dono || (cena?.tipo === 'casa' && casal && cena.dono?.id === casal.id ? casal.id : null) || donoLar() || uid;
   const pm = id === uid ? pre('mobilia') : null;
-  const { data } = pm ? { data: pm.v } : await sb.from('mobilia').select('*').eq('jogador_id', id).order('id');
+  const { data } = pm ? { data: pm.v } : await sb.from('mobilia').select('*').eq('dono', id).order('id');
   minhaMobilia = data || [];
 }
 

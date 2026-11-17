@@ -3,8 +3,8 @@
 // O objeto devolvido por rtCanal() imita o canal da Supabase (on / subscribe / track / untrack / send / presenceState),
 // por isso o resto do jogo quase não muda. Se o servidor falhar 2 vezes seguidas, o jogo volta sozinho à Supabase.
 // Ligar/desligar para todos: RT_PARTE (0–100 % dos jogadores). Testar à mão: ?rt=1 (liga só para ti) · ?rt=0 (desliga).
-const RT_URL_VIVO = 'wss://vnb-tempo-real.vidanabanda.workers.dev';
-const RT_PARTE = 100;   // % dos jogadores no servidor novo (todos na mesma sala têm de usar o mesmo: 0 ou 100)
+const RT_URL_VIVO = '';   // servidor Angola desligado — Vida em Moz usa Supabase directamente
+const RT_PARTE = 0;   // % dos jogadores no servidor novo (todos na mesma sala têm de usar o mesmo: 0 ou 100)
 const rtLocal = /^(127\.0\.0\.1|localhost)$/.test(location.hostname);
 try { const q = new URLSearchParams(location.search).get('rt'); if (q === '1' || q === '0') localStorage.setItem('vel_rt', q); } catch { }
 const rtLer = k => { try { return localStorage.getItem(k); } catch { return null; } };
@@ -132,7 +132,7 @@ function rtPessoalFechar() { const c = _rtP; _rtP = null; try { c?.fechar(); } c
 // 9 nov (dono: «I need to be able to hold 10k people») — via rápida: os pedidos mais frequentes vão pelo canal pessoal ao nosso
 // servidor, que fala direto com a base (Hyperdrive), sem passar pelo servidor da Supabase que encravou às 14:00.
 // Se o canal não estiver pronto, a função não estiver na lista, ou o servidor disser que não pode, vai pela Supabase como antes.
-const RT_RAPIDO_PARTE = 100;   // % dos jogadores na via rápida (sobe aos poucos: 0 → 10 → 50 → 100). Testar: ?rapido=1 / ?rapido=0
+const RT_RAPIDO_PARTE = 0;   // % dos jogadores na via rápida (sobe aos poucos: 0 → 10 → 50 → 100). Testar: ?rapido=1 / ?rapido=0
 const RT_RAPIDAS = new Set(['pulso', 'objetivos', 'diario', 'comer', 'escolher_sala', 'perfil_de', 'registo_criminal_de', 'meus_roubos', 'estado',
   'usar_movel', 'trabalhar', 'grupos_resumo', 'amigos_salas', 'ludo_estado', 'cozinhar2', 'dormir', 'biscato', 'estudar']);
 try { const q = new URLSearchParams(location.search).get('rapido'); if (q === '1' || q === '0') localStorage.setItem('vel_rapido', q); } catch { }

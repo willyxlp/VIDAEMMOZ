@@ -1,0 +1,13 @@
+{
+  "name": "Vida em Moz",
+  "short_name": "VemMoz",
+  "description": "A vida é uma luta — simulação de vida em Maputo",
+  "start_url": "/VIDAEMMOZ/",
+  "display": "standalone",
+  "background_color": "#1a1a2e",
+  "theme_color": "#e63946",
+  "icons": [
+    { "src": "img/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "img/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
