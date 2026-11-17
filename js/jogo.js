@@ -619,7 +619,10 @@ function pre(k) { if (_pre && k in _pre) { const v = _pre[k]; delete _pre[k]; re
 async function carregarDados() {
   // 8 nov (0fe-2): primeiro o catálogo guardado no site (/api/catalogo, 5 min na rede da Vercel) — 0 pedidos à base;
   // se falhar, lê da base como antes.
+  // github.io não tem /api/ — salta logo para a base sem gerar erros 404
+  const temApi = !location.hostname.endsWith('github.io');
   try {
+    if (!temApi) throw new Error('sem-api');
     const ctl = new AbortController(); const tm = setTimeout(() => ctl.abort(), 6000);
     const r = await fetch('/api/catalogo', { signal: ctl.signal }); clearTimeout(tm);
     const c = r.ok ? await r.json() : null;
@@ -918,8 +921,10 @@ let _publico = null, _publicoEm = 0, _publicoP = null;
 function publico() {
   if (_publico && Date.now() - _publicoEm < 30000) return Promise.resolve(_publico);
   if (_publicoP) return _publicoP;
-  _publicoP = fetch('/api/publico' + (window.VEL_SUPA ? '?teste=1' : ''))
-    .then(r => r.ok ? r.json() : null, () => null).then(d => { _publicoP = null; if (d?.gerado) { _publico = d; _publicoEm = Date.now(); } return d?.gerado ? d : null; });
+  // github.io não tem /api/ — resolve logo null para cair no fallback da base
+  const _apiUrl = location.hostname.endsWith('github.io') ? null : ('/api/publico' + (window.VEL_SUPA ? '?teste=1' : ''));
+  _publicoP = (_apiUrl ? fetch(_apiUrl) : Promise.resolve(null))
+    .then(r => r ? (r.ok ? r.json() : null) : null, () => null).then(d => { _publicoP = null; if (d?.gerado) { _publico = d; _publicoEm = Date.now(); } return d?.gerado ? d : null; });
   return _publicoP;
 }
 async function verManutencao(dado) {
@@ -1497,7 +1502,10 @@ const imagensOutdoor = new Map();    // url -> Image
 // 9 nov: outdoors e músicas vêm do catálogo do site (/api/catalogo, guardado na Vercel) — sem pedidos à base; se falhar, lê da base
 async function catalogoSite(campo) {
   if (D[campo]) { const v = D[campo]; delete D[campo]; return v; }   // o do arranque, uma vez
-  try { const r = await fetch('/api/catalogo'); const c = r.ok ? await r.json() : null; return c && Array.isArray(c[campo]) ? c[campo] : null; } catch { return null; }
+  try {
+    if (location.hostname.endsWith('github.io')) return null;
+    const r = await fetch('/api/catalogo'); const c = r.ok ? await r.json() : null; return c && Array.isArray(c[campo]) ? c[campo] : null;
+  } catch { return null; }
 }
 async function carregarOutdoors() {
   const cs = await catalogoSite('outdoors');

@@ -71,7 +71,7 @@ if (window.VEL_TESTE) document.addEventListener('DOMContentLoaded', () => {   //
 // Aviso que não depende da base de dados (dono, 5 nov 21:24: «the game is upgrading rn, so let everyone know»):
 // /aviso.json no site; quando "ativo", mostra uma faixa no topo — funciona mesmo com a base a reiniciar.
 (function avisoSite() {
-  const ver = () => fetch('/aviso.json?t=' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.json() : null).then(a => {
+  const ver = () => fetch('./aviso.json?t=' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.json() : null).then(a => {
     let f = document.getElementById('faixaAviso');
     if (!a || !a.ativo) { f && f.remove(); return; }
     let l = 'pt'; try { l = localStorage.getItem('vel_lingua') || (navigator.language || 'pt').slice(0, 2); } catch { }
