@@ -238,45 +238,117 @@ function _makeEdificio(o) {
   const g = new T.Group();
   const hPx = (o.h || 24) * 0.03;
   const w = o.w || 3, d = o.d || 3;
+  const corBase = o.cor || '#d4c9a8';
 
-  /* paredes */
-  const wg = new T.BoxGeometry(w, hPx, d);
-  const wm = new T.Mesh(wg, mat(o.cor || '#d8c8a8'));
+  /* paredes principais */
+  const wm = new T.Mesh(new T.BoxGeometry(w, hPx, d), mat(corBase));
   wm.position.set(w / 2, hPx / 2, d / 2);
   wm.castShadow = !_leve;
   wm.receiveShadow = true;
   g.add(wm);
 
+  /* faixa de base (sócalo) — cor mais escura */
+  const socCor = _shadeHex(corBase, -0.18);
+  const soc = new T.Mesh(new T.BoxGeometry(w + 0.02, 0.18, d + 0.02), mat(socCor));
+  soc.position.set(w / 2, 0.09, d / 2);
+  g.add(soc);
+
+  /* cornija no topo da parede */
+  const corCor = _shadeHex(corBase, 0.12);
+  const corn = new T.Mesh(new T.BoxGeometry(w + 0.08, 0.1, d + 0.08), mat(corCor));
+  corn.position.set(w / 2, hPx - 0.05, d / 2);
+  g.add(corn);
+
   /* telhado */
-  const tCor = o.telhado === 'zinco' ? '#8a7a68'
-    : o.telhado === 'telha' ? '#c05030'
-      : '#a09080';
-  const tg = new T.BoxGeometry(w + 0.1, 0.12, d + 0.1);
-  const tm = new T.Mesh(tg, mat(tCor));
-  tm.position.set(w / 2, hPx + 0.06, d / 2);
+  const tCor = o.telhado === 'zinco' ? '#7a8a78'
+    : o.telhado === 'telha' ? '#b04828'
+    : o.telhado === 'laje' ? '#9a9a8a'
+    : '#8a9888';
+  const tm = new T.Mesh(new T.BoxGeometry(w + 0.14, 0.14, d + 0.14), mat(tCor));
+  tm.position.set(w / 2, hPx + 0.07, d / 2);
   tm.castShadow = !_leve;
   g.add(tm);
 
-  /* toldo */
-  if (o.toldo) {
-    const tdg = new T.BoxGeometry(w * 0.6, 0.06, 0.6);
-    const tdm = new T.Mesh(tdg, mat(o.toldo));
-    tdm.position.set(w / 2, hPx * 0.6, 0.3);
-    g.add(tdm);
+  if (!_leve) {
+    /* janelas em grelha na fachada frontal (z=0) */
+    const nCols = Math.max(1, Math.round(w / 1.1));
+    const nRows = Math.max(1, Math.round((hPx - 0.3) / 0.75));
+    const jW = Math.min(0.42, (w - 0.3) / nCols * 0.7);
+    const jH = 0.38;
+    for (let row = 0; row < nRows; row++) {
+      for (let col = 0; col < nCols; col++) {
+        const jm = new T.Mesh(new T.PlaneGeometry(jW, jH), MAT_VIDRO);
+        jm.position.set(
+          (col + 0.5) * (w / nCols) + (w / nCols - jW) * 0.5 - (w / nCols - jW) * 0.5,
+          0.28 + row * 0.75 + jH / 2,
+          0.015
+        );
+        g.add(jm);
+
+        /* moldura de janela */
+        const moldura = new T.Mesh(
+          new T.BoxGeometry(jW + 0.08, jH + 0.08, 0.04),
+          mat(_shadeHex(corBase, -0.1))
+        );
+        moldura.position.set(jm.position.x, jm.position.y, 0.008);
+        g.add(moldura);
+      }
+    }
+
+    /* janelas na fachada lateral (x=0) */
+    const nColsL = Math.max(1, Math.round(d / 1.1));
+    for (let row = 0; row < nRows; row++) {
+      for (let col = 0; col < nColsL; col++) {
+        const jm2 = new T.Mesh(new T.PlaneGeometry(jW, jH), MAT_VIDRO);
+        jm2.rotation.y = Math.PI / 2;
+        jm2.position.set(
+          0.015,
+          0.28 + row * 0.75 + jH / 2,
+          (col + 0.5) * (d / nColsL)
+        );
+        g.add(jm2);
+      }
+    }
+
+    /* porta na fachada frontal (centrada, piso térreo) */
+    const portaW = Math.min(0.55, w * 0.22);
+    const portaH = 0.65;
+    const portaMat = mat(_shadeHex(corBase, -0.3));
+    const porta = new T.Mesh(new T.PlaneGeometry(portaW, portaH), portaMat);
+    porta.position.set(w / 2, portaH / 2 + 0.02, 0.016);
+    g.add(porta);
+
+    /* degrau da entrada */
+    const deg = new T.Mesh(new T.BoxGeometry(portaW + 0.3, 0.06, 0.3), mat(socCor));
+    deg.position.set(w / 2, 0.03, -0.1);
+    g.add(deg);
   }
 
-  /* janela simples */
-  if (!_leve && hPx > 0.5) {
-    for (let i = 0; i < Math.min(w, 3); i++) {
-      const jg = new T.PlaneGeometry(0.4, 0.5);
-      const jm = new T.Mesh(jg, MAT_VIDRO);
-      jm.position.set(0.5 + i * (w / Math.min(w, 3)), hPx * 0.55, 0.01);
-      g.add(jm);
+  /* toldo / varanda */
+  if (o.toldo) {
+    const tdm = new T.Mesh(new T.BoxGeometry(w * 0.65, 0.06, 0.55), mat(o.toldo));
+    tdm.position.set(w / 2, hPx * 0.55, 0.28);
+    g.add(tdm);
+    /* suportes do toldo */
+    for (const sx of [-w * 0.25, w * 0.25]) {
+      const sup = new T.Mesh(new T.CylinderGeometry(0.025, 0.025, 0.3, 4), mat(o.toldo));
+      sup.position.set(w / 2 + sx, hPx * 0.55 - 0.18, 0.5);
+      g.add(sup);
     }
   }
 
   g.position.set(o.x, 0, o.y);
   return g;
+}
+
+/* helper: clarear/escurecer cor hex */
+function _shadeHex(hex, amt) {
+  const c = hex.replace('#', '');
+  const num = parseInt(c, 16);
+  const r = Math.min(255, Math.max(0, (num >> 16) + Math.round(255 * amt)));
+  const gv = Math.min(255, Math.max(0, ((num >> 8) & 0xff) + Math.round(255 * amt)));
+  const b = Math.min(255, Math.max(0, (num & 0xff) + Math.round(255 * amt)));
+  return '#' + [r, gv, b].map(x => x.toString(16).padStart(2, '0')).join('');
 }
 
 function _makeMovel(o) {
@@ -366,21 +438,30 @@ function _pessoaCor(camada, ap) {
 }
 
 function _buildPessoa(id, ap) {
+  // pessoaRig usa Z como eixo "cima" (Z=0 pés, Z≈1.3 cabeça).
+  // O mundo 3D usa Y como cima. Envolve o rig num pivot e roda -90° em X
+  // para que Z-cima → Y-cima, ficando o personagem de pé no plano do chão.
+  // O pivot é o que vai para a cena e recebe posição/rotação de direcção.
   try {
-    const rig = pessoaRig(T, {
+    const inner = pessoaRig(T, {
       roupa: Math.min(6, ap.roupa || 0),
       cabelo: ap.cabelo ?? 1,
       acc: ap.acess || [],
     });
-    rig.traverse(m => {
+    inner.traverse(m => {
       if (!m.isMesh) return;
       const c = _pessoaCor(m.material.userData.camada, ap);
       if (c) m.material = m.material.clone(), m.material.color.set(c);
       m.castShadow = !_leve;
     });
-    scene.add(rig);
-    _pessoaMesh.set(id, { rig, ap: JSON.stringify(ap) });
-    return rig;
+    inner.rotation.x = -Math.PI / 2;  // Z-up → Y-up: personagem fica de pé
+    const pivot = new T.Group();
+    pivot.add(inner);
+    // expor userData do inner no pivot para animações e cores
+    pivot.userData = inner.userData;
+    scene.add(pivot);
+    _pessoaMesh.set(id, { rig: pivot, ap: JSON.stringify(ap) });
+    return pivot;
   } catch (e) {
     console.warn('mundo3d: pessoaRig falhou', e);
     const g = new T.Group();
@@ -414,6 +495,8 @@ function _atualizarPessoas(lista, noite) {
     const rig = entry ? entry.rig : _buildPessoa(id, p.ap || {});
     if (!rig) continue;
 
+    if (!entry) rig.scale.setScalar(1.6); // VEM: personagens estavam pequenos vs edifícios
+    // posiciona no centro do tile (p.x/p.y já são tx+0.5, ty+0.5)
     rig.position.set(p.x, 0, p.y);
 
     if (p.d8 != null) {

@@ -40,8 +40,8 @@ const APPS = [
 ];
 const DOCK = ['objetivos', 'social', 'mensagens', 'noticias'];
 
-const horaTexto = () => new Date(Date.now() + 3600e3).toISOString().slice(11, 16);   // Luanda = UTC+1
-const dataTexto = () => { try { const t = new Date().toLocaleDateString(typeof lingua !== 'undefined' && lingua !== 'pt' ? lingua : 'pt-PT', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'Africa/Luanda' }); return t.charAt(0).toUpperCase() + t.slice(1); } catch { return ''; } };
+const horaTexto = () => new Date(Date.now() + 7200e3).toISOString().slice(11, 16);   // Maputo = UTC+2
+const dataTexto = () => { try { const t = new Date().toLocaleDateString(typeof lingua !== 'undefined' && lingua !== 'pt' ? lingua : 'pt-MZ', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'Africa/Maputo' }); return t.charAt(0).toUpperCase() + t.slice(1); } catch { return ''; } };
 function naoLidas() { const l = ls.get('vel_lido_' + uid) || ''; return (eventos || []).filter(e => e.criado_em > l).length; }
 function marcarLidas() { ls.set('vel_lido_' + uid, new Date().toISOString()); atualizarPontoTel(); }
 function atualizarPontoTel() { $('#telDot')?.classList.toggle('hide', !(pedidosPendentes.length || (typeof dmNaoLidas !== 'undefined' && dmNaoLidas) || naoLidas() || (typeof canalNaoLidos === 'function' && canalNaoLidos()) || (typeof smsNovas !== 'undefined' && smsNovas) || J?.detencao || (typeof premiosPorRecolher === 'function' && premiosPorRecolher()))); }

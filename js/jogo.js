@@ -1,5 +1,5 @@
 /* ============================================================
-   Vida na Banda — o jogo
+   Vida em Moz — o jogo
    ============================================================ */
 const SUPA_URL = window.VEL_SUPA?.url || '';   // site de teste → base de teste (ver erros.js)
 const SUPA_KEY = window.VEL_SUPA?.key || '';
@@ -529,7 +529,7 @@ function mostrarNascimento(n, depois) {
       el.appendChild(p); setTimeout(() => p.remove(), 1400);
     }
     const bairroNome = (D.bairros || []).find(b => b.id === n.bairro)?.nome || n.bairro;
-    const origem = n.provincia && n.provincia !== 'Luanda' ? ` A tua família é de <b>${esc(n.provincia)}</b>.` : '';
+    const origem = n.provincia && n.provincia !== 'Maputo' ? ` A tua família é de <b>${esc(n.provincia)}</b>.` : '';
     const txt = el.querySelector('#nascTxt');
     txt.innerHTML = `<p class="nascS">${esc(fim.s)}</p>
       <p>Nasceste filho/a de <b>${esc(n.pais)}</b>.${origem} Cresceste em <b>${esc(bairroNome)}</b>.</p>
@@ -669,7 +669,7 @@ function pedirNomeNovo() {
   v.style.cssText = 'position:fixed;inset:0;z-index:90;display:grid;place-items:center;background:rgba(10,8,6,.72);padding:16px';
   v.innerHTML = `<div class="card" style="max-width:360px;width:100%;background:var(--bg,#fff);color:var(--ink,#141012);border:2px solid #141012;border-radius:16px;padding:18px;box-shadow:4px 4px 0 #141012">
     <h3 style="margin:0 0 8px">🪪 ${esc(tr('Muda o teu nome'))}</h3>
-    <p class="m" style="margin:0 0 6px">${esc(tr('O teu nome não é permitido no Vida na Banda, por isso tens de escolher outro para continuar a jogar.'))}</p>
+    <p class="m" style="margin:0 0 6px">${esc(tr('O teu nome não é permitido no Vida em Moz, por isso tens de escolher outro para continuar a jogar.'))}</p>
     <p class="m" style="margin:0 0 12px"><b>${esc(tr('Motivo'))}:</b> ${esc(tr(J.nome_forcado_motivo))}</p>
     <label for="nfNome" style="font-weight:700;font-size:13px">${esc(tr('Nome novo'))}</label>
     <input class="inp" id="nfNome" maxlength="16" autocomplete="off" placeholder="${esc(tr('3 a 16 letras, números ou _'))}" style="margin:4px 0 8px;width:100%">
@@ -751,7 +751,7 @@ async function esperarNaFila() {
     _filaPos0 = Math.max(_filaPos0 || 0, r.posicao);
     { const fa = document.getElementById('faixaAviso'), co = caixa.querySelector('.fv-corpo'); if (co) co.style.paddingTop = fa ? Math.round(fa.getBoundingClientRect().bottom + 16) + 'px' : ''; }   // a faixa de aviso não tapa o topo
     const prog = Math.max(4, Math.min(100, Math.round((1 - (r.posicao - 1) / Math.max(1, _filaPos0)) * 100)));
-    caixa.querySelector('.fila-info').innerHTML = `<div class="fv-topo"><b>Vida na Banda</b><span class="fv-chip"><i></i>${esc(tr('Lugar guardado'))}</span></div>
+    caixa.querySelector('.fila-info').innerHTML = `<div class="fv-topo"><b>Vida em Moz</b><span class="fv-chip"><i></i>${esc(tr('Lugar guardado'))}</span></div>
       ${_filaPagou ? `<p class="fv-pago">${esc(tr('Pagamento recebido! A abrir o jogo…'))}</p>` : ''}
       <div class="fv-cartao"><div class="fv-sob">${esc(tr('O jogo está cheio'))}</div>
         <div class="fv-num-t">${esc(tr('És o número'))}</div><div class="fv-num">${Number(r.posicao).toLocaleString('pt-PT')}</div><div class="fv-num-t">${esc(tr('na fila'))}</div>
@@ -933,7 +933,7 @@ async function verManutencao(dado) {
   const hora = em.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   const txt = em.getTime() <= agora
     ? tr('🔧 A aumentar a capacidade do jogo por causa do número de jogadores (cerca de {0} min). Obrigado por jogares! Se o jogo parar, volta a abrir daqui a pouco.').replace('{0}', m.minutos)
-    : tr('🔧 Às {0} vamos aumentar a capacidade do jogo por causa do número de jogadores (cerca de {1} min). Obrigado por jogares Vida na Banda!').replace('{0}', hora).replace('{1}', m.minutos);
+    : tr('🔧 Às {0} vamos aumentar a capacidade do jogo por causa do número de jogadores (cerca de {1} min). Obrigado por jogares Vida em Moz!').replace('{0}', hora).replace('{1}', m.minutos);
   if (!f) {
     f = document.createElement('div'); f.id = 'faixaManut'; f.setAttribute('role', 'status');
     f.style.cssText = 'position:fixed;left:8px;right:8px;top:calc(8px + env(safe-area-inset-top));z-index:60;padding:10px 14px;border:2px solid #141012;border-radius:12px;background:#ffcb00;color:#141012;font-weight:700;font-size:14px;text-align:center;box-shadow:3px 3px 0 #141012;cursor:pointer';
@@ -1420,8 +1420,8 @@ $('#fecharChat').onclick = () => { $('#chatBox').classList.add('hide'); $('#barr
    DESENHO
    ============================================================ */
 let ultimo = performance.now(), ordemDesenho = [];
-function horaLuanda() { if (typeof window.__horaLuanda === 'number') return window.__horaLuanda; const d = new Date(); return (d.getUTCHours() + 1 + d.getUTCMinutes() / 60) % 24; }   // (os testes podem fixar a hora)
-function escuridao() { const h = horaLuanda(); if (h >= 19.5 || h < 5.5) return 0.48; if (h >= 18) return (h - 18) / 1.5 * 0.48; if (h < 7) return (7 - h) / 1.5 * 0.48; return 0; }
+function horaMaputo() { if (typeof window.__horaMaputo === 'number') return window.__horaMaputo; const d = new Date(); return (d.getUTCHours() + 2 + d.getUTCMinutes() / 60) % 24; }   // (os testes podem fixar a hora)
+function escuridao() { const h = horaMaputo(); if (h >= 19.5 || h < 5.5) return 0.48; if (h >= 18) return (h - 18) / 1.5 * 0.48; if (h < 7) return (7 - h) / 1.5 * 0.48; return 0; }
 
 function loop(now) {
   const ms = now - ultimo, dt = Math.min(0.05, ms / 1000); ultimo = now;
@@ -1655,7 +1655,7 @@ function outdoorHTML(slot) {
   // 0u: a loja de anúncios (escolher o lugar, enviar a imagem e pagar online)
   const pedir = `<a class="btn full ${lista.length ? 'ghost' : ''}" href="/anunciar/?lugar=cidade" target="_blank" rel="noopener">Quero anunciar aqui</a>`;
   if (!lista.length) return `<div class="adLivre"><div class="adLivreT">Este outdoor está livre</div>
-    <p class="m">Queres a tua marca, o teu negócio ou a tua música num outdoor do Vida na Banda? Todos os jogadores que passam por ${esc(bairro(J.bairro)?.nome || 'aqui')} vão ver.</p>${pedir}</div>`;
+    <p class="m">Queres a tua marca, o teu negócio ou a tua música num outdoor do Vida em Moz? Todos os jogadores que passam por ${esc(bairro(J.bairro)?.nome || 'aqui')} vão ver.</p>${pedir}</div>`;
   const cartao = ad => {
     const link = linkSeguro(ad.link);
     return `<div class="adCartao">${ad.imagem ? `<img class="adImg" src="${esc(ad.imagem)}" alt="${esc(ad.marca)}">` : ''}<div class="adMarca" data-sem-traducao>${esc(ad.marca)}</div>${ad.texto ? `<p class="m" data-sem-traducao>${esc(ad.texto)}</p>` : ''}
@@ -2241,7 +2241,7 @@ async function abrirLugar(o) {
   registarVisita(J.bairro, s.nome || '');   // 0y
   if (s.acao.some(a => a.t === 'casa')) h += '<div id="vizinhos"></div>';   // amigos que moram aqui: logo no topo, com o botão Visitar
   const b = bairro(J.bairro), hr = horarioLugar(s), fechado = hr && !hr.aberto;
-  if (fechado) h += `<div class="row lock" id="fechadoAgora" style="margin-top:8px"><span class="e">🌙</span><div class="t"><b>${tr('Fechado agora')}</b><small>${tr(hr.tipo === 'discoteca' ? 'A discoteca abre às {0}h e fecha às {1}h (hora de Luanda).' : 'O bar abre às {0}h e fecha às {1}h (hora de Luanda).').replace('{0}', hr.abre).replace('{1}', hr.fecha)}</small></div></div>`;
+  if (fechado) h += `<div class="row lock" id="fechadoAgora" style="margin-top:8px"><span class="e">🌙</span><div class="t"><b>${tr('Fechado agora')}</b><small>${tr(hr.tipo === 'discoteca' ? 'A discoteca abre às {0}h e fecha às {1}h (hora de Maputo).' : 'O bar abre às {0}h e fecha às {1}h (hora de Maputo).').replace('{0}', hr.abre).replace('{1}', hr.fecha)}</small></div></div>`;
   for (const a of s.acao) {
     if (fechado && (a.t === 'comida' || a.t === 'lazer')) continue;
     if (a.t === 'comida') h += `<div class="sec"><h4>Comer e beber</h4></div><div class="list">${a.ids.map(id => D.comidas.find(c => c.id === id)).filter(Boolean).map(linhaComida).join('')}</div>`;
@@ -2353,7 +2353,7 @@ function verSessao(sessao) {
   const data = { sessao };
   if (data && data.sessao !== SESSAO) {
     const v = document.createElement('div'); v.id = 'outraSessao'; v.className = 'pergunta';
-    v.innerHTML = `<div class="pergCaixa"><p>Abriste o Vida na Banda noutro aparelho ou separador. Só podes jogar num de cada vez.</p><div class="pergBot"><button class="btn">Jogar aqui</button></div></div>`;
+    v.innerHTML = `<div class="pergCaixa"><p>Abriste o Vida em Moz noutro aparelho ou separador. Só podes jogar num de cada vez.</p><div class="pergBot"><button class="btn">Jogar aqui</button></div></div>`;
     v.querySelector('button').onclick = async () => { await sb.rpc('reclamar_sessao', { p_sessao: SESSAO }); v.remove(); location.reload(); };
     document.body.appendChild(v);
   }
@@ -2460,7 +2460,7 @@ function ligarBotoes(el, depois) {
 
 /* ---------- viagens ---------- */
 const MEIOS = {
-  candongueiro: d => ({ p: 150 + Math.round(d * 60 / 50) * 50, en: 8 + Math.round(d * 2), n: 'Candongueiro', e: '🚐' }),
+  candongueiro: d => ({ p: 150 + Math.round(d * 60 / 50) * 50, en: 8 + Math.round(d * 2), n: 'Chapa', e: '🚐' }),
   kupapata: d => ({ p: 300 + Math.round(d * 180 / 50) * 50, en: 5 + Math.round(d), n: 'Kupapata', e: '🏍️' }),
   taxi: d => ({ p: 1000 + Math.round(d * 600 / 100) * 100, en: 3, n: 'Táxi', e: '🚕' }),
   mota: d => ({ p: 100 + Math.round(d * 40 / 50) * 50, en: 4 + Math.round(d), n: 'A tua mota', e: '🛵' }),
@@ -2474,8 +2474,8 @@ const MEIOS = {
   boleia: d => d > 30 ? { p: 0, en: 45, n: 'Boleia de camionista', e: '👍' } : { p: 0, en: 12 + Math.round(d * 2), n: 'Boleia', e: '👍' },   // 27 out: só para quem não tem dinheiro nem para o mais barato
 };
 const AEROPORTOS = ['maianga', 'benguela', 'huambo', 'lubango', 'namibe', 'malanje', 'cabinda'];
-const LINHAS = [['benguela', 'huambo', 'Caminho de Ferro de Benguela'], ['namibe', 'lubango', 'Caminho de Ferro de Moçâmedes'], ['viana', 'malanje', 'Caminho de Ferro de Luanda']];
-const provDe = id => bairro(id)?.provincia || 'Luanda';
+const LINHAS = [['benguela', 'huambo', 'Caminho de Ferro de Benguela'], ['namibe', 'lubango', 'Caminho de Ferro de Moçâmedes'], ['viana', 'malanje', 'Linha de Maputo']];
+const provDe = id => bairro(id)?.provincia || 'Maputo';
 // quem não tem dinheiro nem para o candongueiro (ou o autocarro, para outra província) pode apanhar boleia — ninguém fica preso
 function comBoleia(meios, d, dest) {
   const base = meios.filter(m => m === 'candongueiro' || m === 'autocarro');
@@ -2561,7 +2561,7 @@ function estacaoHTML() {
 }
 function barcoHTML() {
   const dest = bairro(J.bairro === 'mussulo' ? 'ilha' : 'mussulo'); if (!dest) return '';
-  return `<p class="m">Barcos para ${J.bairro === 'mussulo' ? 'a Ilha de Luanda' : 'o Mussulo'}. Com tempestade não saem.</p>` + grelhaDestinos([linhaDestino(dest, ['barco'])]);
+  return `<p class="m">Barcos para ${J.bairro === 'mussulo' ? 'a Catembe' : 'o Mussulo'}. Com tempestade não saem.</p>` + grelhaDestinos([linhaDestino(dest, ['barco'])]);
 }
 // #26 sair de casa direto no teu carro ou avião
 function veiculosLaFora() {
@@ -2604,7 +2604,7 @@ async function garagem(meio) {
   let lista, ent = null;
   if (meio === 'privado') lista = D.bairros.filter(b => b.id !== J.bairro && b.id !== 'cadeia').map(b => linhaDestino(b, ['privado'], b.provincia));
   else {
-    if (J.bairro === 'mussulo') return toast('Estás numa ilha: o carro fica na Ilha de Luanda. Apanha o barco no cais.', 'info', 5000);
+    if (J.bairro === 'mussulo') return toast('Estás numa ilha: o carro fica na Catembe. Apanha o barco no cais.', 'info', 5000);
     // dono 1 nov (bug): quem só tem mota tocava na mota e ia «de carro» → «Ainda não tens carro». Sem carro, vai de mota (só na mesma província).
     meio = temCarro() ? 'carro' : 'mota';
     const destinos = D.bairros.filter(b => b.id !== J.bairro && !['mussulo', 'cadeia', 'cabinda'].includes(b.id) && (meio === 'carro' || provDe(b.id) === aqui));
@@ -2649,7 +2649,7 @@ async function garagem(meio) {
 async function irTrabalhar() {
   const e = emprego(J.emprego); if (!e?.bairro || e.bairro === J.bairro) return;
   const m = meiosParaDestino(e.bairro)[0] || 'candongueiro';
-  const nomeMeio = { candongueiro: 'candongueiro', kupapata: 'kupapata', taxi: 'táxi', autocarro: 'autocarro', carro: 'carro', mota: 'mota', privado: 'jato', boleia: 'boleia' }[m] || m;
+  const nomeMeio = { candongueiro: 'chapa', kupapata: 'kupapata', taxi: 'táxi', autocarro: 'autocarro', carro: 'carro', mota: 'mota', privado: 'jato', boleia: 'boleia' }[m] || m;
   if (!await perguntar(tr('Ir para {0} de {1}? Ao chegar, toca em «Trabalhar».').replace('{0}', bairro(e.bairro).nome).replace('{1}', tr(nomeMeio)))) return;
   viajar(e.bairro, m);
 }
@@ -3115,7 +3115,7 @@ async function abrirTelemovel(sub, extra) {
   } else {
     body.innerHTML = `<div class="feed">
       <div data-tr-html class="ev">👆 <b>Toca no chão</b> para andar. Toca num <b>edifício</b> para entrar. Arrasta para olhar à volta e usa ＋/－ para zoom.</div>
-      <div data-tr-html class="ev">🚐 Para mudar de bairro, vai à <b>paragem de candongueiros</b> (a azul, no centro).</div>
+      <div data-tr-html class="ev">🚐 Para mudar de bairro, vai à <b>paragem de chapas</b> (a azul, no centro).</div>
       <div data-tr-html class="ev">⚡ <b>Energia</b> volta com o tempo e a dormir. 🍲 <b>Barriga</b> esvazia — se chegar a zero, acabas no hospital.</div>
       <div data-tr-html class="ev renda">🏠 Arrenda uma casa num prédio ou quintal. A renda é cobrada todos os dias. Lá dentro, carrega em <b>🔨 Decorar</b>.</div>
       <div data-tr-html class="ev">🛋️ Móveis compram-se no 📱 <b>Telemóvel → 🛒 Loja</b> (com entrega), ou mais baratos nos <b>Móveis do Mercado</b>, em Viana, e no <b>Casa & Design</b> em Talatona. Cama boa = sono melhor; fogão = comida barata.</div>
@@ -3132,19 +3132,19 @@ async function abrirTelemovel(sub, extra) {
       <div data-tr-html class="ev renda">🔑 Podes <b>comprar casa</b> (60 dias de renda) e deixar de pagar renda. As casas a mais arrendas ou vendes a outros jogadores em 📱 → Imóveis.</div>
       <div data-tr-html class="ev">🏦 No 📱 → Banco: poupança a 0,5% por dia (no primeiro milhão). Empréstimos só no Banco da Baixa: 1,5% por dia e 7 dias de prazo — depois vêm os cobradores e a penhora.</div>
       <div data-tr-html class="ev bom">📈 Nos empregos com requisitos há <b>entrevista</b> (estudo, reputação e a família contam). Começas como estagiário/a: trabalha bem e pede promoção (📱 → Perfil) — cada nível paga +25%. Desempenho abaixo de 15 = despedido/a. Aos 60 podes reformar-te com pensão.</div>
-      <div data-tr-html class="ev renda">🏢 Abre um <b>negócio</b> em 📱 → Empresas: cantina, salão, loja, candongueiros, discoteca, construtora ou importadora. Fatura todos os dias, mesmo quando não jogas, e paga-se em cerca de uma semana. Os lugares livres têm ajudantes; outros jogadores podem candidatar-se. Paga 10% de impostos e, se a caixa ficar muito negativa, vai à falência.</div>
+      <div data-tr-html class="ev renda">🏢 Abre um <b>negócio</b> em 📱 → Empresas: cantina, salão, loja, chapas, discoteca, construtora ou importadora. Fatura todos os dias, mesmo quando não jogas, e paga-se em cerca de uma semana. Os lugares livres têm ajudantes; outros jogadores podem candidatar-se. Paga 10% de impostos e, se a caixa ficar muito negativa, vai à falência.</div>
       <div data-tr-html class="ev">💵 O kwanza vai perdendo valor. Guarda em <b>dólares</b> (📱 → Dólares): o banco da Baixa vende barato mas só 200 USD por dia; as kinguilas vendem quanto quiseres, mais caro — e às vezes com notas falsas.</div>
       <div data-tr-html class="ev mau">🤫 Podes pôr uma empresa a <b>fugir aos impostos</b>… mas se as Finanças inspecionarem, pagas o triplo.</div>
-      <div data-tr-html class="ev">🎲 Em 📱 → Sorte: raspadinha, Lotaria diária (sorteio às 20h, o pote acumula) e apostas na Liga de Luanda. Joga com moderação.</div>
-      <div data-tr-html class="ev bom">🗺️ <b>Angola é grande!</b> Da paragem apanhas o autocarro para Benguela, Huambo ou Lubango; do Aeroporto 4 de Fevereiro (Maianga) voas. Entre Benguela e Huambo há o comboio do CFB. Lá fora as casas e a comida são mais baratas, e há Tundavala, Serra da Leba e a Baía Azul para ver.</div>
-      <div data-tr-html class="ev">🌧️ De outubro a abril é a <b>época das chuvas</b>; de maio a setembro, o <b>cacimbo</b>. Com tempestade, a praia e os passeios ficam para outro dia, os barcos não saem e as casas fracas dos bairros baixos podem inundar.</div>
-      <div data-tr-html class="ev bom">🌱 No Huambo e em Malanje podes ter <b>lavras</b>: planta, rega no cacimbo, colhe e vende — em Luanda pagam mais. 🏝️ O Mussulo é só de barco (cais na Ilha) e Cabinda só de avião.</div>
-      <div data-tr-html class="ev mau">🦟 Na época das chuvas há <b>malária</b>; no cacimbo, <b>gripe</b>; em casas fracas, <b>febre tifoide</b>. Trata-te em 📱 → Saúde: farmácia, centro de saúde (grátis mas com filas), clínica privada, hospital ou curandeiro. Uma doença grave sem tratamento pode matar.</div>
+      <div data-tr-html class="ev">🎲 Em 📱 → Sorte: raspadinha, Lotaria da Vida diária (sorteio às 20h, o pote acumula) e apostas na Liga de Maputo. Joga com moderação.</div>
+      <div data-tr-html class="ev bom">🗺️ <b>Moçambique é grande!</b> Da paragem apanhas o autocarro para Beira, Nampula ou Inhambane; do Aeroporto Internacional de Maputo voas. A Costa do Sol e a Ilha de Moçambique são destinos imperdíveis.</div>
+      <div data-tr-html class="ev">🌧️ De novembro a abril é a <b>época das chuvas</b>; de maio a outubro, a <b>época seca</b>. Com tempestade, a praia e os passeios ficam para outro dia e as casas fracas dos bairros baixos podem inundar.</div>
+      <div data-tr-html class="ev bom">🌱 Nas províncias podes ter <b>machambas</b>: planta, rega, colhe e vende — em Maputo pagam mais. 🏝️ A Catembe é só de barco ou pela Ponte Maputo-Catembe.</div>
+      <div data-tr-html class="ev mau">🦟 Na época das chuvas há <b>malária</b>; na época seca, <b>gripe</b>; em casas fracas, <b>febre tifoide</b>. Trata-te em 📱 → Saúde: farmácia, centro de saúde (grátis mas com filas), clínica privada, hospital ou curandeiro. Uma doença grave sem tratamento pode matar.</div>
       <div data-tr-html class="ev mau">🔪 Só <b>outros jogadores</b> te podem roubar: assaltos na rua e <b>SMS de burla</b> (📱 → Mensagens) — nunca pagues "taxas" de prémios. Faz queixa em 📱 → Justiça.</div>
       <div data-tr-html class="ev bom">😌 <b>Enquanto estás fora, os azares quase param</b> e a fome não desce abaixo de 35; o senhorio espera 4 dias pela renda. Nos primeiros <b>3 dias</b> tens proteção de novato 🛡️. Sem casa, dormes em casa da família.</div>
       <div data-tr-html class="ev">🏠 As casas maiores têm <b>divisões</b> (quarto, sala, cozinha…) e as de luxo (Mussulo e Talatona) têm <b>escada para o 1.º andar</b>: toca na escada para subir ou descer.</div>
-      <div data-tr-html class="ev renda">💎 <b>Posses:</b> carros no Stand Automóvel (Talatona) — a carrinha dá para fazer corridas de candongueiro e o jipe 4x4 cansa menos nas viagens longas; telemóveis (melhor câmara = mais alcance no Muxima); moda e acessórios na Boutique; animais na Feira de Viana (o cão afasta ladrões, as galinhas põem ovos). Tudo se pode vender por metade do preço.</div>
-      <div data-tr-html class="ev bom">💛 No <b>Muxima</b> (📱) publicas posts com "foto", ganhas gostos, comentários, seguidores e fãs — às vezes um post fica <b>viral</b> 🔥. Com 200 fãs ganhas uma receita diária; com 1.000, as marcas pagam-te posts patrocinados. O <b>📰 Jornal</b> conta tudo o que acontece em Angola.</div>
+      <div data-tr-html class="ev renda">💎 <b>Posses:</b> carros no Stand Automóvel (Sommerschield) — a carrinha dá para fazer corridas de chapa e o jipe 4x4 cansa menos nas viagens longas; telemóveis (melhor câmara = mais alcance no Muxima); moda e acessórios na Boutique; animais na Feira do Zimpeto (o cão afasta ladrões, as galinhas põem ovos). Tudo se pode vender por metade do preço.</div>
+      <div data-tr-html class="ev bom">💛 No <b>Muxima</b> (📱) publicas posts com "foto", ganhas gostos, comentários, seguidores e fãs — às vezes um post fica <b>viral</b> 🔥. Com 200 fãs ganhas uma receita diária; com 1.000, as marcas pagam-te posts patrocinados. O <b>📰 Jornal</b> conta tudo o que acontece em Moçambique.</div>
       <div data-tr-html class="ev">❗ De vez em quando a vida põe-te uma <b>escolha</b>: foi-se a luz, não há água, estás febril, a chuva entrou em casa, a gasolina subiu… Decide no ecrã — algumas escolhas até dão dinheiro (alugar o gerador, vender água, guardar lugar na fila da bomba).</div>
       <div data-tr-html class="ev renda">🏛️ Cada município tem um <b>administrador</b> (📱 → Governo). Todos os domingos às 20h há <b>eleições</b>: candidata-te (cadastro limpo, reputação 10+, casa no município), faz comícios e pede votos. Quem ganha gere o orçamento: investe na luz, água, estradas e segurança, fixa a taxa municipal… ou desvia fundos e arrisca uma auditoria.</div>
       <div data-tr-html class="ev mau">🕯️ Com pouco investimento há <b>cortes de luz</b> (um gerador ajuda) e <b>falta de água</b> (chama o camião-cisterna no 📱 → Governo). Estradas esburacadas cansam e furam pneus, e a <b>gasolina</b> muda de preço todos os dias.</div>
@@ -3168,12 +3168,12 @@ function abrirVisual() {
   };
 }
 function tutorial() {
-  sheet(`<h3>Bem-vindo a Luanda! 🌴</h3><p class="m">Estás em ${esc(bairro(J.bairro).nome)}, ao pé da paragem de candongueiros.</p>
+  sheet(`<h3>Bem-vindo a Maputo! 🌴</h3><p class="m">Estás em ${esc(bairro(J.bairro).nome)}, ao pé da paragem de chapas.</p>
     <div class="feed"><div class="ev">👆 Toca no chão para andar e nos edifícios para entrar.</div>
     <div class="ev">💼 Abre o 📱 Telemóvel → Vagas para arranjar emprego. Zungueiro/a dá para começar em qualquer lado.</div>
     <div class="ev">🍲 Come numa cantina antes que a barriga fique vazia.</div>
-    <div class="ev">🏠 Junta kumbu, arrenda uma casa e decora-a com 🔨 Decorar. O teu colchão já te espera no armazém.</div>
-    <div class="ev">🛒 Compra móveis no 📱 Telemóvel → Loja (entrega em casa) ou mais barato nos Móveis do Mercado, em Viana.</div>
+    <div class="ev">🏠 Junta meticais, arrenda uma casa e decora-a com 🔨 Decorar. O teu colchão já te espera no armazém.</div>
+    <div class="ev">🛒 Compra móveis no 📱 Telemóvel → Loja (entrega em casa) ou mais barato no Mercado Central.</div>
     <div class="ev">💞 Toca noutros jogadores para fazer amigos, namorar e até casar. Vê tudo em 📱 → Social.</div></div>
     <button class="btn full" data-fechar>Bora! 💪</button>`);
 }
@@ -3212,13 +3212,13 @@ function hud() {
 /* ---------- teclado e rato (computador) ---------- */
 async function abrirConvites() {
   const { data, error } = await sb.rpc('meus_convites'); if (error || !data) return toast(tr('Não deu para abrir agora. Tenta outra vez.'), 'mau');
-  const link = `${location.origin}/?c=${data.codigo}`, txt = tr('Vem viver a vida em Luanda comigo no Vida na Banda!');
+  const link = `${location.origin}/?c=${data.codigo}`, txt = tr('Vem viver a vida em Maputo comigo no Vida em Moz!');
   const el = sheet(`<h3>🔗 ${esc(tr('Convidar amigos'))}</h3><p class="m">${esc(tr('Partilha o teu link. Quem criar conta por ele fica contado aqui.'))}</p>
     <input class="inp" id="cLink" readonly value="${esc(link)}" data-sem-traducao>
     <div style="display:flex;gap:8px;margin-top:8px"><button class="btn full" id="cPartilhar">📤 ${esc(tr('Partilhar'))}</button><button class="btn full ghost" id="cCopiar">📋 ${esc(tr('Copiar'))}</button></div>
     <div class="chips" style="margin-top:12px"><span class="chip">👥 ${esc(tr('Entraram pelo teu link: {0}').replace('{0}', data.total))}</span><span class="chip">📅 ${esc(tr('Esta semana: {0}').replace('{0}', data.semana))}</span></div>`);
   el.querySelector('#cCopiar').onclick = async () => { try { await navigator.clipboard.writeText(link); toast(tr('Link copiado!'), 'bom'); } catch { el.querySelector('#cLink').select(); } };
-  el.querySelector('#cPartilhar').onclick = async () => { if (navigator.share) { try { await navigator.share({ title: 'Vida na Banda', text: txt, url: link }); } catch { } } else el.querySelector('#cCopiar').click(); };
+  el.querySelector('#cPartilhar').onclick = async () => { if (navigator.share) { try { await navigator.share({ title: 'Vida em Moz', text: txt, url: link }); } catch { } } else el.querySelector('#cCopiar').click(); };
 }
 const ATALHOS = [['W A S D · ← ↑ → ↓', 'Andar'], ['Enter', 'Falar com quem está perto'], ['T', 'Abrir o telemóvel'], ['/', 'Procurar no telemóvel'], ['H', 'Casa / sair'],
 ['+ −', 'Aproximar / afastar'], ['Q E', 'Rodar a vista (3D)'], ['R', 'Rodar o móvel (a decorar)'], ['Esc', 'Fechar / voltar'], ['?', 'Esta lista']];

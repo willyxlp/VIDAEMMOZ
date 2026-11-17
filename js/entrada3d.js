@@ -8,6 +8,9 @@
 import * as T from './vendor/three/three.min.js';
 import { pessoaRig } from './modelos3d.js';
 
+const PELES = ['#f3cfae', '#dca77c', '#b97a4c', '#8d5527', '#6a3c1c', '#4a2912'];
+const CORES_CABELO = ['#1a1310', '#4a2a17', '#8a5a2b', '#c9a24a', '#a8322d', '#9a9a9a'];
+
 const GESTOS = ['acenar', 'dancar', 'rir', 'palmas', 'vitoria', 'pensar'];
 let R = null, cena, cam, g = null, cv = null, raf = 0, gesto = null, desde = 0, ultimoAp = null, primeiro = null;
 const shade = (hex, k) => { const c = new T.Color(hex); c.multiplyScalar(k); return '#' + c.getHexString(); };

@@ -9,6 +9,9 @@
 import * as T from './vendor/three/three.min.js';
 import { MODELOS, predio, pessoaRig, QUALIDADE } from './modelos3d.js';
 
+const PELES = ['#f3cfae', '#dca77c', '#b97a4c', '#8d5527', '#6a3c1c', '#4a2912'];
+const CORES_CABELO = ['#1a1310', '#4a2a17', '#8a5a2b', '#c9a24a', '#a8322d', '#9a9a9a'];
+
 QUALIDADE.folhas = Math.min(QUALIDADE.folhas, 0.1); QUALIDADE.seg = Math.min(QUALIDADE.seg, 0.35);   // leve para telemóveis (igual ao mundo 3D)
 const TR = s => (typeof tr === 'function' ? tr(s) : s);
 

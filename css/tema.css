@@ -1,6 +1,6 @@
 /* ============================================================
-   Vida na Banda — TEMAS
-   A «Noite de Kizomba» (escuro, por defeito) · B «Samakaka» (claro)
+   Vida em Moz — TEMAS
+   A «Noite de Marrabenta» (escuro, por defeito) · B «Capulana» (claro)
    As cores, bordas, sombras e letras vêm de variáveis; o mundo 2.5D não muda.
    ============================================================ */
 :root, :root[data-tema=a] {
@@ -12,7 +12,8 @@
   --f-disp:"Bricolage Grotesque"; --f-corpo:Figtree;
   --b-energia:#ffcb00; --b-fome:#4cbf74; --b-humor:#5aa7e0; --b-saude:#ff5a6e; --b-trilho:rgba(255,255,255,.14);
   --tile-k:#2a2328; --tile-k-ink:#f6efe6;
-  --faixa:linear-gradient(var(--red) 0 50%,#000 50% 100%);
+  /* Bandeira de Moçambique: verde | preto | amarelo | vermelho com estrela */
+  --faixa:linear-gradient(to right, #009246 0 30%, #000 30% 36%, #FFD700 36% 42%, #000 42% 48%, #cc092f 48% 100%);
   --faixa-h:6px;
   /* 0am: cor de cada tipo de coisa (dinheiro, perigo, viagem, amor, corpo, trabalho, pessoas) — sempre com forma e palavra */
   --c-dinheiro:#ffcb00; --c-perigo:#ff4d63; --c-viagem:#5aa7e0; --c-amor:#f06fae; --c-corpo:#4cbf74; --c-trabalho:#a98bff; --c-pessoas:#35c2b4;
@@ -26,7 +27,8 @@
   --f-disp:Unbounded; --f-corpo:"DM Sans";
   --b-energia:#ffcb00; --b-fome:#2f8f5b; --b-humor:#2c6fb0; --b-saude:#cc092f; --b-trilho:#efe7dc;
   --tile-k:#ffffff; --tile-k-ink:#141012;
-  --faixa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='12'%3E%3Crect width='32' height='12' fill='%23141012'/%3E%3Cpolygon points='0,12 8,0 16,12' fill='%23CC092F'/%3E%3Cpolygon points='16,12 24,0 32,12' fill='%23FFCB00'/%3E%3C/svg%3E") repeat-x left center / 32px 12px;
+  /* Capulana — padrão geométrico moçambicano: verde, amarelo, vermelho, preto */
+  --faixa:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='14'%3E%3Crect width='40' height='14' fill='%23009246'/%3E%3Crect x='0' y='0' width='10' height='14' fill='%23FFD700'/%3E%3Crect x='10' y='0' width='2' height='14' fill='%23141012'/%3E%3Crect x='20' y='0' width='10' height='14' fill='%23cc092f'/%3E%3Crect x='30' y='0' width='2' height='14' fill='%23141012'/%3E%3C/svg%3E") repeat-x left center / 40px 14px;
   --faixa-h:12px;
   --c-dinheiro:#ffcb00; --c-perigo:#cc092f; --c-viagem:#2c6fb0; --c-amor:#c2246d; --c-corpo:#2f8f5b; --c-trabalho:#6b4fd0; --c-pessoas:#11806f;
   color-scheme:light;
@@ -101,7 +103,7 @@ img.mini { background: var(--card2); }
 :root[data-tema=a] #chatLog div { border: 0; background: rgba(18,16,20,.7); }
 
 /* ---------- entrada e carregar ---------- */
-:root[data-tema=a] #entrada { background: radial-gradient(120% 55% at 50% 0%, #4a0816 0%, transparent 60%), radial-gradient(90% 45% at 100% 100%, #3a2a0a 0%, transparent 60%), var(--bg); }
+:root[data-tema=a] #entrada { background: radial-gradient(120% 55% at 50% 0%, #003d1a 0%, transparent 60%), radial-gradient(90% 45% at 100% 100%, #1a2a00 0%, transparent 60%), var(--bg); }
 [data-tema=b] #entrada { background: var(--faixa), #fff; background-size: 32px 12px, auto; background-repeat: repeat-x, no-repeat; background-position: left top, 0 0; }
 [data-tema=b] .logo span { color: var(--red); }
 [data-tema=b] .faixa-ao { height: 12px; border-radius: 0; background: var(--faixa); }

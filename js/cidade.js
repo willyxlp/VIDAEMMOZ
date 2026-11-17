@@ -305,7 +305,7 @@ const BAIRROS_MAPA = {
       { s: 5, nome: 'Talatona Gym', emoji: '🏋️', w: 3, d: 4, h: 36, cor: '#1f1f1f', telhado: 'plano', toldo: '#e0313f', acao: [{ t: 'treino', onde: 'ginasio' }] },
       { s: 6, nome: 'Pastelaria', emoji: '🥐', w: 4, d: 3, h: 24, cor: '#f2c6a0', telhado: 'plano', toldo: '#e86aa6', acao: [{ t: 'comida', ids: CANTINA }] },
       { s: 13, nome: 'Condomínio Jardim', emoji: '🏡', w: 4, d: 4, h: 30, cor: '#efe6d2', telhado: 'telha', acao: [{ t: 'casa', id: 'vivenda_talatona' }] },
-      { s: 8, nome: 'Stand Automóvel', emoji: '🚗', w: 5, d: 4, h: 24, cor: '#e9eef2', telhado: 'plano', toldo: '#e0313f', antena: true, acao: [{ t: 'info', txt: 'Da carrinha de candongueiro ao jipão 4x4. Test drive? Só se comprares.' }, { t: 'itens', cats: ['veiculo'] }] },
+      { s: 8, nome: 'Stand Automóvel', emoji: '🚗', w: 5, d: 4, h: 24, cor: '#e9eef2', telhado: 'plano', toldo: '#e0313f', antena: true, acao: [{ t: 'info', txt: 'Da carrinha de chapa ao jipão 4x4. Test drive? Só se comprares.' }, { t: 'itens', cats: ['veiculo'] }] },
       { s: 10, nome: 'ISPTEC', emoji: '🎓', w: 4, d: 4, h: 64, cor: '#1d3c5e', telhado: 'plano', antena: true, acao: [{ t: 'univ', id: 'isptec' }] },
       { s: 12, nome: 'Universidade Óscar Ribas', emoji: '🎓', w: 4, d: 4, h: 48, cor: '#f2efe6', telhado: 'plano', toldo: '#8a1c2b', acao: [{ t: 'univ', id: 'uor' }] },
       { s: 14, nome: 'Boutique Luxo', emoji: '👗', w: 4, d: 4, h: 34, cor: '#1f1f1f', telhado: 'plano', toldo: '#d4af37', acao: [{ t: 'moda_loja', teste: true }, { t: 'itens', cats: ['moda', 'telemovel'] }, { t: 'moda' }, { t: 'emprego', id: 'estilista' }] },   // 7 nov (dono): a coleção da semana e o guarda-roupa também na Boutique (primeiro no teste)
@@ -473,7 +473,7 @@ function gerarBairro(id) {
 
   // paragem (lote 9) — igual em todos os bairros
   const P = loteRect(9, 2, 2);
-  objetos.push({ kind: 'paragem', x: P.x, y: P.y, w: 2, d: 2, h: 34, spec: { nome: 'Paragem de candongueiros', emoji: '🚐', acao: [{ t: 'paragem' }, { t: 'comida', zunga: true, ids: MENU_PARAGEM[id] || menuDe('paragem', id, 'paragem') }] }, porta: [P.px, P.py] });
+  objetos.push({ kind: 'paragem', x: P.x, y: P.y, w: 2, d: 2, h: 34, spec: { nome: 'Paragem de chapas', emoji: '🚐', acao: [{ t: 'paragem' }, { t: 'comida', zunga: true, ids: MENU_PARAGEM[id] || menuDe('paragem', id, 'paragem') }] }, porta: [P.px, P.py] });
   marca(P.x, P.y, 2, 2);
   objetos.push({ kind: 'carro', x: 20, y: 11, w: 1, d: 2, h: 26, cor: '#f2f2f2', tipo: 'candongueiro', rot: 0 }); marca(20, 11, 1, 2);
   portas.set(P.px + ',' + P.py, objetos[0]);
