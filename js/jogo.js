@@ -779,6 +779,8 @@ function mostrarFalhaCarregar() {
   c.appendChild(d);
 }
 async function entrarNoJogo(session) {
+  const _t0 = performance.now();
+  console.log('[VEM] entrarNoJogo: início');
   setTimeout(() => { if (!$('#carregar')?.classList.contains('hide')) mostrarFalhaCarregar(); }, 40000);
   if (entrando || J) return; entrando = true;
   try {
@@ -791,8 +793,10 @@ async function entrarNoJogo(session) {
       let r;
       for (let i = 0; i < 4; i++) {
         // 9 nov (10 mil jogadores): arranque_tudo faz também a sessão, o aparelho, as contas do dia, encomendas, encontros… (eram ~12 pedidos)
+        console.log('[VEM] arranque tentativa', i, 'arr=', _arrTudo, 't=', ((performance.now()-_t0)/1000).toFixed(1)+'s');
         const pedido = _arrTudo !== false ? sb.rpc('arranque_tudo', { p_disp: idAparelho(), p_ua: navigator.userAgent, p_sessao: SESSAO }) : sb.rpc('arranque');
-        r = await Promise.race([pedido, new Promise(ok => setTimeout(() => ok({ error: { message: 'tempo' } }), 15000))]);   // 8 nov (0fe-3): tudo de uma vez
+        r = await Promise.race([pedido, new Promise(ok => setTimeout(() => ok({ error: { message: 'tempo' } }), 15000))]);
+        console.log('[VEM] arranque resultado', i, 'err=', r.error?.message, 't=', ((performance.now()-_t0)/1000).toFixed(1)+'s');   // 8 nov (0fe-3): tudo de uma vez
         if (r.error && _arrTudo !== false && /arranque_tudo|PGRST202|Could not find/i.test((r.error.code || '') + ' ' + (r.error.message || ''))) { _arrTudo = false; i--; continue; }   // base antiga: volta ao arranque()
         if (!r.error && _arrTudo !== false) _arrTudo = true;
         if (!r.error || /personagem|suspensa|conta/i.test(r.error.message)) return r;
@@ -802,7 +806,9 @@ async function entrarNoJogo(session) {
       return r;
     };
     let { data, error } = await estadoComCalma();
+    console.log('[VEM] estadoComCalma resolvido err=', error?.message, 't=', ((performance.now()-_t0)/1000).toFixed(1)+'s');
     if (pDados) await pDados;
+    console.log('[VEM] pDados resolvido t=', ((performance.now()-_t0)/1000).toFixed(1)+'s');
     carregarOutdoors(); carregarMusicas();
     if (error && /Ainda não tens personagem/.test(error.message)) {
       // Conta acabada de confirmar: cria a personagem com o que escolheste no registo.
@@ -844,12 +850,16 @@ async function entrarNoJogo(session) {
     await Promise.all([iniciarVida(), iniciarCrime(), carregarGoverno()]); if (!J) return;   // 8 nov: ao mesmo tempo (eram seguidos)
     carregarObjetivos();
     carregarDilemas();
+    console.log('[VEM] antes irParaBairro t=', ((performance.now()-_t0)/1000).toFixed(1)+'s');
     await irParaBairro(J.bairro, false); if (!J) return;
+    console.log('[VEM] irParaBairro OK t=', ((performance.now()-_t0)/1000).toFixed(1)+'s');
     hud();
+    console.log('[VEM] antes esperarArte t=', ((performance.now()-_t0)/1000).toFixed(1)+'s');
     await esperarArte(); if (!J) return;   // o jogo só aparece com tudo descarregado: prédios, árvores, carros e personagens já em 3D
     if (typeof verEncontro === 'function') setTimeout(verEncontro, 1500);   // 0n: encontro aceite enquanto estavas fora
     if (typeof verDesafio === 'function') setTimeout(verDesafio, 2500);
     if (typeof carregarCanal === 'function') setTimeout(carregarCanal, 3000);   // 0cl: para o ponto vermelho do 📢 Canal   // 0ck: desafio aceite enquanto estavas fora
+    console.log('[VEM] jogo carregado! t=', ((performance.now()-_t0)/1000).toFixed(1)+'s');
     $('#carregar').classList.add('hide');
     const novo = !J.criado_em || Date.now() - new Date(J.criado_em).getTime() < 36e5 * 6;  // só nas primeiras horas da conta
     setTimeout(() => receberEncomendas(), 4000);
