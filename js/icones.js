@@ -160,7 +160,7 @@ async function instalarApp() {
 document.addEventListener('click', e => { if (e.target.closest?.('[data-instalar]')) instalarApp(); });
 document.addEventListener('DOMContentLoaded', mostrarBotoesInstalar);
 if ('serviceWorker' in navigator && !/^(127\.0\.0\.1|localhost)$/.test(location.hostname))
-  addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => { }));
+  addEventListener('load', () => navigator.serviceWorker.register('/VIDAEMMOZ/sw.js').catch(() => { }));
 
 /* ---------- temas ---------- */
 const TEMAS = [['a', 'Noite de Kizomba'], ['b', 'Samakaka'], ['auto', 'Automático (dia/noite)']];
