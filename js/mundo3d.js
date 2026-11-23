@@ -1,9 +1,12 @@
 /* ============================================================
-   Vida na Banda — mundo3d.js
+   Vida em Moz — mundo3d.js
    Motor de renderização 3D em tempo real com Three.js.
+   Baseado no motor original de Vida na Banda (25–26 out).
+   Coordenadas do jogo: x/y no chão, z para cima (Z=up).
+   A raiz troca x/y para Three.js (o jogo usa "mão esquerda").
    Expõe window.M3D com a interface que jogo.js espera:
      M3D.quadro(params)         — desenha uma frame
-     M3D.ecra(x, y, z)         — tile → coordenadas de ecrã (px)
+     M3D.ecra(x, y, zpx)       — tile → coordenadas de ecrã (px)
      M3D.escolher(sx, sy, npcs) — raycasting: o que foi tocado
      M3D.arrastar(dx, dy, zoom) — pan da câmara no modo 3D
      M3D.rodar(angulo, snap)   — rodar câmara
@@ -15,599 +18,668 @@
    ============================================================ */
 
 import * as T from './vendor/three/three.min.js';
-import { pessoaRig } from './modelos3d.js';
+import { MODELOS, predio, pessoaRig, QUALIDADE, animal3d } from './modelos3d.js';
+
+QUALIDADE.folhas = 0.1; QUALIDADE.seg = 0.35;   // leve para telemóveis
 
 /* ── constantes de jogo (iguais a motor.js) ──────────────────── */
-const TW = 64, TH = 32;        // largura e altura de um tile em px (modo 2D)
-const TILE = 1;                 // 1 unidade Three.js = 1 tile de jogo
+const K = 64 / Math.SQRT2;                      // px do ecrã por quadrado (zoom 1)
+const E = Math.asin(0.5);                        // elevação isométrica (≈30°)
+const PX_Z = K * Math.cos(E);                   // px por unidade de altura (≈39.2)
+
+/* ── conversão de coordenadas: jogo → Three.js ───────────────── */
+// O jogo usa (x, y, z) com Z=cima. Three.js usa Y=cima por defeito,
+// mas a raiz tem matrixAutoUpdate=false com x/y trocados, logo z=cima na cena.
+const g2w = (x, y, z = 0) => new T.Vector3(y, x, z);
 
 /* ── estado interno ─────────────────────────────────────────── */
-let renderer, scene, camera, raycaster;
-let raf = 0;
+let renderer = null, cena3 = null, camara = null, raiz = null, sol = null, hemi = null, canvas = null;
+let vistaAlta = null;
+let construida = null, assinatura = '';
+const estaticos = [];
+const pickaveis = [];
+const lampadas = [], vidros = [];
+const pessoas = new Map();
+const cam3 = { az: Math.PI / 4, azAlvo: Math.PI / 4, alvo: new T.Vector3(), iniciada: false };
+const olhos = new T.PerspectiveCamera(68, 1, 0.04, 320);
+olhos.up.set(0, 0, 1);
+let primeira = false;
+let rumo = 0, inclinacao = -0.12;
+const mira = new T.Vector3();
+const ray = new T.Raycaster();
+const chaoPlano = new T.Plane(new T.Vector3(0, 0, 1), 0);  // Z=0 é o chão
 let _leve = false;
-let _angulo = 0;               // rotação horizontal da câmara (rad)
-const CAM_PITCH = Math.PI / 4; // inclinação fixa (45°)
-const CAM_DIST = 18;          // distância câmara–alvo
-
-/* meshes e grupos que persistem entre frames */
-const _chaoMesh = new Map(); // key='tipo' → Mesh
-const _predioMesh = new Map(); // key='objId' → Group
-const _pessoaMesh = new Map(); // key=personagem.id → {rig, t, ap}
-const _arvoreMesh = [];
-let _cenaId = null;      // para detectar mudança de cena
-let _infoTimer = 0;
 
 /* métricas */
-const info = { fps: 0, calls: 0, tris: 0, geo: 0, tex: 0, mb: null };
-let _fpsT = 0, _fpsN = 0;
+const info = { fps: 0, calls: 0, tris: 0, geo: 0, tex: 0, mb: null, _n: 0, _t: 0 };
 
-/* objecto sentinela "porta" */
+/* sentinela "porta" */
 const PORTA = Symbol('PORTA');
 
 /* ── inicializar renderer ────────────────────────────────────── */
-function init() {
+function iniciar() {
   if (renderer) return;
+  canvas = document.createElement('canvas');
+  canvas.id = 'tela3d';
+  canvas.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;display:block;pointer-events:none';
+  const t2 = document.getElementById('tela');
+  if (t2) t2.parentNode.insertBefore(canvas, t2);
+  else document.body.prepend(canvas);
 
-  const canvas3d = document.createElement('canvas');
-  canvas3d.id = 'tela3d';
-  canvas3d.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;';
-  document.body.prepend(canvas3d);
-
-  renderer = new T.WebGLRenderer({ canvas: canvas3d, antialias: !_leve, alpha: true, powerPreference: 'high-performance' });
-  renderer.setPixelRatio(_leve ? 1 : Math.min(window.devicePixelRatio, 2));
-  renderer.shadowMap.enabled = !_leve;
-  renderer.shadowMap.type = T.PCFShadowMap;
+  renderer = new T.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.5));
   renderer.outputColorSpace = T.SRGBColorSpace;
-  _resize();
+  renderer.toneMapping = T.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.05;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = T.PCFShadowMap;
 
-  window.addEventListener('resize', _resize);
+  cena3 = new T.Scene();
 
-  scene = new T.Scene();
+  // A raiz troca x e y: o jogo usa coordenadas "mão esquerda" (x→direita, y→cima),
+  // Three.js usa "mão direita". A matrix fixa isto sem matrixAutoUpdate.
+  raiz = new T.Group();
+  raiz.matrixAutoUpdate = false;
+  raiz.matrix.set(0, 1, 0, 0,
+                  1, 0, 0, 0,
+                  0, 0, 1, 0,
+                  0, 0, 0, 1);
+  cena3.add(raiz);
 
-  /* câmara perspetiva — ângulo de visão largo mas sem distorção excessiva */
-  camera = new T.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 400);
+  hemi = new T.HemisphereLight(0xdfe8ff, 0x5a4a36, 1.1);
+  cena3.add(hemi);
 
-  raycaster = new T.Raycaster();
+  sol = new T.DirectionalLight(0xfff1dc, 2.4);
+  sol.castShadow = true;
+  sol.shadow.mapSize.set(2048, 2048);
+  sol.shadow.bias = -0.0005;
+  sol.shadow.normalBias = 0.03;
+  sol.shadow.radius = 3;
+  cena3.add(sol, sol.target);
 
-  _buildLights();
+  // Vista isométrica: câmara ortogonal, cima = eixo Z
+  camara = new T.OrthographicCamera(-1, 1, 1, -1, 1, 400);
+  camara.up.set(0, 0, 1);
+  vistaAlta = camara;
+
+  cena3.fog = new T.Fog(0x9db8c4, 60, 160);
 }
 
-function _resize() {
-  if (!renderer) return;
-  renderer.setSize(innerWidth, innerHeight, false);
-  if (camera) camera.aspect = innerWidth / innerHeight, camera.updateProjectionMatrix();
+/* ── utilitários ──────────────────────────────────────────────── */
+function deitarFora(obj) {
+  obj.traverse(m => {
+    if (m.isMesh || m.isInstancedMesh) {
+      m.geometry?.dispose();
+      [].concat(m.material).forEach(x => { x?.map?.dispose(); x?.dispose?.(); });
+    }
+  });
 }
 
-/* ── iluminação ─────────────────────────────────────────────── */
-let _sunLight, _ambLight;
-function _buildLights() {
-  scene.children = scene.children.filter(c => !(c.isLight));
-
-  _ambLight = new T.AmbientLight(0xfff0d8, 0.55);
-  scene.add(_ambLight);
-
-  _sunLight = new T.DirectionalLight(0xfff4e0, 1.1);
-  _sunLight.position.set(12, 20, 20);
-  _sunLight.castShadow = !_leve;
-  if (_sunLight.castShadow) {
-    _sunLight.shadow.mapSize.set(1024, 1024);
-    _sunLight.shadow.camera.near = 1;
-    _sunLight.shadow.camera.far = 120;
-    _sunLight.shadow.camera.left = _sunLight.shadow.camera.bottom = -40;
-    _sunLight.shadow.camera.right = _sunLight.shadow.camera.top = 40;
-    _sunLight.shadow.bias = -0.001;
+// Junta peças dum modelo parado numa malha por material (menos draw calls)
+function fundir(obj) {
+  obj.updateMatrixWorld(true);
+  const inv = new T.Matrix4().copy(obj.matrixWorld).invert();
+  const grupos = new Map(), out = new T.Group(), soltos = [];
+  obj.traverse(m => {
+    if (m.isInstancedMesh) { soltos.push(m); return; }
+    if (!m.isMesh) return;
+    const g = m.geometry.index ? m.geometry.toNonIndexed() : m.geometry.clone();
+    g.applyMatrix4(new T.Matrix4().multiplyMatrices(inv, m.matrixWorld));
+    for (const n of Object.keys(g.attributes))
+      if (!['position', 'normal', 'uv', 'color'].includes(n)) g.deleteAttribute(n);
+    if (!g.attributes.normal) g.computeVertexNormals();
+    const chave = m.material.uuid + '|' + Object.keys(g.attributes).sort().join(',');
+    if (!grupos.has(chave)) grupos.set(chave, { mat: m.material, gs: [] });
+    grupos.get(chave).gs.push(g);
+  });
+  for (const { mat, gs } of grupos.values()) {
+    const g = gs.length === 1 ? gs[0] : T.mergeGeometries(gs, false);
+    gs.forEach(x => x !== g && x.dispose());
+    if (!g) continue;
+    const m = new T.Mesh(g, mat);
+    m.castShadow = true; m.receiveShadow = true;
+    out.add(m);
   }
-  scene.add(_sunLight);
-}
-
-/* ── cores e materiais ─────────────────────────────────────── */
-const matCache = new Map();
-function mat(hex, opts = {}) {
-  const key = hex + JSON.stringify(opts);
-  if (!matCache.has(key)) {
-    matCache.set(key, new T.MeshLambertMaterial({
-      color: new T.Color(hex),
-      side: opts.double ? T.DoubleSide : T.FrontSide,
-      transparent: opts.alpha != null,
-      opacity: opts.alpha ?? 1,
-    }));
+  for (const s of soltos) {
+    const base = s.geometry.index ? s.geometry.toNonIndexed() : s.geometry;
+    const gs = [], mi = new T.Matrix4(), c = new T.Color();
+    const rel = new T.Matrix4().multiplyMatrices(inv, s.matrixWorld);
+    for (let i = 0; i < s.count; i++) {
+      s.getMatrixAt(i, mi);
+      const g = base.clone();
+      g.applyMatrix4(new T.Matrix4().multiplyMatrices(rel, mi));
+      if (s.instanceColor) s.getColorAt(i, c); else c.set(0xffffff);
+      const n = g.attributes.position.count, cor = new Float32Array(n * 3);
+      for (let k = 0; k < n; k++) { cor[k * 3] = c.r; cor[k * 3 + 1] = c.g; cor[k * 3 + 2] = c.b; }
+      g.setAttribute('color', new T.BufferAttribute(cor, 3));
+      gs.push(g);
+    }
+    if (!gs.length) continue;
+    const mat = s.material.clone(); mat.vertexColors = true;
+    const m = new T.Mesh(T.mergeGeometries(gs, false), mat);
+    m.castShadow = true; out.add(m);
   }
-  return matCache.get(key);
-}
-const MAT_CHAO_TERRA = mat('#c8b98a');
-const MAT_CHAO_CIMENTO = mat('#b0a898');
-const MAT_CHAO_HERBA = mat('#6aad4c');
-const MAT_CHAO_AREIA = mat('#d8c89a');
-const MAT_ESTRADA = mat('#404040');
-const MAT_FAIXA = mat('#ffffff');
-const MAT_PAREDE = mat('#d8c8a8');
-const MAT_TELHADO_ZC = mat('#8a7a68');
-const MAT_TELHADO_PL = mat('#a09080');
-const MAT_TELHADO_TL = mat('#c05030');
-const MAT_VIDRO = mat('#89cff0', { alpha: 0.4, double: true });
-const MAT_PORTA3D = mat('#8b4513');
-const MAT_SOMBRA = mat('#000000', { alpha: 0.18, double: true });
-
-/* ── helpers geométricos ───────────────────────────────────── */
-
-/* converte tile(x,y,z) → Three.js world (y=up) */
-function tw(x, y, z = 0) {
-  return new T.Vector3(x * TILE, z * TILE * 0.5, y * TILE);
+  return out;
 }
 
-/* um simples box centrado no ponto correto */
-function box(w, h, d, material, rx = 0) {
-  const g = new T.BoxGeometry(w, h, d);
-  const m = new T.Mesh(g, material);
-  if (rx) m.rotation.x = rx;
-  return m;
+// Protótipos fundidos (cada espécie de árvore, carro… feito uma vez)
+const protos = new Map();
+function proto(nome, criar) {
+  if (!protos.has(nome)) protos.set(nome, fundir(criar()));
+  const p = protos.get(nome), c = new T.Group();
+  for (const m of p.children) {
+    const k = m.isInstancedMesh ? m.clone() : new T.Mesh(m.geometry, m.material);
+    if (m.isInstancedMesh) { k.matrixAutoUpdate = false; k.matrix.copy(m.matrix); }
+    k.castShadow = true; k.receiveShadow = !m.isInstancedMesh;
+    c.add(k);
+  }
+  return c;
 }
+const modelo = id => proto(id, () => MODELOS[id].criar(T));
 
-/* ── construir chão ──────────────────────────────────────────── */
-function _buildChao(cena) {
-  /* remove chão anterior */
-  scene.children.filter(c => c.userData.chao).forEach(c => scene.remove(c));
-
-  const W = cena.W, H = cena.H;
-  const spec = typeof BAIRROS_MAPA !== 'undefined' ? BAIRROS_MAPA[cena.id] : null;
-  const tipo = cena.tipo;
-
-  /* chão base — um plano grande */
-  const corChao = tipo === 'casa' || tipo === 'interior'
-    ? '#c8c0b0'
-    : spec?.praia
-      ? '#d8c89a'
-      : spec?.chao?.base || '#c8b98a';
-
-  const geo = new T.PlaneGeometry(W, H);
-  const mesh = new T.Mesh(geo, mat(corChao));
-  mesh.rotation.x = -Math.PI / 2;
-  mesh.position.set(W / 2, 0, H / 2);
-  mesh.receiveShadow = true;
-  mesh.userData.chao = true;
-  scene.add(mesh);
-
-  /* estradas e passeios para bairro */
-  if (tipo === 'bairro' && spec?.grade != null) {
-    const grade = spec.grade || 3;
-    const corE = spec.estradaFora?.base || '#3a3a3a';
-    const TileSz = 11; // tiles por quarteirão
-
-    for (let q = 0; q <= grade; q++) {
-      const px = q * TileSz;
-      const ew = new T.PlaneGeometry(1.6, H);
-      const em = new T.Mesh(ew, mat(corE));
-      em.rotation.x = -Math.PI / 2;
-      em.position.set(px + 0.8, 0.01, H / 2);
-      em.receiveShadow = true;
-      em.userData.chao = true;
-      scene.add(em);
-
-      const eh = new T.PlaneGeometry(W, 1.6);
-      const em2 = new T.Mesh(eh, mat(corE));
-      em2.rotation.x = -Math.PI / 2;
-      em2.position.set(W / 2, 0.01, px + 0.8);
-      em2.receiveShadow = true;
-      em2.userData.chao = true;
-      scene.add(em2);
+// Repetidos (árvores, candeeiros): instâncias para uma chamada de desenho
+let repetidos = new Map();
+function repetir(id, criar, x, y, rot, arvore = false) {
+  if (!repetidos.has(id)) repetidos.set(id, { criar, arvore, pos: [] });
+  repetidos.get(id).pos.push([x, y, rot]);
+}
+function instanciarRepetidos() {
+  const o = new T.Object3D();
+  for (const [id, { criar, pos, arvore }] of repetidos) {
+    if (!protos.has(id)) protos.set(id, fundir(criar()));
+    for (const m of protos.get(id).children) {
+      const im = new T.InstancedMesh(m.geometry, m.material, pos.length);
+      pos.forEach(([x, y, r], i) => {
+        o.position.set(x, y, 0); o.rotation.set(0, 0, r); o.updateMatrix();
+        im.setMatrixAt(i, o.matrix);
+      });
+      im.castShadow = true; im.receiveShadow = true;
+      im.userData.proto = true; im.computeBoundingSphere();
+      raiz.add(im); estaticos.push(im);
+      if (m.material.userData?.lampada) lampadas.push(m.material);
     }
   }
-
-  /* passeio dentro de casa */
-  if (tipo === 'casa' || tipo === 'interior') {
-    const pg = new T.PlaneGeometry(W, H);
-    const pm = new T.Mesh(pg, mat('#d4ccbc'));
-    pm.rotation.x = -Math.PI / 2;
-    pm.position.set(W / 2, 0.005, H / 2);
-    pm.receiveShadow = true;
-    pm.userData.chao = true;
-    scene.add(pm);
-  }
+  repetidos = new Map();
 }
 
-/* ── construir prédios / objetos ──────────────────────────────── */
-function _buildObjetos(cena) {
-  /* limpar prédios antigos */
-  _predioMesh.forEach(g => scene.remove(g));
-  _predioMesh.clear();
+/* ── chão com textura canvas ───────────────────────────────────── */
+function texturaChao(cena) {
+  const { W, H, chao } = cena;
+  if (!chao || !chao.length) return null;
+  const S = 24;
+  const c = document.createElement('canvas');
+  c.width = W * S; c.height = H * S;
+  const g = c.getContext('2d');
+  const r = typeof rng === 'function' ? rng(99) : () => Math.random();
+  const COR = typeof COR_CHAO !== 'undefined' ? COR_CHAO
+    : ['#6f9b4a', '#b4683f', '#e9d39c', '#2b84ad', '#4b4c52', '#bdb5a8', '#d3c7b2', '#9c5a36'];
+  const CH_ = typeof CH !== 'undefined' ? CH
+    : { relva: 0, terra: 1, areia: 2, mar: 3, asfalto: 4, passeio: 5, praca: 6, terraEstrada: 7 };
+  const shadeFn = typeof shade === 'function' ? shade : (h, f) => {
+    const n = parseInt(h.replace('#', ''), 16);
+    const clamp = x => Math.min(255, Math.max(0, x));
+    const rv = clamp((n >> 16) + Math.round(255 * f));
+    const gv = clamp(((n >> 8) & 0xff) + Math.round(255 * f));
+    const bv = clamp((n & 0xff) + Math.round(255 * f));
+    return '#' + [rv, gv, bv].map(x => x.toString(16).padStart(2, '0')).join('');
+  };
 
-  for (const o of cena.objetos) {
-    let group;
-    if (o.kind === 'predio' || o.kind === 'casinha') {
-      group = _makeEdificio(o);
-    } else if (o.kind === 'movel') {
-      group = _makeMovel(o);
-    } else if (o.kind === 'decoracao') {
-      group = _makeDecor(o);
-    } else if (o.kind === 'escada') {
-      group = _makeEscada(o);
-    } else if (o.kind === 'candeeiro') {
-      group = _makeCandeeiro(o);
-    } else if (o.kind === 'veiculo') {
-      group = _makeVeiculo(o);
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const t = chao[y * W + x];
+    g.fillStyle = shadeFn(COR[t] || '#b4683f', (r() - 0.5) * 0.06);
+    g.fillRect(x * S, y * S, S, S);
+    if (t === CH_.passeio || t === CH_.praca) {
+      g.strokeStyle = 'rgba(0,0,0,.07)'; g.strokeRect(x * S + 0.5, y * S + 0.5, S - 1, S - 1);
     }
-    if (group) {
-      group.userData.obj3d = o;
-      _predioMesh.set(o.id ?? (o.x + ',' + o.y), group);
-      scene.add(group);
+    if (t === CH_.relva) for (let k = 0; k < 6; k++) {
+      g.fillStyle = shadeFn(COR[t], -0.16 + r() * 0.1);
+      g.fillRect(x * S + r() * S, y * S + r() * S, 1.5, 3);
     }
-  }
-}
-
-function _makeEdificio(o) {
-  const g = new T.Group();
-  const hPx = (o.h || 24) * 0.03;
-  const w = o.w || 3, d = o.d || 3;
-  const corBase = o.cor || '#d4c9a8';
-
-  /* paredes principais */
-  const wm = new T.Mesh(new T.BoxGeometry(w, hPx, d), mat(corBase));
-  wm.position.set(w / 2, hPx / 2, d / 2);
-  wm.castShadow = !_leve;
-  wm.receiveShadow = true;
-  g.add(wm);
-
-  /* faixa de base (sócalo) — cor mais escura */
-  const socCor = _shadeHex(corBase, -0.18);
-  const soc = new T.Mesh(new T.BoxGeometry(w + 0.02, 0.18, d + 0.02), mat(socCor));
-  soc.position.set(w / 2, 0.09, d / 2);
-  g.add(soc);
-
-  /* cornija no topo da parede */
-  const corCor = _shadeHex(corBase, 0.12);
-  const corn = new T.Mesh(new T.BoxGeometry(w + 0.08, 0.1, d + 0.08), mat(corCor));
-  corn.position.set(w / 2, hPx - 0.05, d / 2);
-  g.add(corn);
-
-  /* telhado */
-  const tCor = o.telhado === 'zinco' ? '#7a8a78'
-    : o.telhado === 'telha' ? '#b04828'
-    : o.telhado === 'laje' ? '#9a9a8a'
-    : '#8a9888';
-  const tm = new T.Mesh(new T.BoxGeometry(w + 0.14, 0.14, d + 0.14), mat(tCor));
-  tm.position.set(w / 2, hPx + 0.07, d / 2);
-  tm.castShadow = !_leve;
-  g.add(tm);
-
-  if (!_leve) {
-    /* janelas em grelha na fachada frontal (z=0) */
-    const nCols = Math.max(1, Math.round(w / 1.1));
-    const nRows = Math.max(1, Math.round((hPx - 0.3) / 0.75));
-    const jW = Math.min(0.42, (w - 0.3) / nCols * 0.7);
-    const jH = 0.38;
-    for (let row = 0; row < nRows; row++) {
-      for (let col = 0; col < nCols; col++) {
-        const jm = new T.Mesh(new T.PlaneGeometry(jW, jH), MAT_VIDRO);
-        jm.position.set(
-          (col + 0.5) * (w / nCols) + (w / nCols - jW) * 0.5 - (w / nCols - jW) * 0.5,
-          0.28 + row * 0.75 + jH / 2,
-          0.015
-        );
-        g.add(jm);
-
-        /* moldura de janela */
-        const moldura = new T.Mesh(
-          new T.BoxGeometry(jW + 0.08, jH + 0.08, 0.04),
-          mat(_shadeHex(corBase, -0.1))
-        );
-        moldura.position.set(jm.position.x, jm.position.y, 0.008);
-        g.add(moldura);
+    if (t === CH_.terra || t === CH_.terraEstrada) for (let k = 0; k < 4; k++) {
+      g.fillStyle = shadeFn(COR[t], -0.2);
+      g.beginPath(); g.ellipse(x * S + r() * S, y * S + r() * S, 2, 1.4, 0, 0, 7); g.fill();
+    }
+    // faixas de passadeira no asfalto
+    if (t === CH_.asfalto && cena.estradas) {
+      g.fillStyle = 'rgba(255,255,255,.78)';
+      for (const e of cena.estradas) {
+        if (e.tipo !== CH_.asfalto) continue;
+        if (e.eixo === 'h' && y === e.p && chao[y * W + x] === CH_.asfalto)
+          g.fillRect((x + 0.2) * S, (y + 1) * S - 1.5, S * 0.5, 3);
+        else if (e.eixo !== 'h' && x === e.p && chao[y * W + x] === CH_.asfalto)
+          g.fillRect((x + 1) * S - 1.5, (y + 0.2) * S, 3, S * 0.5);
       }
     }
+  }
+  const tex = new T.CanvasTexture(c);
+  tex.flipY = false; tex.colorSpace = T.SRGBColorSpace; tex.anisotropy = 4;
+  return tex;
+}
 
-    /* janelas na fachada lateral (x=0) */
-    const nColsL = Math.max(1, Math.round(d / 1.1));
-    for (let row = 0; row < nRows; row++) {
-      for (let col = 0; col < nColsL; col++) {
-        const jm2 = new T.Mesh(new T.PlaneGeometry(jW, jH), MAT_VIDRO);
-        jm2.rotation.y = Math.PI / 2;
-        jm2.position.set(
-          0.015,
-          0.28 + row * 0.75 + jH / 2,
-          (col + 0.5) * (d / nColsL)
-        );
-        g.add(jm2);
+/* ── construir a cena ─────────────────────────────────────────── */
+function por(o, x, y, rot = 0, obj = null) {
+  o.position.set(x, y, 0); o.rotation.z = rot;
+  raiz.add(o); estaticos.push(o);
+  if (obj) o.traverse(m => { if (m.isMesh && !m.isInstancedMesh) { m.userData.obj = obj; pickaveis.push(m); } });
+  return o;
+}
+
+function limpar() {
+  for (const o of estaticos) { raiz.remove(o); if (!o.userData.proto) deitarFora(o); }
+  estaticos.length = 0; pickaveis.length = 0;
+  lampadas.length = 0; vidros.length = 0;
+  for (const [p, e] of pessoas) { raiz.remove(e.g); deitarFora(e.g); pessoas.delete(p); }
+}
+
+function assinaturaDe(cena) {
+  return cena.id + '|' + (cena.tipo || '') + '|' + (cena.andar || 0);
+}
+
+function construir(cena) {
+  iniciar();
+  limpar();
+  construida = cena;
+  assinatura = assinaturaDe(cena);
+  const { W, H } = cena;
+
+  // chão
+  const tex = texturaChao(cena);
+  if (tex) {
+    const geo = new T.PlaneGeometry(W, H);
+    const mat = new T.MeshStandardMaterial({ map: tex, roughness: 1 });
+    const chaoMesh = new T.Mesh(geo, mat);
+    chaoMesh.position.set(W / 2, H / 2, 0);
+    chaoMesh.receiveShadow = true;
+    raiz.add(chaoMesh); estaticos.push(chaoMesh);
+  } else {
+    // fallback simples se não houver array chao[]
+    const corChao = cena.tipo === 'casa' || cena.tipo === 'interior' ? '#c8c0b0' : '#b4683f';
+    const geo = new T.PlaneGeometry(W, H);
+    const mat = new T.MeshStandardMaterial({ color: corChao, roughness: 1 });
+    const chaoMesh = new T.Mesh(geo, mat);
+    chaoMesh.position.set(W / 2, H / 2, 0);
+    chaoMesh.receiveShadow = true;
+    raiz.add(chaoMesh); estaticos.push(chaoMesh);
+  }
+
+  // objetos (edifícios, móveis, árvores…)
+  const dentroAgora = cena.tipo === 'casa' || cena.tipo === 'interior';
+  for (const o of (cena.objetos || [])) {
+    try {
+      let g = null;
+      if (o.kind === 'edificio' || o.kind === 'casinha') {
+        if (typeof predio === 'function') {
+          g = proto('predio|' + JSON.stringify(o.b), () => predio(T, o.b));
+          if (g) { g.userData.obj = o; pickaveis.push(...g.children.flatMap(m => m.isMesh ? [m] : [])); }
+        }
+      } else if (o.kind === 'decoracao') {
+        const tipo = o.tipo || '';
+        if (tipo === 'palmeira' || tipo === 'acacia' || tipo === 'baobab') {
+          repetir(tipo, () => MODELOS[tipo]?.criar(T) || _makeArvore(tipo), o.x + 0.5, o.y + 0.5, 0, true);
+        } else if (tipo === 'candeeiro') {
+          repetir('candeeiro', () => _makeCandeeiro(), o.x + 0.5, o.y + 0.5, 0);
+        }
+      } else if (o.kind === 'paragem' || o.kind === 'barraca') {
+        const corAbrigo = o.cor || '#3a7a9f';
+        g = _makeAbrigo(o, corAbrigo);
+        if (g) { g.userData.obj = o; }
       }
-    }
-
-    /* porta na fachada frontal (centrada, piso térreo) */
-    const portaW = Math.min(0.55, w * 0.22);
-    const portaH = 0.65;
-    const portaMat = mat(_shadeHex(corBase, -0.3));
-    const porta = new T.Mesh(new T.PlaneGeometry(portaW, portaH), portaMat);
-    porta.position.set(w / 2, portaH / 2 + 0.02, 0.016);
-    g.add(porta);
-
-    /* degrau da entrada */
-    const deg = new T.Mesh(new T.BoxGeometry(portaW + 0.3, 0.06, 0.3), mat(socCor));
-    deg.position.set(w / 2, 0.03, -0.1);
-    g.add(deg);
-  }
-
-  /* toldo / varanda */
-  if (o.toldo) {
-    const tdm = new T.Mesh(new T.BoxGeometry(w * 0.65, 0.06, 0.55), mat(o.toldo));
-    tdm.position.set(w / 2, hPx * 0.55, 0.28);
-    g.add(tdm);
-    /* suportes do toldo */
-    for (const sx of [-w * 0.25, w * 0.25]) {
-      const sup = new T.Mesh(new T.CylinderGeometry(0.025, 0.025, 0.3, 4), mat(o.toldo));
-      sup.position.set(w / 2 + sx, hPx * 0.55 - 0.18, 0.5);
-      g.add(sup);
+      if (g) por(g, o.x, o.y, 0, o);
+    } catch (e) {
+      console.warn('[mundo3d] objeto falhou:', o.kind, e);
     }
   }
 
-  g.position.set(o.x, 0, o.y);
-  return g;
-}
+  instanciarRepetidos();
 
-/* helper: clarear/escurecer cor hex */
-function _shadeHex(hex, amt) {
-  const c = hex.replace('#', '');
-  const num = parseInt(c, 16);
-  const r = Math.min(255, Math.max(0, (num >> 16) + Math.round(255 * amt)));
-  const gv = Math.min(255, Math.max(0, ((num >> 8) & 0xff) + Math.round(255 * amt)));
-  const b = Math.min(255, Math.max(0, (num & 0xff) + Math.round(255 * amt)));
-  return '#' + [r, gv, b].map(x => x.toString(16).padStart(2, '0')).join('');
-}
-
-function _makeMovel(o) {
-  const g = new T.Group();
-  const w = o.w || 1, d = o.d || 1;
-  const hPx = 0.5;
-  const corBase = o.mb?.cor || o.mv?.cor || '#a08060';
-  const mesh = box(w * 0.8, hPx, d * 0.8, mat(corBase));
-  mesh.position.set(w / 2, hPx / 2, d / 2);
-  mesh.castShadow = !_leve;
-  mesh.receiveShadow = true;
-  g.add(mesh);
-  g.position.set(o.x, 0, o.y);
-  g.userData.obj3d = o;
-  return g;
-}
-
-function _makeDecor(o) {
-  const g = new T.Group();
-  if (o.tipo === 'palmeira' || o.tipo === 'arvore' || o.tipo === 'baobab') {
-    const tg = new T.CylinderGeometry(0.1, 0.14, 1.2, _leve ? 5 : 8);
-    const tm = new T.Mesh(tg, mat(o.tipo === 'palmeira' ? '#8b6914' : '#6b4f28'));
-    tm.position.y = 0.6;
-    tm.castShadow = !_leve;
-    g.add(tm);
-
-    const cg = new T.SphereGeometry(o.tipo === 'baobab' ? 0.9 : 0.6, _leve ? 5 : 8, _leve ? 4 : 6);
-    const cm = new T.Mesh(cg, mat(o.tipo === 'palmeira' ? '#3d8c40' : '#2d7030'));
-    cm.position.y = o.tipo === 'palmeira' ? 1.5 : 1.3;
-    cm.castShadow = !_leve;
-    g.add(cm);
+  // nevoeiro adaptado ao contexto
+  if (dentroAgora) {
+    cena3.fog = new T.Fog(0xbdd5dd, 140, 320);
+  } else {
+    cena3.fog = new T.Fog(0x9db8c4, 80, 180);
   }
-  g.position.set((o.x || 0) + 0.5, 0, (o.y || 0) + 0.5);
-  return g;
+
+  cam3.iniciada = false;
 }
 
-function _makeEscada(o) {
+/* ── modelos de fallback para quando MODELOS[tipo] não existe ──── */
+function _makeArvore(tipo) {
   const g = new T.Group();
-  for (let i = 0; i < 3; i++) {
-    const sg = new T.BoxGeometry(0.8, 0.12, 0.3);
-    const sm = new T.Mesh(sg, mat('#b0a090'));
-    sm.position.set(0.5, 0.06 + i * 0.12, 0.15 + i * 0.3);
-    g.add(sm);
-  }
-  g.position.set(o.x, 0, o.y);
+  const tronco = new T.Mesh(new T.CylinderGeometry(0.1, 0.14, 1.2, 6), new T.MeshStandardMaterial({ color: tipo === 'palmeira' ? 0x8b6914 : 0x6b4f28, roughness: 1 }));
+  tronco.position.z = 0.6; tronco.rotation.x = Math.PI / 2; g.add(tronco);
+  const copa = new T.Mesh(new T.SphereGeometry(tipo === 'baobab' ? 0.9 : 0.6, 6, 5), new T.MeshStandardMaterial({ color: tipo === 'palmeira' ? 0x3d8c40 : 0x2d7030, roughness: 1 }));
+  copa.position.z = tipo === 'palmeira' ? 1.5 : 1.3; g.add(copa);
   return g;
 }
-
-function _makeCandeeiro(o) {
+function _makeCandeeiro() {
   const g = new T.Group();
-  const pg = new T.CylinderGeometry(0.04, 0.04, 2.0, 5);
-  const pm = new T.Mesh(pg, mat('#404040'));
-  pm.position.set(0.5, 1.0, 0.5);
-  g.add(pm);
-  if (!_leve) {
-    const pl = new T.PointLight(0xffe0a0, 1.2, 8);
-    pl.position.set(0.5, 2.1, 0.5);
-    g.add(pl);
-  }
-  g.position.set(o.x, 0, o.y);
+  const ferro = new T.MeshStandardMaterial({ color: 0x2b2e33, metalness: 0.6, roughness: 0.4 });
+  const poste = new T.Mesh(new T.CylinderGeometry(0.035, 0.05, 1.7, 8), ferro);
+  poste.rotation.x = Math.PI / 2; poste.position.z = 0.85; g.add(poste);
+  const luz = new T.MeshStandardMaterial({ color: 0xfff3c4, emissive: 0xffc864, emissiveIntensity: 0 });
+  luz.userData.lampada = true;
+  const b = new T.Mesh(new T.BoxGeometry(0.18, 0.12, 0.06), luz);
+  b.position.set(0.34, 0, 1.64); g.add(b);
   return g;
 }
-
-function _makeVeiculo(o) {
+function _makeAbrigo(o, cor) {
   const g = new T.Group();
-  const w = o.w || 2, d = o.d || 4;
-  const corpo = box(w * 0.85, 0.5, d * 0.85, mat(o.cor || '#3d7cc9'));
-  corpo.position.set(w / 2, 0.4, d / 2);
-  corpo.castShadow = !_leve;
-  g.add(corpo);
-  const tecto = box(w * 0.65, 0.35, d * 0.5, mat(o.cor || '#3d7cc9'));
-  tecto.position.set(w / 2, 0.83, d / 2);
-  g.add(tecto);
-  g.position.set(o.x, 0, o.y);
+  const w = o.w || 2, d = o.d || 1;
+  const mat = new T.MeshStandardMaterial({ color: cor, roughness: 0.74 });
+  const telhado = new T.Mesh(new T.BoxGeometry(w, d, 0.055), mat);
+  telhado.position.set(w / 2, d / 2, 1.62); g.add(telhado);
   return g;
 }
 
 /* ── pessoas ─────────────────────────────────────────────────── */
-const PELES = ['#FFDBB4', '#C68642', '#8D5524', '#4A2912', '#F1C27D', '#E8A87C', '#7B4F3A', '#A0522D'];
+const PELES_3D = ['#f3cfae', '#dca77c', '#b97a4c', '#8d5527', '#6a3c1c', '#4a2912'];
+const CORS_CABELO_3D = ['#1a1310', '#4a2a17', '#8a5a2b', '#c9a24a', '#a8322d', '#9a9a9a'];
 
-function _pessoaCor(camada, ap) {
-  if (camada === 'pele') return PELES[ap.pele ?? 3] || PELES[3];
-  if (camada === 'cima') return ap.camisa || '#e0313f';
-  if (camada === 'baixo') return ap.calca || '#2a3b55';
-  if (camada === 'cabelo') return ap.corCabelo ? '#' + String(ap.corCabelo).replace('#', '') : '#1a0a00';
+function corDe(cam, ap) {
+  const est = ap.cabelo ?? 1, camisa = ap.camisa || '#e0313f';
+  if (cam === 'pele') return PELES_3D[ap.pele ?? 3] || PELES_3D[3];
+  if (cam === 'cima') return camisa;
+  if (cam === 'baixo') return ap.calca || '#2a3b55';
+  if (cam === 'cabelo') return est === 5 ? _shade(camisa, 0.15) : (CORS_CABELO_3D[ap.corCabelo ?? 0] || CORS_CABELO_3D[0]);
   return null;
 }
 
-function _buildPessoa(id, ap) {
-  // pessoaRig usa Z como eixo "cima" (Z=0 pés, Z≈1.3 cabeça).
-  // O mundo 3D usa Y como cima. Envolve o rig num pivot e roda -90° em X
-  // para que Z-cima → Y-cima, ficando o personagem de pé no plano do chão.
-  // O pivot é o que vai para a cena e recebe posição/rotação de direcção.
+function _shade(h, f) {
+  if (typeof shade === 'function') return shade(h, f);
+  const n = parseInt(h.replace('#', ''), 16);
+  const clamp = x => Math.min(255, Math.max(0, x));
+  return '#' + [n >> 16, (n >> 8) & 0xff, n & 0xff]
+    .map(c => clamp(c + Math.round(255 * f)).toString(16).padStart(2, '0')).join('');
+}
+
+function fundirRig(g) {
+  const vivos = new Set(g.userData.vivos || []), nos = [];
+  g.traverse(n => { if (!n.isMesh) nos.push(n); });
+  for (const no of nos) {
+    const grupos = new Map();
+    for (const m of [...no.children]) {
+      if (!m.isMesh || vivos.has(m) || m.children.length || !m.visible) continue;
+      const mt = m.material;
+      const chave = [mt.color.getHexString(), mt.roughness, mt.metalness, mt.side, mt.userData.camada].join('|');
+      if (!grupos.has(chave)) grupos.set(chave, { mat: mt, ms: [] });
+      grupos.get(chave).ms.push(m);
+    }
+    for (const { mat, ms } of grupos.values()) {
+      if (ms.length < 2) continue;
+      const gs = ms.map(m => {
+        m.updateMatrix();
+        const x = m.geometry.index ? m.geometry.toNonIndexed() : m.geometry.clone();
+        x.applyMatrix4(m.matrix);
+        for (const a of Object.keys(x.attributes)) if (!['position', 'normal', 'uv'].includes(a)) x.deleteAttribute(a);
+        if (!x.attributes.uv) x.setAttribute('uv', new T.BufferAttribute(new Float32Array(x.attributes.position.count * 2), 2));
+        return x;
+      });
+      const junto = new T.Mesh(T.mergeGeometries(gs, false), mat);
+      junto.castShadow = ms[0].castShadow;
+      ms.forEach(m => { no.remove(m); m.geometry.dispose(); });
+      no.add(junto);
+    }
+  }
+  return g;
+}
+
+function criarPessoa(ap, crianca) {
   try {
-    const inner = pessoaRig(T, {
-      roupa: Math.min(6, ap.roupa || 0),
+    const g = pessoaRig(T, {
+      peca: ap.peca,
+      roupa: Math.min(crianca ? 4 : 6, ap.roupa || 0),
       cabelo: ap.cabelo ?? 1,
-      acc: ap.acess || [],
+      perfil: ap.perfil,
+      crianca,
+      acc: crianca ? [] : (ap.acess || []),
     });
-    inner.traverse(m => {
+    g.traverse(m => {
       if (!m.isMesh) return;
-      const c = _pessoaCor(m.material.userData.camada, ap);
-      if (c) m.material = m.material.clone(), m.material.color.set(c);
-      m.castShadow = !_leve;
+      const c = corDe(m.material.userData.camada, ap);
+      m.castShadow = true;
+      if (c) m.material.color.set(c);
+      if ((ap.cabelo ?? 1) === 0 && m.material.userData.camada === 'cabelo') m.visible = false;
     });
-    inner.rotation.x = -Math.PI / 2;  // Z-up → Y-up: personagem fica de pé
-    const pivot = new T.Group();
-    pivot.add(inner);
-    // expor userData do inner no pivot para animações e cores
-    pivot.userData = inner.userData;
-    scene.add(pivot);
-    _pessoaMesh.set(id, { rig: pivot, ap: JSON.stringify(ap) });
-    return pivot;
+    if (!crianca && ap.animal) {
+      try {
+        const a = animal3d(T, ap.animal);
+        if (ap.animal === 'papagaio') { a.position.set(0.13, -0.01, 1.05); a.scale.setScalar(1.5); }
+        else a.position.set(-0.32, 0.06, 0);
+        a.userData.animal = true; g.add(a);
+      } catch { /* animal opcional */ }
+    }
+    return fundirRig(g);
   } catch (e) {
-    console.warn('mundo3d: pessoaRig falhou', e);
+    console.warn('[mundo3d] pessoaRig falhou:', e);
+    // fallback: boneco simples
     const g = new T.Group();
-    const corpo = box(0.4, 1.0, 0.25, mat(ap.camisa || '#e0313f'));
-    corpo.position.y = 0.5;
-    const cab = new T.Mesh(new T.SphereGeometry(0.22, _leve ? 5 : 8), mat(PELES[ap.pele ?? 3] || PELES[3]));
-    cab.position.y = 1.2;
-    cab.castShadow = !_leve;
-    g.add(corpo, cab);
-    scene.add(g);
-    _pessoaMesh.set(id, { rig: g, ap: JSON.stringify(ap) });
+    const corpo = new T.Mesh(new T.BoxGeometry(0.4, 0.25, 1.0), new T.MeshStandardMaterial({ color: ap.camisa || 0xe0313f }));
+    corpo.position.z = 0.5; g.add(corpo);
+    const cab = new T.Mesh(new T.SphereGeometry(0.22, 6, 5), new T.MeshStandardMaterial({ color: PELES_3D[ap.pele ?? 3] }));
+    cab.position.z = 1.2; g.add(cab);
+    g.userData.pose = () => {};
     return g;
   }
 }
 
-function _atualizarPessoas(lista, noite) {
-  const vivos = new Set();
+function sincronizarPessoas(lista, eu) {
+  const vistos = new Set();
+  const agora = performance.now();
 
   for (const p of lista) {
-    const id = p.id ?? 'eu';
-    vivos.add(id);
+    if (!p) continue;
+    const crianca = (p.escala || 1) < 0.8;
+    const ap = p.ap || {};
+    const chave = JSON.stringify([ap.pele, ap.cabelo, ap.corCabelo, ap.camisa, ap.calca, ap.roupa, ap.peca, ap.acess, crianca, ap.animal || '', ap.perfil]);
+    const pose = p.pose?.tipo;
+    const tipo = pose === 'correr' ? 'correr' : p.andando ? 'andar' : (pose || 'parado');
+    let e = pessoas.get(p);
 
-    const apStr = JSON.stringify(p.ap || {});
-    let entry = _pessoaMesh.get(id);
-
-    if (!entry || entry.ap !== apStr) {
-      if (entry) scene.remove(entry.rig);
-      entry = null;
+    if (e && e.chave !== chave) {
+      raiz.remove(e.g); deitarFora(e.g); e = null;
+    }
+    if (!e) {
+      const g = criarPessoa(ap, crianca);
+      e = { g, chave, rz: 0, x: p.x, y: p.y, passo: 0 };
+      raiz.add(e.g);
+      pessoas.set(p, e);
     }
 
-    const rig = entry ? entry.rig : _buildPessoa(id, p.ap || {});
-    if (!rig) continue;
+    vistos.add(p);
 
-    if (!entry) rig.scale.setScalar(1.6); // VEM: personagens estavam pequenos vs edifícios
-    // posiciona no centro do tile (p.x/p.y já são tx+0.5, ty+0.5)
-    rig.position.set(p.x, 0, p.y);
+    const dx = p.x - e.x, dy = p.y - e.y;
+    const dist = Math.hypot(dx, dy);
+    if (dist > 0.002) e.rz = Math.atan2(-dx, dy);
+    const passada = crianca ? 1.1 : 1.55;
+    if (p.andando && dist < 2) e.passo = (e.passo + dist / passada) % 1;
+    e.x = p.x; e.y = p.y;
 
-    if (p.d8 != null) {
-      rig.rotation.y = -(p.d8 * Math.PI / 4) + Math.PI;
-    } else {
-      rig.rotation.y = p.dir < 0 ? Math.PI : 0;
-    }
+    const alturaPose = pose === 'deitado' ? 0.36 : pose === 'sentado' ? 0.22 : 0;
+    if ((pose === 'sentado' || pose === 'deitado') && p.pose?.rot != null)
+      e.rz = [0, -Math.PI / 2, Math.PI, Math.PI / 2][p.pose.rot & 3];
 
-    if (typeof rig.userData.animar === 'function') {
-      rig.userData.animar(p.t || 0, p.andando || false, p.pose?.tipo || null);
-    }
+    e.g.position.set(p.x, p.y, alturaPose);
+    e.g.rotation.z = e.rz;
+    e.g.visible = !(primeira && p.eu && !eu?.seguirAvatar);
 
-    rig.visible = true;
+    const f = p.andando ? e.passo : ((p.t || 0) * 0.24) % 1;
+    if (e.g.visible && typeof e.g.userData.pose === 'function')
+      e.g.userData.pose(tipo, f, 1);
   }
 
-  for (const [id, entry] of _pessoaMesh) {
-    if (!vivos.has(id)) entry.rig.visible = false;
+  for (const [p, e] of pessoas) {
+    if (!vistos.has(p)) { raiz.remove(e.g); deitarFora(e.g); pessoas.delete(p); }
   }
 }
 
-/* ── posicionar câmara ───────────────────────────────────────── */
-function _posicionarCamera(cam, cena) {
-  const alvoX = cam.x + (cena?.W || 10) * 0.0;
-  const alvoZ = cam.y + (cena?.H || 10) * 0.0;
-  const alvo = new T.Vector3(alvoX, 0, alvoZ);
-
-  const dist = CAM_DIST / Math.max(0.45, cam.z);
-  const ex = alvoX + Math.sin(_angulo) * dist;
-  const ey = dist * Math.tan(CAM_PITCH) + 2;
-  const ez = alvoZ + Math.cos(_angulo) * dist;
-
-  camera.position.set(ex, ey, ez);
-  camera.lookAt(alvoX, 0.5, alvoZ);
-
-  _sunLight.target.position.set(alvoX, 0, alvoZ);
-  _sunLight.target.updateMatrixWorld();
-  _sunLight.position.set(alvoX + 12, 20, alvoZ - 10);
+/* ── câmara ───────────────────────────────────────────────────── */
+let _ult = [390, 760, 1];
+function tamanho() {
+  const w = innerWidth, h = innerHeight;
+  if (canvas.width !== Math.floor(w * renderer.getPixelRatio()) ||
+      canvas.height !== Math.floor(h * renderer.getPixelRatio()))
+    renderer.setSize(w, h, false);
+  return [w, h];
+}
+function atualizarCamara(w, h, z, jogador) {
+  _ult = [w, h, z];
+  cam3.az += (cam3.azAlvo - cam3.az) * 0.18;
+  const dir = new T.Vector3(Math.cos(cam3.az) * Math.cos(E), Math.sin(cam3.az) * Math.cos(E), Math.sin(E));
+  const hw = w / 2 / (K * z), hh = h / 2 / (K * z);
+  if (primeira) {
+    const altura = jogador.pose?.tipo === 'sentado' ? 1.02 : jogador.pose?.tipo === 'deitado' ? 0.62 : 1.24;
+    camara.position.set(jogador.y, jogador.x, altura * (jogador.escala || 1));
+    mira.set(Math.cos(rumo) * Math.cos(inclinacao), Math.sin(rumo) * Math.cos(inclinacao), Math.sin(inclinacao));
+    mira.add(camara.position);
+    camara.lookAt(mira);
+    if (camara.aspect !== undefined) camara.aspect = w / h;
+  } else {
+    camara.position.copy(cam3.alvo).addScaledVector(dir, 100);
+    camara.lookAt(cam3.alvo);
+    camara.left = -hw; camara.right = hw; camara.top = hh; camara.bottom = -hh;
+  }
+  camara.updateProjectionMatrix();
+  camara.updateMatrixWorld();
+  // sol segue a câmara
+  const centro = primeira ? new T.Vector3(jogador.y, jogador.x, 0) : cam3.alvo;
+  sol.position.copy(centro).add(new T.Vector3(-9, 6, 24));
+  sol.target.position.copy(centro);
+  const R = primeira ? 26 : Math.max(hw, hh) * 1.25 + 4;
+  const sc = sol.shadow.camera;
+  sc.left = -R; sc.right = R; sc.top = R; sc.bottom = -R;
+  sc.near = 1; sc.far = 80; sc.updateProjectionMatrix();
 }
 
-/* ── converter tile → pixel de ecrã ─────────────────────────── */
-function ecra(x, y, z = 0) {
-  const v = new T.Vector3(x, z * 0.5, y);
-  v.project(camera);
-  return [
-    (v.x * 0.5 + 0.5) * innerWidth,
-    (-v.y * 0.5 + 0.5) * innerHeight,
-  ];
+/* ── quadro principal ────────────────────────────────────────── */
+function quadro(o) {
+  // o = { cena, eu, lista, cam (z, seguir), t, noite, tempo, deco }
+  if (!renderer) iniciar();
+  if (renderer?.getContext().isContextLost()) throw new Error('Contexto WebGL perdido');
+
+  if (construida !== o.cena || assinaturaDe(o.cena) !== assinatura)
+    construir(o.cena);
+
+  canvas.style.display = '';
+  const [w, h] = tamanho();
+
+  // dia e noite
+  const n = Math.min(1, (o.noite || 0) / 0.48);
+  sol.intensity = 2.4 * (1 - n * 0.8);
+  hemi.intensity = 1.1 * (1 - n * 0.35);
+  hemi.color.setRGB(0.87 - n * 0.4, 0.91 - n * 0.35, 1);
+  renderer.toneMappingExposure = 1.05 - n * 0.12;
+  for (const l of lampadas) l.emissiveIntensity = n * 2.2;
+  for (const v of vidros) { v.emissive.setHex(0xffc864); v.emissiveIntensity = n * 0.55; }
+  if (!o.noite && o.tempo) {
+    const k = { nublado: 0.5, cacimbo: 0.55, chuva: 0.3, tempestade: 0.15 }[o.tempo] ?? 1;
+    sol.intensity *= k; hemi.intensity *= 0.75 + 0.25 * k;
+  }
+  if (cena3.fog) renderer.setClearColor(cena3.fog.color.clone().multiplyScalar(1 - n * 0.6));
+
+  // alvo da câmara
+  const alvoEu = g2w(o.eu.x, o.eu.y, 0.55);
+  if (!cam3.iniciada) { cam3.alvo.copy(alvoEu); cam3.iniciada = true; }
+  if (o.cam.seguir) cam3.alvo.lerp(alvoEu, 0.12);
+
+  atualizarCamara(w, h, o.cam.z, o.eu);
+  sincronizarPessoas(o.lista, o.eu);
+  renderer.render(cena3, camara);
+
+  // métricas
+  info._n++;
+  const agora = performance.now();
+  if (agora - info._t > 1000) {
+    info.fps = Math.round(info._n * 1000 / (agora - info._t || 1));
+    info._n = 0; info._t = agora;
+  }
+  info.calls = renderer.info.render.calls;
+  info.tris = renderer.info.render.triangles;
+  info.geo = renderer.info.memory.geometries;
+  info.tex = renderer.info.memory.textures;
+  info.mb = performance.memory ? Math.round(performance.memory.usedJSHeapSize / 1048576) : null;
+}
+
+/* ── ecra: tile → pixel de ecrã ─────────────────────────────── */
+const _v = new T.Vector3();
+function ecra(x, y, zpx = 0) {
+  if (!camara) return [-9999, -9999, 9];
+  _v.set(y, x, zpx / PX_Z).project(camara);
+  if (primeira && (!Number.isFinite(_v.z) || _v.z < -1 || _v.z > 1)) return [-9999, -9999, 9];
+  return [(_v.x + 1) / 2 * innerWidth, (1 - _v.y) / 2 * innerHeight, _v.z];
 }
 
 /* ── raycasting ──────────────────────────────────────────────── */
-function escolher(sx, sy, npcs) {
-  if (!renderer || !scene || !camera) return {};
+function escolher(sx, sy, lista) {
+  if (!camara) return {};
+  const ndc = new T.Vector2(sx / innerWidth * 2 - 1, -(sy / innerHeight) * 2 + 1);
+  ray.setFromCamera(ndc, camara);
 
-  const ndc = new T.Vector2(
-    (sx / innerWidth) * 2 - 1,
-    -(sy / innerHeight) * 2 + 1,
-  );
-  raycaster.setFromCamera(ndc, camera);
-
-  for (const p of npcs) {
-    const entry = _pessoaMesh.get(p.id ?? 'eu');
-    if (!entry || !entry.rig.visible) continue;
-    const hits = raycaster.intersectObject(entry.rig, true);
-    if (hits.length) return { pessoa: p };
+  // 1) pessoas: critério de ecrã (como no jogo 2.5D)
+  for (const p of lista) {
+    const [px, py, prof] = ecra(p.x, p.y, 0), [, hy] = ecra(p.x, p.y, 54);
+    const lado = Math.max(10, (py - hy) * 0.3);
+    if (primeira && (prof < -1 || prof > 1)) continue;
+    if (Math.abs(sx - px) < lado && sy < py + 4 && sy > hy - 4) return { pessoa: p };
   }
 
-  const objs = [];
-  _predioMesh.forEach(g => objs.push(g));
-  const hits = raycaster.intersectObjects(objs, true);
-  if (hits.length) {
-    let g = hits[0].object;
-    while (g.parent && !g.userData.obj3d) g = g.parent;
-    if (g.userData.obj3d) {
-      const o = g.userData.obj3d;
-      if (o.kind === 'escada' || o.spec || o.kind === 'movel' || o.kind === 'veiculo') return { obj: o };
-      if ((o.kind === 'predio' || o.kind === 'casinha') && hits[0].point.z < o.y + 0.5) return { obj: PORTA };
-    }
+  // 2) objetos pickaveis
+  const hit = ray.intersectObjects(pickaveis, false)[0];
+  const pt = ray.ray.intersectPlane(chaoPlano, new T.Vector3());
+  const r = {};
+  if (hit && (!pt || hit.distance <= (camara.position?.distanceTo(pt) ?? Infinity)))
+    r.obj = hit.object.userData.obj;
+  if (pt) {
+    r.wx = pt.y; r.wy = pt.x;
+    r.tile = [Math.floor(pt.y), Math.floor(pt.x)];
   }
-
-  const chaoMeshes = scene.children.filter(c => c.userData.chao);
-  const hitsChao = raycaster.intersectObjects(chaoMeshes);
-  if (hitsChao.length) {
-    const pt = hitsChao[0].point;
-    return { tile: [Math.floor(pt.x), Math.floor(pt.z)] };
-  }
-
-  return {};
+  return r;
 }
 
-/* ── arrastar câmara (pan) ────────────────────────────────────── */
-function arrastar(dx, dy, zoom) {
-  const escala = CAM_DIST / (zoom * 400);
-  window._cam3dPanX = (window._cam3dPanX || 0) - dx * escala;
-  window._cam3dPanY = (window._cam3dPanY || 0) - dy * escala;
-  if (typeof _onPan === 'function') _onPan(dx * escala, dy * escala);
+/* ── arrastar câmara ──────────────────────────────────────────── */
+function arrastar(dx, dy, z) {
+  const k = 1 / (K * z), a = cam3.az;
+  const direita = new T.Vector3(-Math.sin(a), Math.cos(a), 0);
+  const frente = new T.Vector3(-Math.cos(a), -Math.sin(a), 0);
+  cam3.alvo.addScaledVector(direita, -dx * k).addScaledVector(frente, dy * k / Math.sin(E));
 }
-let _onPan = null;
 
 /* ── rodar câmara ─────────────────────────────────────────────── */
-function rodar(angulo, snap = true) {
-  if (snap) {
-    _angulo = Math.round((_angulo + angulo) / (Math.PI / 2)) * (Math.PI / 2);
-  } else {
-    _angulo += angulo;
-  }
+function rodar(rad, suave = true) {
+  if (primeira) { rumo += rad; return; }
+  cam3.azAlvo += rad;
+  if (!suave) { cam3.az = cam3.azAlvo; if (camara) atualizarCamara(..._ult); }
 }
 
 /* ── esconder (voltar ao 2D) ─────────────────────────────────── */
-function esconder() {
-  if (!renderer) return;
-  renderer.domElement.style.display = 'none';
+function esconder() { if (canvas) canvas.style.display = 'none'; }
+
+/* ── primeira pessoa ─────────────────────────────────────────── */
+function primeiraPessoa(ligar) {
+  if (primeira === ligar || !vistaAlta) return;
+  primeira = ligar;
+  camara = ligar ? olhos : vistaAlta;
+  if (ligar) { rumo = cam3.az + Math.PI; inclinacao = -0.12; }
+  else { cam3.az = cam3.azAlvo = Math.PI / 4; cam3.iniciada = false; }
+}
+function olhar(dx, dy) {
+  dx = Math.max(-40, Math.min(40, dx)); dy = Math.max(-40, Math.min(40, dy));
+  rumo += dx * 0.0042;
+  inclinacao = Math.max(-1.1, Math.min(1.1, inclinacao + dy * 0.0032));
+}
+function direcaoMundo(frente, direita) {
+  const m = Math.min(1, Math.hypot(frente, direita)); if (!m) return [0, 0];
+  const a = rumo - Math.atan2(direita, frente);
+  return [Math.sin(a) * m, Math.cos(a) * m];
+}
+function virarPara(dx, dy, dt) {
+  if (Math.hypot(dx, dy) < 0.05) return;
+  const alvo = Math.atan2(dx, dy); let d = alvo - rumo; d = Math.atan2(Math.sin(d), Math.cos(d));
+  rumo += d * Math.min(1, dt * 5); inclinacao += (-0.12 - inclinacao) * Math.min(1, dt * 3);
+}
+function passoRelativo(frente, direita) {
+  const a = rumo - Math.atan2(direita, frente);
+  const passo = Math.round(a / (Math.PI / 4)) * Math.PI / 4;
+  return [Math.round(Math.sin(passo)), Math.round(Math.cos(passo))];
 }
 
 /* ── modos ───────────────────────────────────────────────────── */
@@ -615,55 +687,14 @@ function leve() {
   _leve = true;
   if (!renderer) return;
   renderer.setPixelRatio(1);
-  renderer.shadowMap.enabled = false;
-  _buildLights();
+  if (sol) sol.castShadow = false;
 }
 function normal() {
   _leve = false;
   if (!renderer) return;
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.shadowMap.enabled = true;
-  _buildLights();
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.5));
+  if (sol) sol.castShadow = true;
 }
-
-/* ── quadro principal ────────────────────────────────────────── */
-function quadro({ cena, eu, lista, cam, t, noite, tempo, deco }) {
-  if (!renderer) init();
-  if (!renderer) return;
-
-  renderer.domElement.style.display = '';
-
-  if (cena.id !== _cenaId || cena.tipo + (cena.andar || 0) !== (_cenaTag || '')) {
-    _cenaId = cena.id;
-    _cenaTag = cena.tipo + (cena.andar || 0);
-    _buildChao(cena);
-    _buildObjetos(cena);
-  }
-
-  if (_ambLight && _sunLight) {
-    const n = noite || 0;
-    _ambLight.intensity = 0.55 - n * 0.35;
-    _sunLight.intensity = 1.1 - n * 0.8;
-    scene.background = null; // transparente — mapa 2D mostra por baixo
-  }
-
-  _posicionarCamera(cam, cena);
-  _atualizarPessoas(lista, noite);
-  renderer.render(scene, camera);
-
-  _fpsN++;
-  const now = performance.now();
-  if (now - _fpsT >= 1000) {
-    info.fps = Math.round(_fpsN * 1000 / (now - _fpsT));
-    _fpsN = 0; _fpsT = now;
-    const ren = renderer.info;
-    info.calls = ren.render.calls;
-    info.tris = ren.render.triangles;
-    info.geo = ren.memory.geometries;
-    info.tex = ren.memory.textures;
-  }
-}
-let _cenaTag = '';
 
 /* ── expor interface ─────────────────────────────────────────── */
 window.M3D = {
@@ -675,8 +706,16 @@ window.M3D = {
   esconder,
   leve,
   normal,
+  primeiraPessoa,
+  olhar,
+  passoRelativo,
+  direcaoMundo,
+  virarPara,
+  get primeira() { return primeira; },
   get info() { return info; },
   PORTA,
+  construir: c => construir(c),
 };
 
-console.log('[mundo3d] carregado');
+window.dispatchEvent(new Event('m3d-pronto'));
+console.log('[mundo3d] carregado — Vida em Moz');

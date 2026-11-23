@@ -1,3 +1,5 @@
+// 13 nov (lançamento): se o atelier.js não carregar (rede fraca), as personagens desenham-se sem os padrões em vez de rebentar
+const _atl = () => typeof atelier !== 'undefined' ? atelier : { tinta: () => null, motivo: () => '', mapa: () => null };
 /* ============================================================
    Vida na Banda — motor isométrico
    Projeção, desenho de caixas, pessoas, móveis, A*, ordenação.
@@ -89,7 +91,9 @@ const AV3D = { idx: null, img: new Map(), comp: new Map() };
 const AV3D_ACC = ['oculos', 'oculos_ouro', 'chapeu', 'brincos', 'colar', 'corrente_ouro', 'relogio', 'auscultadores', 'coroa', 'brincos_ouro', 'anel_diamante', 'colar_diamante', 'relogio_diamante'];
 const AV3D_Q = { parado: 0, andar: 1, sentado: 9, deitado: 10, trabalhar: 11 };
 // ligadas para todos desde 25 out (o dono e a Cinnss aprovaram); localStorage vel_av3d = '0' volta ao desenho antigo (testes/telemóveis fracos)
+let AV3D_SEM = false;   // 12 nov: os retratos da lista usam o desenho antigo enquanto as camadas 3D descarregam
 function av3dAtivo() {
+  if (AV3D_SEM) return false;
   try { if (localStorage.getItem('vel_av3d') === '0') return false; } catch { }
   return true;
 }
@@ -115,51 +119,90 @@ function av3dImg(n) {
   if (!im) { im = new Image(); im.decoding = 'async'; im.src = 'img/modelos/pessoa/' + n + '.webp'; AV3D.img.set(n, im); seguirCarga(im); }
   return im;
 }
-function av3dPintar(im, cor, w, h) {
+function av3dPintar(im, cor, w, h, peca) {
   const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d');
   if (!g) return c;   // 6 nov: iPhones antigos sem memória para mais um canvas
   g.drawImage(im, 0, 0); if (!cor) return c;
-  g.globalCompositeOperation = 'multiply'; g.fillStyle = cor; g.fillRect(0, 0, w, h);
+  g.globalCompositeOperation = 'multiply'; g.fillStyle = _atl().tinta(g,peca,15) || cor; g.fillRect(0, 0, w, h);
   g.globalCompositeOperation = 'destination-in'; g.drawImage(im, 0, 0);
   return c;
 }
-// folha já pintada para esta aparência (fica em cache); null enquanto as imagens não chegam
-function av3dFolha(ap, crianca) {
+// as camadas desta aparência: { chave, lista: [[imagem, cor]] }; null enquanto o índice não chega
+function av3dCamadas(ap, crianca) {
   const ix = AV3D.idx; if (!ix || typeof ix !== 'object') { av3dCarregar(); return null; }
+  if (ap.perfil === 'celina' && !_atl().motivo(ap.peca) && !crianca && ix.folhas.includes('celina')) {
+    return { chave: 'celina', lista: AV3D.comp.has('celina') ? null : [[av3dImg('celina'), null]] };
+  }
   const roupa = Math.min(crianca ? 4 : 6, ap.roupa || 0), est = ap.cabelo ?? 1, k = crianca ? 'k' : '';
   const pele = PELES[ap.pele ?? 3] || PELES[3], camisa = ap.camisa || '#e0313f', calca = ap.calca || '#2a3b55';
   const cab = est === 5 ? shade(camisa, 0.15) : (CORES_CABELO[ap.corCabelo ?? 0] || CORES_CABELO[0]);
   const acc = crianca ? [] : (Array.isArray(ap.acess) ? ap.acess : []).filter(a => AV3D_ACC.includes(a)).sort();
-  const chave = [k, roupa, est, pele, camisa, calca, cab, acc.join(',')].join('|');
-  if (AV3D.comp.has(chave)) return AV3D.comp.get(chave);
+  const chave = [_atl().motivo(ap.peca)||'',k, roupa, est, pele, camisa, calca, cab, acc.join(',')].join('|');
+  if (AV3D.comp.has(chave)) return { chave, lista: null };
   const camadas = [[`${k}r${roupa}_pele`, pele], [`${k}r${roupa}_baixo`, calca], [`${k}r${roupa}_cima`, camisa], [`${k}r${roupa}_fixo`, null]];
   if (est >= 1 && est <= 5) camadas.push([`${k}c${est}`, cab]);
   for (const a of acc) camadas.push([`a_${a}`, null]);
-  const lista = camadas.filter(([n]) => ix.folhas.includes(n)).map(([n, c]) => [av3dImg(n), c]);
+  return { chave, lista: camadas.filter(([n]) => ix.folhas.includes(n)).map(([n, c]) => [av3dImg(n), c, n.endsWith('_cima') ? ap.peca : null]) };
+}
+// folha já pintada para esta aparência (fica em cache); null enquanto as imagens não chegam
+function av3dFolha(ap, crianca) {
+  const cm = av3dCamadas(ap, crianca); if (!cm) return null;
+  if (!cm.lista) return AV3D.comp.get(cm.chave);
+  const ix = AV3D.idx, chave = cm.chave, lista = cm.lista;
   if (lista.some(([im]) => !im.complete || !im.naturalWidth)) return null;
+  if (chave === 'celina' && ix.celina) {
+    const f = { cv: lista[0][0], cw: ix.cw, ch: ix.ch, ax: ix.ax, ay: ix.ay,
+      pv: ix.celina.porVista, vistas: ix.vistas, andar: ix.celina.andar, sentado: ix.celina.sentado };
+    AV3D.comp.set(chave, f); return f;
+  }
   const w = ix.cw * ix.quadros, h = ix.ch, out = document.createElement('canvas'); out.width = w; out.height = h;
   const g = out.getContext('2d'); if (!g) return null;   // 7 nov: telemóveis sem memória para mais um canvas (18 erros)
-  for (const [im, c] of lista) g.drawImage(av3dPintar(im, c, w, h), 0, 0);
+  for (const [im, c, peca] of lista) g.drawImage(av3dPintar(im, c, w, h, peca), 0, 0);
   const f = { cv: out, cw: ix.cw, ch: ix.ch, ax: ix.ax, ay: ix.ay, pv: ix.porVista || 15, vistas: ix.vistas || 2 };
   if (AV3D.comp.size > 120) AV3D.comp.clear();
   AV3D.comp.set(chave, f); return f;
+}
+// 12 nov (dono: «Socials bug still not resolved», iPhone): um retrato só precisa do 1.º quadro. Antes, cada cara da lista pintava a
+// folha inteira (6 camadas × 6750×140 px ≈ 26 MB de canvas por pessoa) → 74 pessoas no Social rebentavam o Safari. Agora: 2 canvas
+// pequenos reutilizados, nada fica em cache. Devolve o canvas do retrato (W×H) ou null se as camadas ainda não chegaram.
+const AV3D_RET = {};
+function av3dRetrato(ap, W, H, sy, escala) {
+  if (!av3dAtivo()) return null;
+  const cm = av3dCamadas(ap, false); if (!cm) return null;
+  const ix = AV3D.idx, f = AV3D.comp.get(cm.chave), lista = cm.lista || [];
+  if (!f && lista.some(([im]) => !im.complete || !im.naturalWidth)) return null;
+  const cw = ix.cw, ch = ix.ch;
+  if (!AV3D_RET.t) { AV3D_RET.t = document.createElement('canvas'); AV3D_RET.o = document.createElement('canvas'); }
+  const t = AV3D_RET.t, o = AV3D_RET.o; t.width = cw; t.height = ch; o.width = W; o.height = H;
+  const g = o.getContext('2d'), u = t.getContext('2d'); if (!g || !u) return null;
+  const quadro = document.createElement('canvas'); quadro.width = cw; quadro.height = ch; const q = quadro.getContext('2d'); if (!q) return null;
+  if (f) q.drawImage(f.cv, 0, 0, cw, ch, 0, 0, cw, ch);   // a folha já existe (pessoa à vista no mapa): só copiar o quadro
+  else for (const [im, cor, peca] of lista) {
+    u.globalCompositeOperation = 'source-over'; u.clearRect(0, 0, cw, ch); u.drawImage(im, 0, 0, cw, ch, 0, 0, cw, ch);
+    if (cor) { u.globalCompositeOperation = 'multiply'; u.fillStyle = _atl().tinta(u,peca,15) || cor; u.fillRect(0, 0, cw, ch); u.globalCompositeOperation = 'destination-in'; u.drawImage(im, 0, 0, cw, ch, 0, 0, cw, ch); }
+    q.drawImage(t, 0, 0);
+  }
+  g.clearRect(0, 0, W, H); g.save(); g.translate(W / 2, sy); g.scale(escala, escala);
+  g.drawImage(quadro, 0, 0, cw, ch, -ix.ax / 2, -ix.ay / 2, cw / 2, ch / 2); g.restore();
+  return o;
 }
 // vista de cada uma das 8 direções: [vista na folha (0 baixo-dir, 1 baixo, 2 direita, 3 cima-dir, 4 cima), espelho]
 const VISTA8 = [[2, 1], [0, 1], [1, 1], [0, -1], [2, -1], [3, -1], [4, 1], [3, 1]];
 function desenhaPessoa3D(ctx, sx, sy, f, ap, t, andar, dir, costas, escala, pose, d8) {
   let vista = costas ? 3 : 0;
-  if (d8 != null && !pose && f.vistas >= 5) [vista, dir] = VISTA8[d8];
+  if (d8 != null && (!pose || pose === 'sentado') && f.vistas >= 5) [vista, dir] = VISTA8[d8];
   else if (f.vistas < 5 && costas) vista = 1;                                       // folhas antigas (só frente/costas)
   ctx.save(); ctx.translate(sx, sy); ctx.scale(escala * dir, escala);
   if (ap.animal && ap.animal !== 'papagaio' && !pose) desenhaAnimal(ctx, -17, 3, ap.animal, t, andar);
   if (pose !== 'deitado' && pose !== 'sentado') { ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(0, 0, 9, 4, 0, 0, 7); ctx.fill(); }
   let q = 0;
-  if (andar) q = AV3D_Q.andar + Math.floor((((t * 12) / (Math.PI * 2)) % 1) * 8);
+  if (andar) q = AV3D_Q.andar + Math.floor((((t * 12) / (Math.PI * 2)) % 1) * (f.andar || 8));
+  else if (pose === 'sentado' && f.sentado != null) q = f.sentado;
   else if (pose === 'trabalhar') q = AV3D_Q.trabalhar + Math.floor((t * 2.5) % 4);
   else if (pose && AV3D_Q[pose] != null) q = AV3D_Q[pose];
   q += vista * f.pv;
   const bob = andar || pose ? 0 : Math.sin(t * 2) * 0.4;                            // parado: respira um bocadinho
-  const zPose = pose === 'deitado' ? 14 : pose === 'sentado' ? 9 : 0;               // em cima da cama / do sofá
+  const zPose = pose === 'deitado' ? 14 : pose === 'sentado' ? (ap.perfil === 'celina' ? 4 : 9) : 0;
   ctx.drawImage(f.cv, q * f.cw, 0, f.cw, f.ch, -f.ax / 2, -f.ay / 2 - bob - zPose, f.cw / 2, f.ch / 2);
   if (ap.animal === 'papagaio' && pose !== 'deitado') { ctx.translate(0, -bob - zPose); if (vista === 3 || vista === 4) ctx.globalAlpha = 0.9; desenhaAnimal(ctx, 0, 0, 'papagaio', t, andar); ctx.globalAlpha = 1; }
   ctx.restore();
@@ -199,7 +242,7 @@ function desenhaPessoa(ctx, sx, sy, ap, t, andar, dir = 1, costas = false, escal
   // braço de trás
   ctx.fillStyle = pele; ctx.save(); ctx.translate(-7, -30); ctx.rotate(-fase * 0.5); ctx.fillRect(-1.5, 0, 3, 12); ctx.restore();
   // tronco
-  ctx.fillStyle = fato ? '#22252b' : camisa; rrect(ctx, -7, -33, 14, 16, 4); ctx.fill();
+  ctx.fillStyle = _atl().tinta(ctx,ap.peca,7) || (fato ? '#22252b' : camisa); rrect(ctx, -7, -33, 14, 16, 4); ctx.fill();
   if (fato) { poly(ctx, [[-2.5, -33], [2.5, -33], [0, -24]], '#f4f4f4'); ctx.fillStyle = camisa; ctx.fillRect(-1, -32, 2, 9); }
   if (pano) { ctx.fillStyle = calca; ctx.fillRect(-7, -27, 14, 2); }
   if (luxo) { poly(ctx, [[-2.5, -33], [2.5, -33], [0, -24]], calca); ctx.fillStyle = '#d9b04a'; ctx.fillRect(-3.4, -33, 1, 8); ctx.fillRect(2.4, -33, 1, 8); ctx.fillRect(3.5, -30, 2, 1.4); ctx.fillRect(-0.6, -22, 1.2, 1.2); }
@@ -278,22 +321,43 @@ function desenhaAnimal(ctx, x, y, tipo, t, andar) {
   }
   ctx.save(); ctx.translate(x, y - b);
   ctx.fillStyle = 'rgba(0,0,0,.22)'; ctx.beginPath(); ctx.ellipse(0, b, 7, 2.6, 0, 0, 7); ctx.fill();
-  if (tipo === 'galinhas') {
+  if (tipo === 'ganso_temporada') {
+    ctx.fillStyle = '#f8f4e9'; ctx.beginPath(); ctx.ellipse(0,-7,7,4,0,0,7); ctx.fill();
+    rrect(ctx,3,-18,3,12,1.5); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(5,-18,3,2.5,0,0,7); ctx.fill();
+    ctx.fillStyle = '#ce652d'; ctx.fillRect(7,-18,4,1.6);
+    ctx.fillRect(-2+p,-3,2,3); ctx.fillRect(2-p,-3,2,3);
+  } else if (tipo === 'tartaruga_temporada') {
+    ctx.fillStyle = '#9b8d64'; ctx.fillRect(4,-4,5,3);
+    ctx.fillRect(-4+p,-3,2,3); ctx.fillRect(2-p,-3,2,3);
+    ctx.fillStyle = '#6f5635'; ctx.beginPath(); ctx.ellipse(0,-4,6,4,0,0,7); ctx.fill();
+    ctx.fillStyle = '#90683f'; ctx.fillRect(-2,-6,4,2);
+  } else if (tipo === 'galinhas') {
     ctx.fillStyle = '#f4efe6'; ctx.beginPath(); ctx.ellipse(0, -6, 5, 4, 0, 0, 7); ctx.fill();
     ctx.beginPath(); ctx.arc(4, -10, 2.6, 0, 7); ctx.fill();
     ctx.fillStyle = '#e0313f'; ctx.fillRect(3.5, -13.5, 2, 1.8); ctx.fillStyle = '#f5b81c'; poly(ctx, [[6.4, -10], [8.4, -9.4], [6.4, -8.8]], '#f5b81c');
     ctx.fillStyle = '#f5b81c'; ctx.fillRect(-1.5 + p, -2.5, 1, 2.5); ctx.fillRect(1 - p, -2.5, 1, 2.5);
     ctx.fillStyle = '#111'; ctx.fillRect(4.6, -10.6, 0.9, 0.9);
   } else {
-    const cor = tipo === 'cao' ? '#a8743f' : '#5b5b66', esc = tipo === 'cao' ? 1 : 0.85;
-    ctx.scale(esc, esc);
+    const cao=tipo==='cao' || tipo.startsWith('cao_');
+    const pug=tipo.startsWith('cao_pug'), husky=tipo.startsWith('cao_husky');
+    const cores=typeof coresAnimalClassico==='undefined' ? null : coresAnimalClassico[tipo];
+    const [cor,marca]=cores || [cao ? '#a8743f' : '#5b5b66',null];
+    const escala=husky ? 1.25 : pug ? .77 : cao ? 1 : .85;
+    ctx.scale(escala, escala);
     ctx.fillStyle = cor;
     ctx.fillRect(-5 + p, -4, 2, 4); ctx.fillRect(3 - p, -4, 2, 4);
     rrect(ctx, -7, -10, 14, 7, 3); ctx.fill();
     ctx.beginPath(); ctx.arc(7, -11, 4, 0, 7); ctx.fill();
-    if (tipo === 'cao') { ctx.fillStyle = shade(cor, -0.25); ctx.beginPath(); ctx.ellipse(5.4, -12, 1.6, 3, 0.3, 0, 7); ctx.fill(); ctx.fillStyle = cor; ctx.fillRect(10, -11, 2.5, 2.5); }
+    if (marca) {
+      ctx.fillStyle=marca;
+      if (tipo.startsWith('gato_tigrado')) for (const dx of [-4,0,4]) ctx.fillRect(dx,-9,1.5,4);
+      else { ctx.fillRect(-4,-6,7,2); ctx.fillRect(8,-11,3,2); }
+      if (tipo==='gato_tricolor') { ctx.fillStyle='#b66f39'; ctx.fillRect(-5,-9,4,3); }
+    }
+    if (cao) { ctx.fillStyle = shade(cor, -0.25); ctx.beginPath(); ctx.ellipse(5.4, -12, 1.6, 3, 0.3, 0, 7); ctx.fill(); ctx.fillStyle = marca || cor; ctx.fillRect(10, -11, pug ? 1 : 2.5, 2.5); }
     else { poly(ctx, [[4.6, -14], [5.6, -17.5], [7, -14.5]], cor); poly(ctx, [[7.4, -14.5], [9, -17.5], [9.6, -13.8]], cor); }
-    ctx.strokeStyle = cor; ctx.lineWidth = 1.8; ctx.beginPath(); ctx.moveTo(-7, -8); ctx.quadraticCurveTo(-11, tipo === 'cao' ? -14 : -16, -9 + p, tipo === 'cao' ? -15 : -18); ctx.stroke();
+    ctx.strokeStyle = cor; ctx.lineWidth = 1.8; ctx.beginPath(); ctx.moveTo(-7, -8); ctx.quadraticCurveTo(-11, cao ? -14 : -16, -9 + p, cao ? -15 : -18); ctx.stroke();
     ctx.fillStyle = '#111'; ctx.fillRect(8, -12.4, 1.1, 1.1);
   }
   ctx.restore();
@@ -465,6 +529,12 @@ function desenhaMovel(ctx, tipo, x, y, w, d, rot, cor, t) {
   };
   const NY = (...a) => { if (!flip) naFaceY(ctx, ...a); }, NX = (...a) => { if (!flip) naFaceX(ctx, ...a); };
   switch (tipo) {
+    case 'roupeiro':
+      C(x+.05,y+.04,w-.10,d*.65,53,cor);
+      C(x+w*.47,y+.66,.045,.04,48,'#563723',2);
+      C(x+w*.38,y+.68,.04,.04,5,'#dfbd73',27);
+      C(x+w*.56,y+.68,.04,.04,5,'#dfbd73',27);
+      break;
     case 'cama': {
       C(x + 0.05, y + 0.05, w - 0.1, d - 0.1, 9, madeira);
       C(x + 0.08, y + 0.08, w - 0.16, d - 0.16, 5, '#f4efe6', 9);
@@ -538,7 +608,7 @@ function desenhaMovel(ctx, tipo, x, y, w, d, rot, cor, t) {
 }
 
 /* ---------- caminho (A*) ---------- */
-function caminho(bloq, W, H, sx, sy, tx, ty) {
+function caminho(bloq, W, H, sx, sy, tx, ty, custos = null) {
   if (tx < 0 || ty < 0 || tx >= W || ty >= H) return null;
   if (bloq[ty * W + tx]) return null;
   const idx = (x, y) => y * W + x;
@@ -552,14 +622,18 @@ function caminho(bloq, W, H, sx, sy, tx, ty) {
     if (fechado[k]) continue; fechado[k] = 1;
     if (x === tx && y === ty) {
       const r = []; let c = k; while (c !== -1) { r.push([c % W, (c / W) | 0]); c = de[c]; }
-      return suavizarCaminho(bloq, W, H, r.reverse());
+      r.reverse();
+      if (!custos) return suavizarCaminho(bloq, W, H, r);
+      // Mantém as mudanças de direção sem transmitir cada quadrado da mesma reta.
+      return r.filter(([x, y], i) => i === 0 || i === r.length - 1 ||
+        r[i + 1][0] - x !== x - r[i - 1][0] || r[i + 1][1] - y !== y - r[i - 1][1]);
     }
     for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) {
       if (!dx && !dy) continue;
       const nx = x + dx, ny = y + dy; if (nx < 0 || ny < 0 || nx >= W || ny >= H) continue;
       const nk = idx(nx, ny); if (bloq[nk] || fechado[nk]) continue;
       if (dx && dy && (bloq[idx(x + dx, y)] || bloq[idx(x, y + dy)])) continue;
-      const ng = g[k] + (dx && dy ? 1.414 : 1);
+      const ng = g[k] + (dx && dy ? 1.414 : 1) * (custos ? custos[nk] : 1);
       if (ng < g[nk]) { g[nk] = ng; de[nk] = k; aberto.push([ng + h(nx, ny), nx, ny]); }
     }
   }

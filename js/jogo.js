@@ -1168,10 +1168,12 @@ function comecarPose(p, tipo, o, ms) {
 }
 function acabarPose(p) { if (!p.pose) return; if (p.pose.caixa) { p.x = p.pose.volta[0]; p.y = p.pose.volta[1]; } p.pose = null; }
 function andarPara(p, tx, ty, aoChegar) {
+  if (p.eu && turnoPreso()) return false;
+  if (p.eu) almoco.aoAndar(aoChegar);
   if (p.pose) acabarPose(p);
   const sx = Math.floor(p.x), sy = Math.floor(p.y);
   if (sx === tx && sy === ty) { p.path = []; aoChegar && aoChegar(); return true; }
-  const c = caminho(cena.bloq, cena.W, cena.H, sx, sy, tx, ty);
+  const c = caminho(cena.bloq, cena.W, cena.H, sx, sy, tx, ty, cena.custoPe);
   if (!c) return false;
   p.path = c.slice(1); p.aoChegar = aoChegar;
   if (p.eu) { cam.seguir = true; anunciarMovimento(); }
