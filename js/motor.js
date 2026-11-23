@@ -194,7 +194,7 @@ function desenhaPessoa3D(ctx, sx, sy, f, ap, t, andar, dir, costas, escala, pose
   else if (f.vistas < 5 && costas) vista = 1;                                       // folhas antigas (só frente/costas)
   ctx.save(); ctx.translate(sx, sy); ctx.scale(escala * dir, escala);
   if (ap.animal && ap.animal !== 'papagaio' && !pose) desenhaAnimal(ctx, -17, 3, ap.animal, t, andar);
-  if (pose !== 'deitado' && pose !== 'sentado') { ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(0, 0, 9, 4, 0, 0, 7); ctx.fill(); }
+  if (pose !== 'deitado' && pose !== 'sentado') { ctx.fillStyle = 'rgba(0,0,0,.18)'; ctx.beginPath(); ctx.ellipse(0, 2, 16, 7, 0, 0, 7); ctx.fill(); ctx.fillStyle = 'rgba(0,0,0,.12)'; ctx.beginPath(); ctx.ellipse(0, 2, 22, 10, 0, 0, 7); ctx.fill(); }
   let q = 0;
   if (andar) q = AV3D_Q.andar + Math.floor((((t * 12) / (Math.PI * 2)) % 1) * (f.andar || 8));
   else if (pose === 'sentado' && f.sentado != null) q = f.sentado;
@@ -225,8 +225,9 @@ function desenhaPessoa(ctx, sx, sy, ap, t, andar, dir = 1, costas = false, escal
   const fase = andar ? Math.sin(t * 12) : 0;
   const bob = andar ? Math.abs(Math.sin(t * 12)) * 1.5 : Math.sin(t * 2) * 0.4;
   if (ap.animal && ap.animal !== 'papagaio') desenhaAnimal(ctx, -17, 3, ap.animal, t, andar);
-  // sombra
-  ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(0, 0, 9, 4, 0, 0, 7); ctx.fill();
+  // sombra no chão (elipse maior e mais visível para ancorar o personagem ao tile)
+  ctx.fillStyle = 'rgba(0,0,0,.18)'; ctx.beginPath(); ctx.ellipse(0, 2, 16, 7, 0, 0, 7); ctx.fill();
+  ctx.fillStyle = 'rgba(0,0,0,.12)'; ctx.beginPath(); ctx.ellipse(0, 2, 22, 10, 0, 0, 7); ctx.fill();
   ctx.translate(0, -bob);
   // pernas
   const perna = (ox, f) => {
