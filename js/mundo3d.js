@@ -309,8 +309,14 @@ function construir(cena) {
       let g = null;
       if (o.kind === 'edificio' || o.kind === 'casinha') {
         if (typeof predio === 'function') {
-          g = proto('predio|' + JSON.stringify(o.b), () => predio(T, o.b));
-          if (g) { g.userData.obj = o; pickaveis.push(...g.children.flatMap(m => m.isMesh ? [m] : [])); }
+          // casinha: adicionar k:'casinha' para que predio() use estilo de casa baixa
+          const spec = o.kind === 'casinha' ? { ...o.b, k: 'casinha' } : o.b;
+          g = proto('predio|' + JSON.stringify(spec), () => predio(T, spec));
+          if (g) {
+            g.userData.obj = o;
+            // incluir meshes diretos do grupo e dos filhos (fundir pode criar ambos)
+            g.traverse(m => { if (m.isMesh) pickaveis.push(m); });
+          }
         }
       } else if (o.kind === 'decoracao') {
         const tipo = o.tipo || '';
@@ -322,6 +328,16 @@ function construir(cena) {
       } else if (o.kind === 'paragem' || o.kind === 'barraca') {
         const corAbrigo = o.cor || '#3a7a9f';
         g = _makeAbrigo(o, corAbrigo);
+        if (g) { g.userData.obj = o; }
+      } else if (o.kind === 'palmeira') {
+        // palmeiras standalone (não via decoracao)
+        const tipo = o.tipo || 'palmeira';
+        repetir(tipo, () => MODELOS[tipo]?.criar(T) || _makeArvore(tipo), o.x + 0.5, o.y + 0.5, 0, true);
+      } else if (o.kind === 'carro') {
+        g = _makeCarro(o);
+        if (g) { g.userData.obj = o; }
+      } else if (o.kind === 'outdoor') {
+        g = _makeOutdoor(o);
         if (g) { g.userData.obj = o; }
       }
       if (g) por(g, o.x, o.y, 0, o);
@@ -366,8 +382,69 @@ function _makeAbrigo(o, cor) {
   const g = new T.Group();
   const w = o.w || 2, d = o.d || 1;
   const mat = new T.MeshStandardMaterial({ color: cor, roughness: 0.74 });
-  const telhado = new T.Mesh(new T.BoxGeometry(w, d, 0.055), mat);
+  // postes de suporte
+  const matPoste = new T.MeshStandardMaterial({ color: '#888888', metalness: 0.4, roughness: 0.5 });
+  const posteGeo = new T.CylinderGeometry(0.04, 0.05, 1.6, 6);
+  const postes = [[0.1, 0.1], [w - 0.1, 0.1], [0.1, d - 0.1], [w - 0.1, d - 0.1]];
+  for (const [px, py] of postes) {
+    const p = new T.Mesh(posteGeo, matPoste);
+    p.rotation.x = Math.PI / 2; p.position.set(px, py, 0.8); g.add(p);
+  }
+  const telhado = new T.Mesh(new T.BoxGeometry(w, d, 0.08), mat);
   telhado.position.set(w / 2, d / 2, 1.62); g.add(telhado);
+  return g;
+}
+
+function _makeCarro(o) {
+  const g = new T.Group();
+  const cor = o.cor || '#c0392b';
+  const matCarro = new T.MeshStandardMaterial({ color: cor, roughness: 0.35, metalness: 0.3 });
+  const matVidro = new T.MeshStandardMaterial({ color: '#aaccee', roughness: 0.1, metalness: 0.1, transparent: true, opacity: 0.7 });
+  const matRoda = new T.MeshStandardMaterial({ color: '#1a1a1a', roughness: 0.9 });
+  const matAro = new T.MeshStandardMaterial({ color: '#cccccc', metalness: 0.6, roughness: 0.3 });
+  // chassi
+  const chassi = new T.Mesh(new T.BoxGeometry(1.8, 0.95, 0.42), matCarro);
+  chassi.position.set(0.9, 0.475, 0.32); chassi.castShadow = true; g.add(chassi);
+  // habitáculo
+  const hab = new T.Mesh(new T.BoxGeometry(1.1, 0.85, 0.36), matCarro);
+  hab.position.set(0.8, 0.475, 0.74); hab.castShadow = true; g.add(hab);
+  // vidros laterais
+  const vidLat = new T.Mesh(new T.BoxGeometry(1.0, 0.02, 0.28), matVidro);
+  vidLat.position.set(0.8, 0.07, 0.74); g.add(vidLat);
+  const vidLat2 = vidLat.clone(); vidLat2.position.y = 0.88; g.add(vidLat2);
+  // para-brisas
+  const paraBrisas = new T.Mesh(new T.BoxGeometry(0.02, 0.8, 0.28), matVidro);
+  paraBrisas.position.set(0.25, 0.475, 0.74); g.add(paraBrisas);
+  const paraTras = paraBrisas.clone(); paraTras.position.x = 1.35; g.add(paraTras);
+  // rodas (4 rodas)
+  const rodaGeo = new T.CylinderGeometry(0.17, 0.17, 0.12, 10);
+  const aroGeo = new T.CylinderGeometry(0.09, 0.09, 0.14, 8);
+  const posRodas = [[0.32, 0.08], [0.32, 0.87], [1.48, 0.08], [1.48, 0.87]];
+  for (const [rx, ry] of posRodas) {
+    const roda = new T.Mesh(rodaGeo, matRoda);
+    roda.rotation.x = Math.PI / 2; roda.position.set(rx, ry, 0.17); roda.castShadow = true; g.add(roda);
+    const aro = new T.Mesh(aroGeo, matAro);
+    aro.rotation.x = Math.PI / 2; aro.position.set(rx, ry, 0.17); g.add(aro);
+  }
+  return g;
+}
+
+function _makeOutdoor(o) {
+  const g = new T.Group();
+  const w = o.w || 2, d = o.d || 0.3;
+  const corFundo = o.cor || '#1a3a6a';
+  const matPoste = new T.MeshStandardMaterial({ color: '#777', metalness: 0.5, roughness: 0.5 });
+  const matPainel = new T.MeshStandardMaterial({ color: corFundo, roughness: 0.5 });
+  const matPainelFace = new T.MeshStandardMaterial({ color: '#ffe9a0', roughness: 0.4, emissive: 0xffe9a0, emissiveIntensity: 0.05 });
+  // poste vertical
+  const poste = new T.Mesh(new T.CylinderGeometry(0.055, 0.07, 3.2, 8), matPoste);
+  poste.rotation.x = Math.PI / 2; poste.position.set(w / 2, d / 2, 1.6); g.add(poste);
+  // painel
+  const painel = new T.Mesh(new T.BoxGeometry(w, 0.1, w * 0.55), matPainel);
+  painel.position.set(w / 2, d / 2, 2.9); painel.castShadow = true; g.add(painel);
+  // face do outdoor (ligeiramente em frente)
+  const face = new T.Mesh(new T.BoxGeometry(w - 0.1, 0.02, (w - 0.1) * 0.55), matPainelFace);
+  face.position.set(w / 2, d / 2 - 0.06, 2.9); g.add(face);
   return g;
 }
 
@@ -626,8 +703,12 @@ function escolher(sx, sy, lista) {
   const hit = ray.intersectObjects(pickaveis, false)[0];
   const pt = ray.ray.intersectPlane(chaoPlano, new T.Vector3());
   const r = {};
-  if (hit && (!pt || hit.distance <= (camara.position?.distanceTo(pt) ?? Infinity)))
-    r.obj = hit.object.userData.obj;
+  // Para OrthographicCamera, hit.distance não compara diretamente com
+  // camara.position.distanceTo(pt). Usamos a distância 3D entre os pontos.
+  if (hit) {
+    const hitAntesDoChaoPt = !pt || hit.point.distanceTo(pt) > 0.05 || hit.point.z > 0.01;
+    if (hitAntesDoChaoPt) r.obj = hit.object.userData.obj;
+  }
   if (pt) {
     r.wx = pt.y; r.wy = pt.x;
     r.tile = [Math.floor(pt.y), Math.floor(pt.x)];
