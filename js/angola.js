@@ -83,10 +83,10 @@ async function renderLavras(body) {
         ${aqui && !pronta && !l.regada ? `<button class="btn sm ghost" data-regar="${l.id}">💧 Regar</button>` : ''}${aqui && pronta ? `<button class="btn sm" data-colher="${l.id}">Colher</button>` : ''}</div>`;
     }).join('')}</div>` : '<div class="empty">Ainda não tens lavras.</div>'}
     ${noCampo ? `<div class="sub2">Plantar aqui em ${esc(bairro(J.bairro).nome)}</div>
-      <div class="grelha">${Object.entries(CULTURAS).map(([k, c]) => `<button data-plantar="${k}"><span class="e">${c.e}</span><span>${c.nome}<small style="display:block;font-weight:600;color:var(--dim);font-size:11px">${fmtKz(c.semente)} · ${c.horas} h · ~${c.sacos} sacos</small></span></button>`).join('')}</div>`
+      <div class="grelha">${Object.entries(CULTURAS).map(([k, c]) => `<button data-plantar="${k}"><span class="e">${c.e}</span><span>${c.nome}<small style="display:block;font-weight:600;color:var(--dim);font-size:11px">${fmtMt(c.semente)} · ${c.horas} h · ~${c.sacos} sacos</small></span></button>`).join('')}</div>`
       : `<p class="m" style="margin-top:10px">🚂 Para plantar, vai ao Huambo ou a Malanje (comboio desde Viana ou Benguela).</p>`}
     <div class="sub2">Armazém · vender aqui (${mult === 1.7 ? 'preço de Luanda' : mult === 1 ? 'preço do campo' : 'preço da cidade'})</div>
-    ${Object.entries(CULTURAS).some(([k]) => col[k] > 0) ? `<div class="list">${Object.entries(CULTURAS).filter(([k]) => col[k] > 0).map(([k, c]) => `<div class="row"><span class="e">${c.e}</span><div class="t"><b>${col[k]} sacos de ${c.nome.toLowerCase()}</b><small>≈ ${fmtKz(c.preco * mult)} por saco aqui</small></div><button class="btn sm" data-vender="${k}" data-n="${col[k]}">Vender tudo</button></div>`).join('')}</div>` : '<div class="empty">O armazém está vazio.</div>'}`;
+    ${Object.entries(CULTURAS).some(([k]) => col[k] > 0) ? `<div class="list">${Object.entries(CULTURAS).filter(([k]) => col[k] > 0).map(([k, c]) => `<div class="row"><span class="e">${c.e}</span><div class="t"><b>${col[k]} sacos de ${c.nome.toLowerCase()}</b><small>≈ ${fmtMt(c.preco * mult)} por saco aqui</small></div><button class="btn sm" data-vender="${k}" data-n="${col[k]}">Vender tudo</button></div>`).join('')}</div>` : '<div class="empty">O armazém está vazio.</div>'}`;
   const depois = () => abrirTelemovel('lavras');
   body.querySelectorAll('[data-plantar]').forEach(b => b.onclick = async () => { if (await acao('plantar', { p_cultura: b.dataset.plantar })) depois(); });
   body.querySelectorAll('[data-regar]').forEach(b => b.onclick = async () => { if (await acao('regar', { p_id: +b.dataset.regar })) depois(); });
@@ -110,7 +110,7 @@ async function renderSaude(body) {
   const seguro = J.seguro_ate && new Date(J.seguro_ate) > new Date();
   const aqui = k => SAUDE_LUGARES[k].includes(J.bairro);
   const preco = { farmacia: J.doenca === 'malaria' ? 6000 : 1500, centro: 0, clinica: seguro ? 0 : 25000, hospital: seguro ? 2000 : 12000, curandeiro: 2000 };
-  const op = (k, e, nome, desc, ok, p) => `<div class="row"><span class="e">${e}</span><div class="t"><b>${nome}</b><small>${desc}</small></div><button class="btn sm ${ok ? '' : 'ghost'}" data-tratar="${k}" ${ok ? '' : 'disabled'}>${p === 0 ? 'Grátis' : fmtKz(p)}</button></div>`;
+  const op = (k, e, nome, desc, ok, p) => `<div class="row"><span class="e">${e}</span><div class="t"><b>${nome}</b><small>${desc}</small></div><button class="btn sm ${ok ? '' : 'ghost'}" data-tratar="${k}" ${ok ? '' : 'disabled'}>${p === 0 ? 'Grátis' : fmtMt(p)}</button></div>`;
   const ondeTxt = k => 'Em: ' + SAUDE_LUGARES[k].map(b => bairro(b)?.nome || b).join(', ');
   body.innerHTML = `<div class="rel" style="margin-top:0">
       <div class="lbl"><span>❤️ Saúde</span><span>${s}</span></div>
@@ -129,7 +129,7 @@ async function renderSaude(body) {
       ${op('curandeiro', '🌿', 'Curandeiro tradicional', `Chá de raízes. Às vezes resulta… ${aqui('curandeiro') ? 'Aqui perto.' : ondeTxt('curandeiro')}`, aqui('curandeiro') && J.doenca, 2000)}
     </div>
     <div class="sub2">Seguro de saúde</div>
-    <div class="row"><span class="e">🛡️</span><div class="t"><b>7 dias de seguro</b><small>Clínica grátis, hospital por 2.000 Kz${seguro ? ' · renova por mais 7 dias' : ''}</small></div><button class="btn sm" id="bSeguro">${fmtKz(15000)}</button></div>`;
+    <div class="row"><span class="e">🛡️</span><div class="t"><b>7 dias de seguro</b><small>Clínica grátis, hospital por 2.000 Kz${seguro ? ' · renova por mais 7 dias' : ''}</small></div><button class="btn sm" id="bSeguro">${fmtMt(15000)}</button></div>`;
   body.querySelectorAll('[data-tratar]').forEach(b => b.onclick = async () => { if (await acao('tratar', { p_onde: b.dataset.tratar })) abrirTelemovel('saude'); });
   body.querySelector('#bSeguro').onclick = async () => { if (await acao('comprar_seguro')) abrirTelemovel('saude'); };
 }

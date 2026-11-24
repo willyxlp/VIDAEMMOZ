@@ -8,7 +8,7 @@ function kartHTML() {
   return `<div class="sec"><h4>🏎️ ${tr('Kart da Maianga')}</h4><span>${tr('3 voltas · tu contra 3')}</span></div>
     <p class="m">${tr('Corrida de karts pelas ruas da Maianga. Apanha as caixas «?»: turbo de gasosa ou cascas de manga para quem vem atrás.')}</p>
     <p class="m">${tr('Prémios: 1.º 3.000 Kz · 2.º 1.500 Kz · 3.º 600 Kz (até 15.000 Kz por dia).')}</p>
-    ${ok ? `<div class="list"><div class="row"><span class="e">🏁</span><div class="t"><b>${tr('Uma corrida')}</b><small>${tr('−5 energia')}</small></div><button class="btn sm" data-kart>${fmtKz(KART_PRECO)}</button></div></div>`
+    ${ok ? `<div class="list"><div class="row"><span class="e">🏁</span><div class="t"><b>${tr('Uma corrida')}</b><small>${tr('−5 energia')}</small></div><button class="btn sm" data-kart>${fmtMt(KART_PRECO)}</button></div></div>`
       : `<p class="m">${tr('O kart precisa dos gráficos 3D (WebGL), que este aparelho não tem ligados.')}</p>`}
     ${ok ? `<div class="sec"><h4>🗺️ ${tr('Campeonato')}</h4><span data-kart-estrelas></span></div>
     <p class="m">${tr('15 etapas em 3 pistas: Maianga, Marginal e Ilha. Passa cada etapa para abrir a seguinte.')}</p>
@@ -46,7 +46,7 @@ async function abrirMapaKart() {
       : `<text x="${x}" y="${y + 7}" text-anchor="middle" font-size="20" font-weight="900" fill="${marco ? '#111' : e.estado === 'atual' ? '#111' : '#fff'}" ${marco ? 'stroke="#fff" stroke-width="3" paint-order="stroke"' : ''}>${e.etapa}</text>`;
     const est = e.estado === 'feita' ? `<text x="${x}" y="${y + 42}" text-anchor="middle" font-size="14" fill="#FFCB00" letter-spacing="1">${estrelasTxt(e.estrelas)}</text>` : '';
     const anel = e.estado === 'atual' ? `<circle cx="${x}" cy="${y}" r="31" fill="none" stroke="#FFCB00" stroke-width="3" class="km-pulso"/><text x="${x + (x > W / 2 ? -46 : 46)}" y="${y + 8}" text-anchor="middle" font-size="24">🏎️</text>` : '';
-    const premio = marco ? `<text x="${x + (x > W / 2 ? -40 : 40)}" y="${y - 22}" text-anchor="middle" font-size="11" font-weight="800" fill="${e.estado === 'feita' ? '#ffffff88' : '#FFCB00'}">🏆 +${fmtKz(e.marco_kz)}</text>` : '';
+    const premio = marco ? `<text x="${x + (x > W / 2 ? -40 : 40)}" y="${y - 22}" text-anchor="middle" font-size="11" font-weight="800" fill="${e.estado === 'feita' ? '#ffffff88' : '#FFCB00'}">🏆 +${fmtMt(e.marco_kz)}</text>` : '';
     return `<g data-etapa="${e.etapa}" style="cursor:${e.estado === 'fechada' ? 'default' : 'pointer'}">${anel}${forma}${txt}${est}${premio}</g>`;
   }).join('');
   const svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block" role="img" aria-label="${esc(tr('Mapa do campeonato'))}">
@@ -68,8 +68,8 @@ async function abrirMapaKart() {
   const detalhe = e => {
     const det = el.querySelector('[data-km-det]');
     det.innerHTML = `<div class="list"><div class="row"><span class="e">${KART_PISTAS[e.pista][0]}</span><div class="t"><b>${tr('Etapa')} <span data-sem-traducao>${e.etapa}</span> · ${esc(tr('Pista da') + ' ' + KART_PISTAS[e.pista][1])}</b>
-      <small>${objetivosEtapa(e).map(esc).join('<br>')}${e.marco_kz ? `<br>🏆 ${tr('Marco')}: +${fmtKz(e.marco_kz)} (${tr('uma vez')})` : ''}${e.melhor ? `<br>${tr('O teu melhor')}: ${tempoKart(e.melhor)} · ${estrelasTxt(e.estrelas)}` : ''}</small></div></div></div>
-      <button class="btn full" data-km-correr style="margin-top:8px">🏁 ${tr('Correr')} · ${fmtKz(KART_PRECO)}</button>`;
+      <small>${objetivosEtapa(e).map(esc).join('<br>')}${e.marco_kz ? `<br>🏆 ${tr('Marco')}: +${fmtMt(e.marco_kz)} (${tr('uma vez')})` : ''}${e.melhor ? `<br>${tr('O teu melhor')}: ${tempoKart(e.melhor)} · ${estrelasTxt(e.estrelas)}` : ''}</small></div></div></div>
+      <button class="btn full" data-km-correr style="margin-top:8px">🏁 ${tr('Correr')} · ${fmtMt(KART_PRECO)}</button>`;
     det.querySelector('[data-km-correr]').onclick = () => jogarKart(null, e);
   };
   el.querySelectorAll('[data-etapa]').forEach(g => g.addEventListener('click', () => {
@@ -114,11 +114,11 @@ async function jogarKart(desafio = null, etapa = null) {   // 0dp-3 bit 2: etapa
   const voltasHTML = (res.voltasT || []).length ? `<div class="row"><span class="e">⏱️</span><div class="t"><b>${tr('Voltas')}</b><small data-sem-traducao>${res.voltasT.map((t, i) => `${i + 1}: ${tempoKart(t)}`).join(' · ')}</small></div></div>` : '';
   const el = sheet(`<h3>🏎️ ${tr('Kart da Maianga')}</h3>
     <div style="text-align:center;margin:8px 0 14px"><div style="font:900 52px Inter,system-ui,sans-serif;color:#FFCB00">${res.fugiu ? '—' : res.posicao + '.º'}</div><div class="m">${res.fugiu ? tr('Desististe da corrida.') : tempoKart(res.tempo)}</div></div>
-    ${f?.ok ? `<div class="list"><div class="row"><span class="e">💰</span><div class="t"><b>${tr('Prémio')}</b></div><b>+${fmtKz(f.kz || 0)}</b></div>
+    ${f?.ok ? `<div class="list"><div class="row"><span class="e">💰</span><div class="t"><b>${tr('Prémio')}</b></div><b>+${fmtMt(f.kz || 0)}</b></div>
       <div class="row"><span class="e">🏆</span><div class="t"><b>${tr('O teu recorde')}: ${tempoKart(f.melhor)}</b>${f.melhor_volta ? `<small>${tr('Melhor volta')}: ${tempoKart(f.melhor_volta)}${f.volta_recorde ? ' · ⚡ ' + tr('Novo recorde de volta!') : ''}</small>` : ''}</div></div>${voltasHTML}</div>` : `<p class="m">${esc(tr(f?.msg || 'Esta corrida não contou.'))}</p>`}
     ${f?.etapa ? `<div class="list" style="margin-top:8px"><div class="row ${f.etapa.passou ? 'mine' : ''}"><span class="e">🗺️</span><div class="t"><b>${tr('Etapa')} <span data-sem-traducao>${f.etapa.etapa}</span> · <span data-sem-traducao style="color:#FFCB00;letter-spacing:1px">${estrelasTxt(f.etapa.estrelas)}</span></b>
-      <small>${f.etapa.passou ? (f.etapa.proxima && !f.etapa.antes ? tr('Passaste! Etapa {0} desbloqueada.').replace('{0}', f.etapa.proxima) : tr('Passaste!')) : tr('Não passaste: precisavas de chegar em {0}.º ou melhor.').replace('{0}', f.etapa.alvo_pos)}${f.etapa.marco_kz ? `<br>🏆 ${tr('Marco')}: +${fmtKz(f.etapa.marco_kz)}${f.etapa.etapa < 15 ? ' · ' + tr('Nova pista desbloqueada!') : ''}` : ''}</small></div></div></div>` : ''}
-    <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">${etapa ? `<button class="btn" data-km-de-novo style="flex:1">${f?.etapa?.passou && f.etapa.proxima ? tr('Próxima etapa') : tr('Tentar outra vez')} · ${fmtKz(KART_PRECO)}</button><button class="btn ghost" data-kart-mapa>🗺️ ${tr('Mapa')}</button>` : `<button class="btn" data-kart style="flex:1">${tr('Correr outra vez')} · ${fmtKz(KART_PRECO)}</button>`}<button class="btn ghost" data-fechar>${tr('Fechar')}</button></div>
+      <small>${f.etapa.passou ? (f.etapa.proxima && !f.etapa.antes ? tr('Passaste! Etapa {0} desbloqueada.').replace('{0}', f.etapa.proxima) : tr('Passaste!')) : tr('Não passaste: precisavas de chegar em {0}.º ou melhor.').replace('{0}', f.etapa.alvo_pos)}${f.etapa.marco_kz ? `<br>🏆 ${tr('Marco')}: +${fmtMt(f.etapa.marco_kz)}${f.etapa.etapa < 15 ? ' · ' + tr('Nova pista desbloqueada!') : ''}` : ''}</small></div></div></div>` : ''}
+    <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">${etapa ? `<button class="btn" data-km-de-novo style="flex:1">${f?.etapa?.passou && f.etapa.proxima ? tr('Próxima etapa') : tr('Tentar outra vez')} · ${fmtMt(KART_PRECO)}</button><button class="btn ghost" data-kart-mapa>🗺️ ${tr('Mapa')}</button>` : `<button class="btn" data-kart style="flex:1">${tr('Correr outra vez')} · ${fmtMt(KART_PRECO)}</button>`}<button class="btn ghost" data-fechar>${tr('Fechar')}</button></div>
     <div data-kart-ranking style="margin-top:12px"></div>`);
   ligarKart(el);
   el.querySelector('[data-km-de-novo]')?.addEventListener('click', async () => {

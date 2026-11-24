@@ -24,9 +24,9 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': 
 // LL10: quem chega por um link de convite (?c=<código>) guarda o código até criar conta
 (() => { try { const c = new URLSearchParams(location.search).get('c'); if (c && /^[0-9a-f]{10}$/i.test(c)) localStorage.setItem('vel_convite', c.toLowerCase()); } catch { } })();
 function conviteGuardado() { try { const c = localStorage.getItem('vel_convite'); return c && /^[0-9a-f]{10}$/.test(c) ? c : null; } catch { return null; } }
-const fmtKz = n => Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' Kz';
+const fmtMt = n => Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.') + ' MT';
 // dono, 3 nov: nas contas da equipa com dinheiro sem fim (9.000.000.000.000.000) o saldo mostra-se como ∞
-const saldoKz = () => J?.admin && J.kumbu >= 1e15 ? '∞ Kz' : fmtKz(J.kumbu);
+const saldoMt = () => J?.admin && J.kumbu >= 1e15 ? '∞ MT' : fmtMt(J.kumbu);
 const ls = { get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { } } };
 
 /* ---------- estado ---------- */
@@ -173,7 +173,7 @@ async function acao(fn, args = {}, { silencio = false } = {}) {
     const ganhou = data?.jogador && kAntes != null ? J.kumbu - kAntes : 0, ganhouOuro = data?.jogador && oAntes != null ? (J.ouro || 0) - oAntes : 0;
     if (!silencio && typeof janelaRecompensa === 'function' && !emJogoAgora() && (ganhouOuro > 0 || (ganhou >= RECOMPENSA_MIN && data.tipo !== 'mau'))) {
       janelaRecompensa(ganhouOuro > 0 ? { etiqueta: tr('Ouro'), valor: '+' + ganhouOuro + ' ' + tr('Ouro'), texto: data.msg ? tr(data.msg) : '', ouro: true }
-        : { etiqueta: tr('Recebeste'), valor: '+' + fmtKz(ganhou), texto: data.msg ? tr(data.msg) : '' });
+        : { etiqueta: tr('Recebeste'), valor: '+' + fmtMt(ganhou), texto: data.msg ? tr(data.msg) : '' });
     } else if (data?.msg && !silencio) toast(data.msg, data.tipo || 'info');
     document.dispatchEvent(new CustomEvent('vb:acao', { detail: { fn } }));   // 8 nov (Onboarding): o guia do novato ouve as ações (js/guia.js)
     return data || { ok: true };
@@ -209,7 +209,7 @@ function setJogador(j) {
   if (j?.nome_forcado_motivo) setTimeout(pedirNomeNovo, 0);
   else if (j?.cfb_em && !j.cfb_recurso_em) talvezRecursoCfb();   // 6 nov: «their appeal thing isn't working» — abre sozinho   // (6 nov: tinha ficado dentro do comentário acima)
   if (gerAntes && j.geracao > gerAntes) setTimeout(aoMudarGeracao, 300);
-  if (antes != null && antes !== j.kumbu && eu) floats.push({ x: eu.x, y: eu.y, txt: (j.kumbu > antes ? '+' : '−') + fmtKz(Math.abs(j.kumbu - antes)), cor: j.kumbu > antes ? '#7ee39b' : '#ff9b9b', t: 0 });
+  if (antes != null && antes !== j.kumbu && eu) floats.push({ x: eu.x, y: eu.y, txt: (j.kumbu > antes ? '+' : '−') + fmtMt(Math.abs(j.kumbu - antes)), cor: j.kumbu > antes ? '#7ee39b' : '#ff9b9b', t: 0 });
   hud(); verDetencao(); atualizarPontoTel();
   // mudou de bairro sem viajar (ex.: hospital) → muda de cena
   if (cena && cena.tipo === 'bairro' && cena.id !== J.bairro) irParaBairro(J.bairro, true);
@@ -409,7 +409,7 @@ async function verApreensao() {
   vendoApreensao = true;
   try {
     const ok = await perguntar(tr('🏛️ O Governo levou {0} das tuas contas. Aceitas o acordo e recebes {1} de volta, ou contratas advogados ({2}) e lutas em tribunal?')
-      .replace('{0}', fmtKz(a.valor)).replace('{1}', fmtKz(a.devolve)).replace('{2}', fmtKz(a.advogados)),
+      .replace('{0}', fmtMt(a.valor)).replace('{1}', fmtMt(a.devolve)).replace('{2}', fmtMt(a.advogados)),
       tr('Aceitar o acordo'), tr('Ir a tribunal'));
     if (ok === true) await acao('apreensao_decidir', { p_id: a.id, p_escolha: 'acordo' });
     else if (ok === false) await acao('apreensao_decidir', { p_id: a.id, p_escolha: 'tribunal' });
@@ -495,10 +495,18 @@ async function criarPersonagem(nome, aparencia) {
 
 /* ---------- 🎲 A lotaria da vida: revelação do nascimento ---------- */
 const CLASSES_N = {
-  musseque: { e: '🏚️', t: 'Luta do Musseque', s: 'A vida não vai ser fácil… mas no musseque ninguém desiste.', c: ['#c0703f', '#4a2312'] },
-  media: { e: '🏢', t: 'Filho/a da Centralidade', s: 'Nem rico nem pobre: estudo, trabalho e um bocadinho de sorte.', c: ['#4d9be0', '#1d3c5e'] },
-  rica: { e: '💎', t: 'Elite do Petróleo', s: 'Nasceste com a vida feita. Agora é não estragar.', c: ['#ffcb00', '#6e4900'] },
+  musseque: { e: '🏚️', t: 'Filho/a do Bairro', s: 'A vida não vai ser fácil… mas no bairro ninguém desiste. A luta é a vida.', c: ['#c0703f', '#4a2312'] },
+  media: { e: '🏘️', t: 'Família da Cidade', s: 'Nem rico nem pobre: estudo, trabalho e um bocadinho de sorte. Maputo é tua.', c: ['#4d9be0', '#1d3c5e'] },
+  rica: { e: '💎', t: 'Elite de Maputo', s: 'Nasceste com a vida feita em Sommerschield. Agora é não estragar.', c: ['#ffcb00', '#6e4900'] },
 };
+
+// Nomes moçambicanos para geração de personagens
+const NOMES_MZ_M = ['Armando', 'Carlos', 'Domingos', 'Eduardo', 'Filipe', 'Gilberto', 'Horácio', 'Ivan', 'João', 'Lúcio', 'Manuel', 'Nelson', 'Orlando', 'Paulo', 'Rafael', 'Sérgio', 'Tomás', 'Vasco', 'Zacarias', 'Alberto', 'Benedito', 'Celestino', 'Dário', 'Ernesto', 'Fernando', 'Graciano'];
+const NOMES_MZ_F = ['Amélia', 'Beatriz', 'Celeste', 'Dina', 'Esperança', 'Fátima', 'Graça', 'Helena', 'Inês', 'Joana', 'Lurdes', 'Maria', 'Noémia', 'Olga', 'Paula', 'Rosa', 'Sofia', 'Teresa', 'Vitória', 'Zaida', 'Ana', 'Conceição', 'Dulce', 'Eugénia', 'Florinda', 'Guida'];
+const APELIDOS_MZ = ['Machava', 'Tembe', 'Mondlane', 'Sitoe', 'Cossa', 'Nhantumbo', 'Bila', 'Macamo', 'Muianga', 'Mangue', 'Zitha', 'Chirindza', 'Mabunda', 'Guambe', 'Mavie', 'Nuvunga', 'Chissano', 'Langa', 'Mazive', 'Cumbe', 'Mucavel', 'Nhaca', 'Mahanjane', 'Chome', 'Sigauque', 'Fumo'];
+const nomeAleat = (arr) => arr[Math.floor(Math.random() * arr.length)];
+const nomePaiMz = () => `${nomeAleat(NOMES_MZ_M)} ${nomeAleat(APELIDOS_MZ)}`;
+const nomeMaeMz = () => `${nomeAleat(NOMES_MZ_F)} ${nomeAleat(APELIDOS_MZ)}`;
 function mostrarNascimento(n, depois) {
   const fim = CLASSES_N[n?.classe];
   if (!fim) { depois && depois(); return; }
@@ -532,11 +540,13 @@ function mostrarNascimento(n, depois) {
       el.appendChild(p); setTimeout(() => p.remove(), 1400);
     }
     const bairroNome = (D.bairros || []).find(b => b.id === n.bairro)?.nome || n.bairro;
-    const origem = n.provincia && n.provincia !== 'Maputo' ? ` A tua família é de <b>${esc(n.provincia)}</b>.` : '';
+    const origem = n.provincia && n.provincia !== 'maputo' ? ` A tua família veio de <b>${esc(n.provincia)}</b>.` : '';
+    // Gera nome dos pais moçambicano se o servidor não devolveu
+    const nomePais = n.pais || `${nomePaiMz()} & ${nomeMaeMz()}`;
     const txt = el.querySelector('#nascTxt');
     txt.innerHTML = `<p class="nascS">${esc(fim.s)}</p>
-      <p>Nasceste filho/a de <b>${esc(n.pais)}</b>.${origem} Cresceste em <b>${esc(bairroNome)}</b>.</p>
-      <p>Começas com <b>${fmtKz(n.kumbu)}</b> e um colchão.</p>`;
+      <p>Nasceste filho/a de <b>${esc(nomePais)}</b>.${origem} Cresceste em <b>${esc(bairroNome)}</b>.</p>
+      <p>Começas com <b>${fmtMt(n.kumbu)}</b> e um colchão.</p>`;
     setTimeout(() => { txt.classList.remove('hide'); el.querySelector('#bNasc').classList.remove('hide'); }, calmo ? 0 : 450);
   };
   el.querySelector('#bNasc').onclick = () => {
@@ -630,7 +640,7 @@ async function carregarDados() {
     const r = await fetch('/api/catalogo', { signal: ctl.signal }); clearTimeout(tm);
     const c = r.ok ? await r.json() : null;
     if (c && c.bairros?.length && c.empregos?.length) {
-      for (const n of ['bairros', 'empregos', 'casas', 'comidas', 'lazer', 'itens', 'moveis', 'pacotes', 'pacotesKz', 'colegios']) D[n] = c[n] || [];
+      for (const n of ['bairros', 'empregos', 'casas', 'comidas', 'lazer', 'itens', 'moveis', 'pacotes', 'pacotesMt', 'colegios']) D[n] = c[n] || [];
       if (Array.isArray(c.outdoors)) D.outdoors = c.outdoors; if (Array.isArray(c.musicas)) D.musicas = c.musicas;   // 9 nov
       D.pagaKz = !!c.pagaKz;
       D.bairros.sort((a, z) => a.ordem - z.ordem); D.empregos.sort((a, z) => a.ordem - z.ordem);
@@ -655,7 +665,7 @@ async function carregarDados() {
   sb.from('colegios').select('*').order('ordem'), sb.rpc('pagamento_local_ativo')]);
   t.forEach((n, i) => D[n] = r[i]);
   D.pacotes = pOuro.data || [];
-  D.pacotesKz = pKz.data || [];   // 7 nov 22:33 (dono): «add the buy kz to the live site»   // 6 nov: 1,99 · 9,99 (melhor valor) · 29,99
+  D.pacotesMt = pKz.data || [];   // 7 nov 22:33 (dono): «add the buy kz to the live site»   // 6 nov: 1,99 · 9,99 (melhor valor) · 29,99
   D.colegios = cols.data || [];
   D.pagaKz = !!pagaKz.data;
   D.bairros.sort((a, z) => a.ordem - z.ordem); D.empregos.sort((a, z) => a.ordem - z.ordem);
@@ -2207,8 +2217,8 @@ const custoCozinhar = f => Math.max(100, Math.round(f.preco * 0.55 / 50) * 50);
 function abrirCozinha(o) {
   const pratos = (D.comidas || []).filter(f => f.caseira).sort((a, b) => a.preco - b.preco);
   const el = sheet(`<h3>🍳 ${tr('Cozinhar em casa')}</h3><p class="m">${tr('Com os ingredientes do mercado, fazes tu a comida: sai mais barato do que no restaurante e sabe a casa.')}</p>
-    <div class="list"><div class="row">${arteListaHTML('comida', 'funge_bombo', '🍲')}<div class="t"><b>${tr('Prato rápido (funge com peixe)')}</b><small>Barriga +35</small></div><button class="btn sm" data-cz="">${fmtKz(600)}</button></div>
-    ${pratos.map(f => `<div class="row">${arteListaHTML('comida', f.id, f.emoji)}<div class="t"><b>${esc(f.nome)}</b><small>Barriga +${f.fome}${' · Humor +' + (f.felicidade + 2)}</small></div><button class="btn sm" data-cz="${f.id}">${fmtKz(custoCozinhar(f))}</button></div>`).join('')}</div>`);
+    <div class="list"><div class="row">${arteListaHTML('comida', 'funge_bombo', '🍲')}<div class="t"><b>${tr('Prato rápido (funge com peixe)')}</b><small>Barriga +35</small></div><button class="btn sm" data-cz="">${fmtMt(600)}</button></div>
+    ${pratos.map(f => `<div class="row">${arteListaHTML('comida', f.id, f.emoji)}<div class="t"><b>${esc(f.nome)}</b><small>Barriga +${f.fome}${' · Humor +' + (f.felicidade + 2)}</small></div><button class="btn sm" data-cz="${f.id}">${fmtMt(custoCozinhar(f))}</button></div>`).join('')}</div>`);
   el.querySelectorAll('[data-cz]').forEach(b => b.addEventListener('click', async () => {
     let est = null;
     if (b.dataset.cz) { est = await jogoCozinha(pratos.find(f => f.id === b.dataset.cz)); if (est === undefined) return; }   // LL13
@@ -2229,8 +2239,8 @@ async function usarMovel(o) {
 /* ============================================================
    LUGARES (painéis dos edifícios)
    ============================================================ */
-function linhaComida(f) { return `<div class="row">${arteListaHTML('comida', f.id, f.emoji)}<div class="t"><b>${esc(f.nome)}${f.alcool ? ' <span class="tag" style="color:var(--red)">18+</span>' : ''}</b><small>Barriga +${f.fome}${f.felicidade ? ' · Humor +' + f.felicidade : ''}</small></div><button class="btn sm" data-a="comer" data-v="${f.id}">${fmtKz(f.preco)}</button></div>`; }
-function linhaLazer(l) { return `<div class="row">${arteListaHTML('lazer', l.id, l.emoji)}<div class="t"><b>${esc(l.nome)}</b><small>${esc(l.descricao)} · Humor +${l.felicidade}</small></div><button class="btn sm ghost" data-a="divertir" data-v="${l.id}">${l.preco ? fmtKz(l.preco) : 'Grátis'}</button></div>`; }
+function linhaComida(f) { return `<div class="row">${arteListaHTML('comida', f.id, f.emoji)}<div class="t"><b>${esc(f.nome)}${f.alcool ? ' <span class="tag" style="color:var(--red)">18+</span>' : ''}</b><small>Barriga +${f.fome}${f.felicidade ? ' · Humor +' + f.felicidade : ''}</small></div><button class="btn sm" data-a="comer" data-v="${f.id}">${fmtMt(f.preco)}</button></div>`; }
+function linhaLazer(l) { return `<div class="row">${arteListaHTML('lazer', l.id, l.emoji)}<div class="t"><b>${esc(l.nome)}</b><small>${esc(l.descricao)} · Humor +${l.felicidade}</small></div><button class="btn sm ghost" data-a="divertir" data-v="${l.id}">${l.preco ? fmtMt(l.preco) : 'Grátis'}</button></div>`; }
 // cada pedaço traduzido à parte (a frase "Precisas: {0}" não traduz o que vai dentro do {0})
 function requisitos(e) {
   const f = [];
@@ -2245,9 +2255,9 @@ function turnosFeitosHTML() {
   return `<small style="color:var(--gold)">🔁 ${esc(tr('Turnos feitos: {0} · neste cargo: {1}').replace('{0}', t.toLocaleString('pt-PT')).replace('{1}', J.turnos || 0))}</small>`;
 }
 function blocoEmprego(e) {
-  if (J.emprego === e.id) return `<div class="row mine">${arteListaHTML('emprego', e.id, e.emoji)}<div class="t"><b>Trabalhas aqui: ${esc(e.nome)}</b><small>+${fmtKz(e.salario)} por turno · −${e.energia} energia</small>${turnosFeitosHTML()}</div><button class="btn sm red" data-a="trabalhar">Trabalhar</button></div>`;
+  if (J.emprego === e.id) return `<div class="row mine">${arteListaHTML('emprego', e.id, e.emoji)}<div class="t"><b>Trabalhas aqui: ${esc(e.nome)}</b><small>+${fmtMt(e.salario)} por turno · −${e.energia} energia</small>${turnosFeitosHTML()}</div><button class="btn sm red" data-a="trabalhar">Trabalhar</button></div>`;
   const f = requisitos(e), atual = J.emprego ? emprego(J.emprego) : null, mesma = atual && atual.pericia && atual.pericia === e.pericia && (J.cargo_nivel || 1) > 1;
-  return `<div class="row ${f.length ? 'lock' : ''}">${arteListaHTML('emprego', e.id, e.emoji)}<div class="t"><b>Vaga: ${esc(e.nome)} · <span style="color:var(--gold)">${fmtKz(e.salario)}</span>/turno</b><small>${esc(e.descricao)}</small>${mesma ? `<small style="color:var(--green)">✨ ${tr('Mesma perícia: entras como')} ${tr(CARGOS[(J.cargo_nivel || 1) - 1])}</small>` : ''}${f.length ? `<small style="color:#ff9b9b">Precisas: ${f.join(', ')}</small>` : ''}</div><button class="btn sm" data-a="escolher_emprego" data-v="${e.id}" ${f.length ? 'disabled' : ''}>Aceitar</button></div>`;
+  return `<div class="row ${f.length ? 'lock' : ''}">${arteListaHTML('emprego', e.id, e.emoji)}<div class="t"><b>Vaga: ${esc(e.nome)} · <span style="color:var(--gold)">${fmtMt(e.salario)}</span>/turno</b><small>${esc(e.descricao)}</small>${mesma ? `<small style="color:var(--green)">✨ ${tr('Mesma perícia: entras como')} ${tr(CARGOS[(J.cargo_nivel || 1) - 1])}</small>` : ''}${f.length ? `<small style="color:#ff9b9b">Precisas: ${f.join(', ')}</small>` : ''}</div><button class="btn sm" data-a="escolher_emprego" data-v="${e.id}" ${f.length ? 'disabled' : ''}>Aceitar</button></div>`;
 }
 function cabecaLugar(o) {
   const s = o.spec, b = bairro(J.bairro);
@@ -2278,19 +2288,19 @@ async function abrirLugar(o) {
     if (a.t === 'itens') h += lojaFisicaHTML(a.cats || ['telemovel', 'outros']);
     if (a.t === 'moveis') {
       const lista = D.moveis.filter(m => m.preco > 0 && (a.loja === 'fina' || m.preco <= 16000));
-      h += `<p class="m">Compra e depois vai a casa carregar em 🔨 Decorar para pôr onde quiseres.</p><div class="list">${lista.map(m => `<div class="row">${miniaturaHTML('movel', m.id)}<div class="t"><b>${esc(m.nome)}</b><small>${esc(m.efeito)}</small></div><button class="btn sm" data-a="comprar_movel" data-v="${m.id}">${fmtKz(m.preco)}</button></div>`).join('')}</div>`;
+      h += `<p class="m">Compra e depois vai a casa carregar em 🔨 Decorar para pôr onde quiseres.</p><div class="list">${lista.map(m => `<div class="row">${miniaturaHTML('movel', m.id)}<div class="t"><b>${esc(m.nome)}</b><small>${esc(m.efeito)}</small></div><button class="btn sm" data-a="comprar_movel" data-v="${m.id}">${fmtMt(m.preco)}</button></div>`).join('')}</div>`;
       if (a.loja !== 'fina') h += `<p class="m" style="margin-top:10px">Móveis de luxo (cama de casal, TV, geleira, AC…) estão no Casa & Design, em Talatona.</p>`;
     }
     if (a.t === 'casa') {
       const c = casaDe(a.id);
       // casas tuas aqui: a tua (ou a do casal, se moras com o/a cônjuge) e a casa separada do/a cônjuge no mesmo prédio
-      const linhaCasa = (titulo, k) => `<div class="row mine"><img class="mini" alt="" src="${retratoLugar(o, 120, 96)}"><div class="t"><b>${titulo} · ${esc(c.nome)}</b><small>${fmtKz(c.renda)}/dia · ${c.largura}×${c.fundo} · conforto ${'★'.repeat(c.conforto)}</small></div><button class="btn sm" data-entrar="${k}">Entrar em casa</button></div>`;
+      const linhaCasa = (titulo, k) => `<div class="row mine"><img class="mini" alt="" src="${retratoLugar(o, 120, 96)}"><div class="t"><b>${titulo} · ${esc(c.nome)}</b><small>${fmtMt(c.renda)}/dia · ${c.largura}×${c.fundo} · conforto ${'★'.repeat(c.conforto)}</small></div><button class="btn sm" data-entrar="${k}">Entrar em casa</button></div>`;
       const minhas = [];
       if (J.casa === c.id || (donoLar() && casal?.casa === c.id)) minhas.push(linhaCasa(J.casa === c.id ? 'A tua casa' : 'A vossa casa', 'eu'));
       if (casal?.casa === c.id && casal.id !== donoLar() && !(casal.lar === uid && !casal.casa)) minhas.push(linhaCasa(`Casa de ${esc(casal.nome)}`, 'conjuge'));
       if (minhas.length) h += `<div class="list">${minhas.join('')}</div>`;
       else if (c.preco_ouro) h += `<p class="m">${esc(tr(c.descricao))}</p>`;   // 8 nov: casa VIP — só se compra com Ouro (em baixo)
-      else h += `<p class="m">${esc(c.descricao)}</p><div class="list"><div class="row"><img class="mini" alt="" src="${retratoLugar(o, 120, 96)}"><div class="t"><b>${esc(c.nome)}</b><small>Renda diária, cobrada automaticamente · ${c.largura}×${c.fundo} · conforto ${'★'.repeat(c.conforto)}</small></div><button class="btn sm" data-a="arrendar" data-v="${c.id}">${fmtKz(c.renda)}/dia</button></div></div>`;
+      else h += `<p class="m">${esc(c.descricao)}</p><div class="list"><div class="row"><img class="mini" alt="" src="${retratoLugar(o, 120, 96)}"><div class="t"><b>${esc(c.nome)}</b><small>Renda diária, cobrada automaticamente · ${c.largura}×${c.fundo} · conforto ${'★'.repeat(c.conforto)}</small></div><button class="btn sm" data-a="arrendar" data-v="${c.id}">${fmtMt(c.renda)}/dia</button></div></div>`;
       h += `<div data-imoveis="${c.id}"></div>`;
     }
     if (a.t === 'paragem') h += J.bairro === 'cadeia' ? '<p class="m">⛓️ Daqui não sai nenhum autocarro para ti. Cumpre a pena ou paga a fiança na secretaria.</p>' : paragemHTML() + corridaHTML();
@@ -2307,7 +2317,7 @@ async function abrirLugar(o) {
     if (a.t === 'barco') h += barcoHTML();
     if (a.t === 'moda_loja') h +=   /* 9 nov: lojas de roupa no jogo a sério */ `<div class="sec"><h4>👗 ${esc(tr('Loja de moda'))}</h4><span>${esc(tr('coleção da semana'))}</span></div><div class="list"><div class="row"><span class="e">🛍️</span><div class="t"><b>${esc(tr('Ver a coleção e experimentar'))}</b><small>${esc(tr('Peças em Kz e edições limitadas em Ouro.'))}</small></div><button class="btn sm" data-loja-moda>${esc(tr('Entrar'))}</button></div>
       <div class="row"><span class="e">👗</span><div class="t"><b>${esc(tr('O meu guarda-roupa'))}</b><small>${esc(tr('Experimenta e veste o que já compraste.'))}</small></div><button class="btn sm ghost" data-guarda-roupa>${esc(tr('Abrir'))}</button></div></div>`;
-    if (a.t === 'cemiterio') h += `<div class="sec"><h4>🪦 ${esc(tr('Campas'))}</h4><span>💐 ${fmtKz(2000)}</span></div><div class="list" id="campas"><div class="empty">…</div></div>
+    if (a.t === 'cemiterio') h += `<div class="sec"><h4>🪦 ${esc(tr('Campas'))}</h4><span>💐 ${fmtMt(2000)}</span></div><div class="list" id="campas"><div class="empty">…</div></div>
       <div class="sec"><h4>👻 ${esc(tr('Histórias de fantasmas'))}</h4><span>${esc(tr('só à noite'))}</span></div><div class="list"><div class="row"><span class="e">👻</span><div class="t"><b>${esc(tr('Ouvir histórias à volta da fogueira'))}</b><small>${esc(tr('Das 20h às 5h. Diversão garantida… e às vezes um susto.'))}</small></div><button class="btn sm" data-fantasmas>${esc(tr('Ouvir'))}</button></div></div>`;
     if (a.t === 'jetski' && typeof jetskiHTML === 'function') h += jetskiHTML();
     if (a.t === 'kart' && typeof kartHTML === 'function') h += kartHTML();
@@ -2315,7 +2325,7 @@ async function abrirLugar(o) {
     if (a.t === 'lavras') h += `<div class="sec"><h4>Lavras</h4></div><div class="list"><div class="row">${arteListaHTML('acao', 'lavras')}<div class="t"><b>Plantar, regar e colher</b><small>Milho, feijão, mandioca e batata</small></div><button class="btn sm" data-abrir-lavras>Abrir</button></div></div>`;
     if (a.t === 'banco') h += `<div class="sec"><h4>Balcão</h4></div><div class="list"><div class="row">${arteListaHTML('acao', 'banco')}<div class="t"><b>Poupança e empréstimos</b><small>Os empréstimos só se pedem aqui, ao balcão</small></div><button class="btn sm" data-abrir-banco>Abrir</button></div></div>`;
     if (a.t === 'treino') h += a.onde === 'ginasio'
-      ? `<div class="sec"><h4>Treinar</h4><span>Forma ${Math.round(J.forma ?? 50)}</span></div><div class="list"><div class="row">${arteListaHTML('acao', 'ginasio')}<div class="t"><b>Sessão de ginásio</b><small>Forma +10 · stress −15 · −20 energia</small></div><button class="btn sm" data-a="treinar" data-v="ginasio">${fmtKz(1500)}</button></div></div>`
+      ? `<div class="sec"><h4>Treinar</h4><span>Forma ${Math.round(J.forma ?? 50)}</span></div><div class="list"><div class="row">${arteListaHTML('acao', 'ginasio')}<div class="t"><b>Sessão de ginásio</b><small>Forma +10 · stress −15 · −20 energia</small></div><button class="btn sm" data-a="treinar" data-v="ginasio">${fmtMt(1500)}</button></div></div>`
       : `<div class="sec"><h4>Correr</h4><span>Forma ${Math.round(J.forma ?? 50)}</span></div><div class="list"><div class="row">${arteListaHTML('acao', 'correr')}<div class="t"><b>Ir correr</b><small>Forma +7 · stress −10 · −15 energia</small></div><button class="btn sm" data-a="treinar" data-v="correr">Grátis</button></div></div>`;
     if (a.t === 'grupos' && a.tipo === 'igreja') h += `<div class="list"><div class="row"><span class="e">🙏</span><div class="t"><b>${tr('Ir ao culto')}</b><small>${tr('Rezar e cantar com o coro: tira stress e solidão. Uma vez a cada 6 horas.')}</small></div><button class="btn sm" data-rezar>${tr('Rezar')}</button></div></div>`;
     if (a.t === 'grupos') h += `<div class="sec"><h4>${{ igreja: 'Igrejas', clube: 'Equipas de futebol', associacao: 'Associações' }[a.tipo]} do bairro</h4></div><div class="list" data-grupos="${a.tipo}"><div class="empty">A procurar…</div></div>`;
@@ -2404,7 +2414,7 @@ async function renderEmpregados(body) {
   const meus = new Set((data || []).map(x => x.tipo));
   if (typeof ui2 === 'function' && ui2()) return ui2Empregados(body, meus);   // 8 nov: redesenho (teste)
   body.innerHTML = `<p class="m">${J.casa ? 'Contrata ajuda para a tua casa. O salário paga-se sozinho todos os dias; se ficares sem kumbu, vão-se embora.' : 'Primeiro precisas de uma casa (arrenda ou compra em 📱 → Imóveis).'}</p>
-    <div class="list">${Object.entries(EMPREGADOS).map(([k, [e, n, sal, txt]]) => `<div class="row ${meus.has(k) ? 'mine' : ''}"><span class="e">${e}</span><div class="t"><b>${n}</b><small>${txt} · ${fmtKz(sal)}/dia</small></div>
+    <div class="list">${Object.entries(EMPREGADOS).map(([k, [e, n, sal, txt]]) => `<div class="row ${meus.has(k) ? 'mine' : ''}"><span class="e">${e}</span><div class="t"><b>${n}</b><small>${txt} · ${fmtMt(sal)}/dia</small></div>
       ${meus.has(k) ? `<button class="btn sm ghost" data-desp="${k}">Despedir</button>` : `<button class="btn sm" data-contr="${k}" ${J.casa ? '' : 'disabled'}>Contratar</button>`}</div>`).join('')}</div>`;
   body.querySelectorAll('[data-contr]').forEach(b => b.onclick = async () => { b.disabled = true; if (await acao('contratar_empregado', { p_tipo: b.dataset.contr })) renderEmpregados(body); else b.disabled = false; });
   body.querySelectorAll('[data-desp]').forEach(b => b.onclick = async () => { if (!await perguntar('Despedir?')) return; if (await acao('contratar_empregado', { p_tipo: b.dataset.desp, p_sim: false })) renderEmpregados(body); });
@@ -2426,7 +2436,7 @@ function univHTML(id, online) {
   return `<div class="sec"><h4>${esc(u.nome)}</h4><span>Estudo: ${J.estudo}/10</span></div><p class="m">${esc(u.txt)}${meu ? ` <span>O teu curso:</span> <b>${esc(CURSOS[meu])}</b>` : ''}</p>
     <div style="display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 8px">${u.cursos.map(c => `<button type="button" class="btn sm ${c === cur ? '' : 'ghost'}" data-curso="${c}" data-univ="${id}">${esc(CURSOS[c])}</button>`).join('')}</div>
     <div class="list"><div class="row">${arteListaHTML('acao', 'univ')}<div class="t"><b>Módulo ${J.estudo + 1}${online ? ' · à distância' : ''}</b><small>Abre vagas melhores · −35 energia${online ? ' · +50% no preço' : ''}</small></div>
-    <button class="btn sm" data-estudar="${id}" data-online="${online ? 1 : ''}" ${J.estudo >= 10 ? 'disabled' : ''}>${fmtKz(custo)}</button></div></div>`;
+    <button class="btn sm" data-estudar="${id}" data-online="${online ? 1 : ''}" ${J.estudo >= 10 ? 'disabled' : ''}>${fmtMt(custo)}</button></div></div>`;
 }
 function ligarUniv(el, depois) {
   el.querySelectorAll('[data-curso]').forEach(b => b.onclick = () => { cursoEscolhido[b.dataset.univ] = b.dataset.curso; depois && depois(); });
@@ -2450,7 +2460,7 @@ function ligarBotoes(el, depois) {
     const a = b.dataset.a, v = b.dataset.v;
     const args = { comer: { p_comida: v }, divertir: { p_lazer: v }, arrendar: { p_casa: v }, escolher_emprego: { p_emprego: v }, comprar: { p_item: v }, comprar_movel: { p_movel: v }, comprar_online: { p_movel: v, p_online: true }, treinar: { p_onde: v } }[a] || {};
     if (a === 'arrendar' && J.casa && !await perguntar('Vais deixar a tua casa atual (os móveis vão para o armazém). Continuar?')) return;
-    if (a === 'comprar') { const it = D.itens.find(x => x.id === v); if (!await perguntar(`Comprar ${it.nome} por ${fmtKz(it.preco)}?`)) return; }
+    if (a === 'comprar') { const it = D.itens.find(x => x.id === v); if (!await perguntar(`Comprar ${it.nome} por ${fmtMt(it.preco)}?`)) return; }
     // 0g-B: um turno de rua (zungar) faz-se na rua, não no quarto; e cada turno leva uns segundos a fazer
     if (a === 'trabalhar') {
       const e = emprego(J.emprego);
@@ -2516,14 +2526,14 @@ function linhaDestino(b, meios, nota) {
   const foto = `<div class="dest-foto"><span class="e">${b.emoji}</span><img src="img/bairros/${esc(b.id)}.webp" alt="" loading="lazy" draggable="false"></div>`;
   if (ms.length === 1) {
     const [m, x] = xs[0], ok = J.kumbu >= x.p;   // 27 out: o cansaço nunca impede de viajar (chega-se exausto/a)
-    const porque = ok ? (J.energia < x.en ? tr('Vais chegar exausto/a') : '') : tr('Faltam') + ' ' + fmtKz(x.p - J.kumbu);
+    const porque = ok ? (J.energia < x.en ? tr('Vais chegar exausto/a') : '') : tr('Faltam') + ' ' + fmtMt(x.p - J.kumbu);
     return `<button class="row dest-card" data-viajar="${b.id}" data-meio="${m}" ${ok ? '' : 'disabled'} title="${esc(porque || b.descricao || '')}">${foto}
       <div class="t"><b>${esc(b.nome)}</b>${nota ? `<small>${esc(nota)}</small>` : ''}</div>
-      <span class="dest-preco">${x.e} ${m === 'boleia' ? esc(tr('Grátis')) : fmtKz(x.p)}${porque ? `<small>${esc(porque)}</small>` : ''}</span></button>`;
+      <span class="dest-preco">${x.e} ${m === 'boleia' ? esc(tr('Grátis')) : fmtMt(x.p)}${porque ? `<small>${esc(porque)}</small>` : ''}</span></button>`;
   }
   return `<button class="row dest-card" data-dest="${b.id}" data-meios="${ms.join(',')}" title="${esc(b.descricao || '')}">${foto}
     <div class="t"><b>${esc(b.nome)}</b>${nota ? `<small>${esc(nota)}</small>` : ''}</div>
-    <span class="dest-preco">${esc(tr('desde'))} ${barato ? fmtKz(barato) : esc(tr('Grátis'))} ›</span></button>`;
+    <span class="dest-preco">${esc(tr('desde'))} ${barato ? fmtMt(barato) : esc(tr('Grátis'))} ›</span></button>`;
 }
 // FILA 0dn-9 (dono 6 nov): Cemitério do Camama — campas das personagens que morreram e das figuras do bairro; pôr flores
 async function campasCemiterio(div) {
@@ -2636,10 +2646,10 @@ async function garagem(meio) {
     // LL29: entrega pelo caminho — o destino do embrulho vem primeiro, marcado com 📦
     ({ data: ent } = await sb.rpc('minha_entrega'));
     const ord = [...destinos.filter(b => provDe(b.id) === aqui), ...destinos.filter(b => provDe(b.id) !== aqui)].sort((x, y) => (y.id === ent?.destino) - (x.id === ent?.destino));
-    lista = ord.map(b => linhaDestino(b, [meio], b.id === ent?.destino ? `📦 ${tr('Entrega aqui')}: +${fmtKz(ent.pago)}` : provDe(b.id) !== aqui ? b.provincia : ''));
+    lista = ord.map(b => linhaDestino(b, [meio], b.id === ent?.destino ? `📦 ${tr('Entrega aqui')}: +${fmtMt(ent.pago)}` : provDe(b.id) !== aqui ? b.provincia : ''));
   }
   const entHTML = !ent ? '' : ent.destino
-    ? `<div class="row entrega"><span class="e">📦</span><div class="t"><b>${tr('Embrulho para')} ${esc(bairro(ent.destino)?.nome || '')}</b><small>${tr('Paga quando chegares lá de carro ou mota. Vale 2 horas.')}</small></div><span class="price">+${fmtKz(ent.pago)}</span></div>`
+    ? `<div class="row entrega"><span class="e">📦</span><div class="t"><b>${tr('Embrulho para')} ${esc(bairro(ent.destino)?.nome || '')}</b><small>${tr('Paga quando chegares lá de carro ou mota. Vale 2 horas.')}</small></div><span class="price">+${fmtMt(ent.pago)}</span></div>`
     : `<button class="row entrega" id="bEntrega" ${ent.hoje >= ent.max ? 'disabled' : ''}><span class="e">📦</span><div class="t"><b>${tr('Fazer uma entrega pelo caminho')}</b><small>1.500–4.000 Kz · ${ent.hoje}/${ent.max} ${tr('hoje')}</small></div><span class="price">›</span></button>`;
   // 0k-B: levar contigo quem está em tua casa (convite; cada um aceita no seu telemóvel)
   const naCasa = cena?.tipo === 'casa' && meio !== 'mota' ? [...outros.entries()].filter(([id]) => !bloqueados.has(id)) : [];
@@ -2729,7 +2739,7 @@ function renderDeco() {
     const mv = movelDe(deco.sel.movel), ok = posicaoValida(deco.sel);
     el.innerHTML = `<div class="hd">${miniaturaHTML('movel', mv.id, 'mini sm')}<b>${esc(mv.nome)}</b><span style="font-size:12px;color:var(--muted)">Toca no chão para mover</span></div>
       <div class="acoesDeco"><button class="btn ghost" id="dRodar">↻ Rodar</button><button class="btn" id="dPor" ${ok ? '' : 'disabled'}>✔ Pôr aqui</button>
-      ${deco.sel.novo ? '' : '<button class="btn ghost" id="dGuardar">📦 Guardar</button>'}<button class="btn ghost" id="dVender">💰 ${tr('Vender')} · ${fmtKz(Math.floor(mv.preco / 2))}</button><button class="btn ghost" id="dCancel">✕</button></div>`;
+      ${deco.sel.novo ? '' : '<button class="btn ghost" id="dGuardar">📦 Guardar</button>'}<button class="btn ghost" id="dVender">💰 ${tr('Vender')} · ${fmtMt(Math.floor(mv.preco / 2))}</button><button class="btn ghost" id="dCancel">✕</button></div>`;
     $('#dRodar').onclick = () => { deco.sel.rot = ((deco.sel.rot || 0) + 1) % 4; ajustarRodado(); renderDeco(); };
     $('#dPor').onclick = async () => {
       const s = deco?.sel; if (!s) return; const r = await acao('colocar_movel', { p_id: s.mbId, p_x: s.x, p_y: s.y, p_rot: s.rot, p_andar: cena.andar || 0, ...(cena.prop ? { p_prop: cena.prop } : { p_dono: cena.dono.id }) });
@@ -2737,7 +2747,7 @@ function renderDeco() {
       if (r) { if (deco) deco.sel = null; await depoisDeMudarMobilia(); }
     };
     $('#dGuardar') && ($('#dGuardar').onclick = async () => { const s = deco?.sel; if (!s) return; const r = await acao('guardar_movel', { p_id: s.mbId }); if (r) { await gravarCor(s); if (deco) deco.sel = null; await depoisDeMudarMobilia(); } });
-    $('#dVender').onclick = async () => { const s = deco?.sel; if (!s || !await perguntar(`Vender ${mv.nome} por ${fmtKz(Math.floor(mv.preco / 2))}?`)) return; const r = await acao('vender_movel', { p_id: s.mbId }); if (r) { if (deco) deco.sel = null; await depoisDeMudarMobilia(); } };
+    $('#dVender').onclick = async () => { const s = deco?.sel; if (!s || !await perguntar(`Vender ${mv.nome} por ${fmtMt(Math.floor(mv.preco / 2))}?`)) return; const r = await acao('vender_movel', { p_id: s.mbId }); if (r) { if (deco) deco.sel = null; await depoisDeMudarMobilia(); } };
     $('#dCancel').onclick = () => { deco.sel = null; renderDeco(); };
     {
       const CORES = ['#cc092f', '#e86aa6', '#f5b81c', '#2f8f5b', '#16a3a3', '#2c6fb0', '#7a1fd0', '#141012', '#f5f1e8', '#8a5a32', '#d4af37', '#9aa0a6'];
@@ -2892,12 +2902,12 @@ function rotaPara(dest) {
 // (motorista, avião, carro, mota), o transporte público por baixo; cada opção com imagem grande, nome e preço (menos texto para ler).
 function opcaoViagem(dest, m, titulo) {
   const a = bairro(J.bairro), b = bairro(dest), d = Math.hypot(a.x - b.x, a.y - b.y), x = ajustarViagem(m, MEIOS[m](d), dest), ok = J.kumbu >= x.p;
-  const nota = ok ? (J.energia < x.en ? tr('Vais chegar exausto/a') : x.en <= 3 ? tr('Quase sem cansaço') : '') : tr('Faltam') + ' ' + fmtKz(x.p - J.kumbu);
+  const nota = ok ? (J.energia < x.en ? tr('Vais chegar exausto/a') : x.en <= 3 ? tr('Quase sem cansaço') : '') : tr('Faltam') + ' ' + fmtMt(x.p - J.kumbu);
   // 0cz (7): cartão com a fotografia do transporte (o teu carro/mota/avião, ou a viagem por dentro: tools/fotos_meios.py)
   return `<button class="row dest-card viagemOp" data-viajar="${dest}" data-meio="${m}" ${ok ? '' : 'disabled'} title="${esc(nota)}">
     <div class="dest-foto"><span class="e">${x.e}</span><img src="${fotoMeio(m)}" alt="" loading="lazy" draggable="false"></div>
     <div class="t"><b>${esc(tr(titulo || x.n))}</b><small>⚡ −${x.en} ${esc(tr('energia'))}${DICA_MEIO[m] ? ' · ' + esc(tr(DICA_MEIO[m])) : ''}</small>${nota ? `<small>${esc(nota)}</small>` : ''}</div>
-    <span class="dest-preco">${m === 'boleia' ? tr('Grátis') : fmtKz(x.p)}</span></button>`;
+    <span class="dest-preco">${m === 'boleia' ? tr('Grátis') : fmtMt(x.p)}</span></button>`;
 }
 const DICA_MEIO = {
   candongueiro: 'barato, mas há engarrafamento', kupapata: 'rápido, mas arriscado', taxi: 'confortável', autocarro: 'viagem longa', comboio: 'devagar, paisagem linda',
@@ -3041,7 +3051,7 @@ async function abrirTelemovel(sub, extra) {
   if (telSub === 'eu') {
     const e = J.emprego ? emprego(J.emprego) : null, c = J.casa ? casaDe(J.casa) : null;
     body.innerHTML = `${J.cfb_em ? `<button class="row ${J.cfb_recurso_em ? '' : 'mine'}" id="bCfb" style="text-align:left;margin-bottom:12px;width:100%" ${J.cfb_recurso_em ? 'disabled' : ''}><span class="e">🏛️</span><div class="t"><b>${esc(tr(J.cfb_recurso_em ? 'Recurso enviado à CFB' : 'Recorrer à CFB'))}</b><small>${esc(tr(J.cfb_recurso_em ? 'A CFB vai responder aqui no jogo.' : 'Achas que a CFB se enganou? Explica porquê.'))}</small></div><span class="price">${J.cfb_recurso_em ? '✓' : '›'}</span></button>` : ''}<div id="meusRoubos"></div><div style="display:flex;gap:14px;align-items:center"><canvas id="pvEu" width="160" height="200" style="width:80px;height:100px;border-radius:12px;background:var(--card)"></canvas>
-      <div><h3>${esc(J.nome)}</h3><p class="m" style="margin:0">${e ? esc(e.nome) : 'Desempregado'}</p><p class="m" style="margin:2px 0 0">${c ? (J.propriedade ? (J.renda_paga_ate ? `🏠 ${esc(c.nome)} · arrendada a um jogador` : `🔑 ${esc(c.nome)} · casa própria`) : `🏠 ${esc(c.nome)} · ${fmtKz(c.renda)}/dia`) : donoLar() ? `🏠 Casa de ${esc(casal.nome)} (partilhada)` : '🛋️ Sem casa'}</p></div></div>
+      <div><h3>${esc(J.nome)}</h3><p class="m" style="margin:0">${e ? esc(e.nome) : 'Desempregado'}</p><p class="m" style="margin:2px 0 0">${c ? (J.propriedade ? (J.renda_paga_ate ? `🏠 ${esc(c.nome)} · arrendada a um jogador` : `🔑 ${esc(c.nome)} · casa própria`) : `🏠 ${esc(c.nome)} · ${fmtMt(c.renda)}/dia`) : donoLar() ? `🏠 Casa de ${esc(casal.nome)} (partilhada)` : '🛋️ Sem casa'}</p></div></div>
       ${blocoCasal()}
       ${chipsVida()}
       ${blocoCarreira()}
@@ -3051,9 +3061,9 @@ async function abrirTelemovel(sub, extra) {
       <div class="chips"><span class="chip">🎓 Estudo ${J.estudo}</span><span class="chip">⭐ Reputação ${J.reputacao}</span>${(J.itens || []).map(i => { const it = D.itens.find(x => x.id === i); return it ? `<span class="chip">${it.emoji} ${esc(it.nome)}</span>` : ''; }).join('')}</div>
       <div class="list" style="margin-top:14px">
         ${e && !e.bairro && (cena?.tipo === 'casa' || cena?.tipo === 'interior') ? `<div class="row">${arteListaHTML('emprego', e.id, e.emoji)}<div class="t"><b>${esc(tr(e.nome))}</b><small>${esc(tr('Sai à rua (em qualquer bairro) para fazer um turno.'))}</small></div></div>` : ''}
-        ${e && !e.bairro && !(cena?.tipo === 'casa' || cena?.tipo === 'interior') ? `<div class="row mine">${arteListaHTML('emprego', e.id, e.emoji)}<div class="t"><b>Trabalhar aqui mesmo</b><small>${esc(e.nome)} · ${e.id === 'zungueira' ? 'lucro variável' : '+' + fmtKz(e.salario)}</small></div><button class="btn sm red" data-a="trabalhar">Trabalhar</button></div>` : ''}
+        ${e && !e.bairro && !(cena?.tipo === 'casa' || cena?.tipo === 'interior') ? `<div class="row mine">${arteListaHTML('emprego', e.id, e.emoji)}<div class="t"><b>Trabalhar aqui mesmo</b><small>${esc(e.nome)} · ${e.id === 'zungueira' ? 'lucro variável' : '+' + fmtMt(e.salario)}</small></div><button class="btn sm red" data-a="trabalhar">Trabalhar</button></div>` : ''}
         ${e && e.bairro ? (e.bairro === J.bairro && !(cena?.tipo === 'casa')
-        ? `<div class="row mine">${arteListaHTML('emprego', e.id, e.emoji)}<div class="t"><b>${esc(tr('O teu trabalho'))}: ${esc(tr(e.nome))}</b><small>${esc(bairro(e.bairro).nome)} · +${fmtKz(e.salario)}</small></div><button class="btn sm red" data-a="trabalhar">${esc(tr('Trabalhar'))}</button></div>`
+        ? `<div class="row mine">${arteListaHTML('emprego', e.id, e.emoji)}<div class="t"><b>${esc(tr('O teu trabalho'))}: ${esc(tr(e.nome))}</b><small>${esc(bairro(e.bairro).nome)} · +${fmtMt(e.salario)}</small></div><button class="btn sm red" data-a="trabalhar">${esc(tr('Trabalhar'))}</button></div>`
         : `<div class="row">${arteListaHTML('emprego', e.id, e.emoji)}<div class="t"><b>${esc(tr('O teu trabalho'))}: ${esc(tr(e.nome))}</b><small>${esc(tr('Fica em {0}.').replace('{0}', bairro(e.bairro).nome))}</small></div><button class="btn sm" data-irtrab>🚐 ${esc(tr('Ir para {0}').replace('{0}', bairro(e.bairro).nome))}</button></div>`) : ''}
         ${(() => {
         const rico = J.classe === 'rica' && idadeDe(J) < 30, hoje = J.familia_dia === new Date(Date.now() + 3600e3).toISOString().slice(0, 10);
@@ -3093,7 +3103,7 @@ async function abrirTelemovel(sub, extra) {
     // 6 nov: roubos contra ti (últimos 3 dias) — «Fazer queixa» até 24 h depois
     memoRpc('roubos_eu', 180000, () => sb.rpc('meus_roubos')).then(({ data }) => {
       const box = body.querySelector('#meusRoubos'); if (!box || !Array.isArray(data) || !data.length) return;
-      const linha = r => `<div class="row"><span class="e">${r.resultado === 'roubado' ? '🦹' : r.resultado === 'apanhado' ? '🚓' : r.resultado === 'protegido' ? '🛡️' : '👀'}</span><div class="t"><b>${esc(r.ladrao)}${r.roubado ? ' · ' + fmtKz(r.roubado) : ''}</b><small>${esc(tr(r.resultado === 'roubado' ? (r.queixa === 'apanhado' ? 'A polícia apanhou-o e devolveu o dinheiro.' : r.queixa === 'fugiu' ? 'Fizeste queixa; a polícia não o apanhou.' : 'Roubou-te da carteira.') : r.resultado === 'apanhado' ? 'Tentou roubar-te e foi apanhado/a.' : r.resultado === 'protegido' ? 'A tua proteção travou o roubo.' : 'Tentou roubar-te sem sucesso.'))} · ${new Date(r.criado_em).toLocaleString([], { weekday: 'short', hour: '2-digit', minute: '2-digit' })}</small></div>${r.pode_queixa ? `<button class="btn sm" data-queixa="${r.id}">🚓 ${esc(tr('Fazer queixa'))}</button>` : ''}</div>`;
+      const linha = r => `<div class="row"><span class="e">${r.resultado === 'roubado' ? '🦹' : r.resultado === 'apanhado' ? '🚓' : r.resultado === 'protegido' ? '🛡️' : '👀'}</span><div class="t"><b>${esc(r.ladrao)}${r.roubado ? ' · ' + fmtMt(r.roubado) : ''}</b><small>${esc(tr(r.resultado === 'roubado' ? (r.queixa === 'apanhado' ? 'A polícia apanhou-o e devolveu o dinheiro.' : r.queixa === 'fugiu' ? 'Fizeste queixa; a polícia não o apanhou.' : 'Roubou-te da carteira.') : r.resultado === 'apanhado' ? 'Tentou roubar-te e foi apanhado/a.' : r.resultado === 'protegido' ? 'A tua proteção travou o roubo.' : 'Tentou roubar-te sem sucesso.'))} · ${new Date(r.criado_em).toLocaleString([], { weekday: 'short', hour: '2-digit', minute: '2-digit' })}</small></div>${r.pode_queixa ? `<button class="btn sm" data-queixa="${r.id}">🚓 ${esc(tr('Fazer queixa'))}</button>` : ''}</div>`;
       box.innerHTML = `<div class="sec"><h4>🚓 ${esc(tr('Roubos contra ti'))}</h4></div><div class="list" style="margin-bottom:12px">${data.map(linha).join('')}</div>`;
       box.querySelectorAll('[data-queixa]').forEach(b => b.onclick = async () => { b.disabled = true; if (await acao('queixa_roubo', { p_roubo: +b.dataset.queixa })) { memoRpc.limpar('roubos_eu'); abrirTelemovel('eu'); } else b.disabled = false; });
     }, () => { });
@@ -3134,7 +3144,25 @@ async function abrirTelemovel(sub, extra) {
     body.innerHTML = `<div class="feed">${eventos.length ? eventos.map(ev => `<div class="ev ${ev.tipo}">${esc(ev.texto)}<time>${tempoRel(ev.criado_em)}</time></div>`).join('') : '<div class="empty">Nada ainda.</div>'}</div>`;
   } else if (telSub === 'ranking') {
     body.innerHTML = '<div class="empty">A carregar…</div>';
-    body.innerHTML = '<div class="empty">Não foi possível carregar a lista dos ricos. Tenta mais tarde.</div>';
+    (async () => {
+      try {
+        const { data, error } = await sb.from('jogadores')
+          .select('nome, kumbu, bairro, aparencia')
+          .eq('esconder_ricos', false)
+          .order('kumbu', { ascending: false })
+          .limit(20);
+        if (error || !data?.length) { body.innerHTML = '<div class="empty">Ainda não há dados. Joga mais para aparecer aqui! 🏆</div>'; return; }
+        const eu = J?.id;
+        body.innerHTML = `<div class="sec"><h4>🏆 Os mais ricos de Maputo</h4></div><div class="list">${data.map((p, i) => {
+          const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`;
+          const bNome = (D.bairros || []).find(b => b.id === p.bairro)?.nome || p.bairro || 'Maputo';
+          const isEu = p.nome === J?.nome;
+          return `<div class="row${isEu ? ' mine' : ''}"><span class="e">${medal}</span><div class="t"><b>${esc(p.nome)}</b><small>${esc(bNome)} · ${fmtMt(p.kumbu || 0)}</small></div></div>`;
+        }).join('')}</div>`;
+      } catch (e) {
+        body.innerHTML = '<div class="empty">Não foi possível carregar o ranking. Tenta mais tarde.</div>';
+      }
+    })();
   } else if (telSub === 'kumbu') {
     renderKumbu(body, extra);
   } else {
@@ -3143,14 +3171,14 @@ async function abrirTelemovel(sub, extra) {
       <div data-tr-html class="ev">🚐 Para mudar de bairro, vai à <b>paragem de chapas</b> (a azul, no centro).</div>
       <div data-tr-html class="ev">⚡ <b>Energia</b> volta com o tempo e a dormir. 🍲 <b>Barriga</b> esvazia — se chegar a zero, acabas no hospital.</div>
       <div data-tr-html class="ev renda">🏠 Arrenda uma casa num prédio ou quintal. A renda é cobrada todos os dias. Lá dentro, carrega em <b>🔨 Decorar</b>.</div>
-      <div data-tr-html class="ev">🛋️ Móveis compram-se no 📱 <b>Telemóvel → 🛒 Loja</b> (com entrega), ou mais baratos nos <b>Móveis do Mercado</b>, em Viana, e no <b>Casa & Design</b> em Talatona. Cama boa = sono melhor; fogão = comida barata.</div>
-      <div data-tr-html class="ev bom">📈 Trabalha para ganhar reputação, estuda na Universidade (Mutamba) e sobe até Engenheiro petrolífero.</div>
+      <div data-tr-html class="ev">🛋️ Móveis compram-se no 📱 <b>Telemóvel → 🛒 Loja</b> (com entrega), ou mais baratos nos <b>Móveis do Mercado Central</b>. Cama boa = sono melhor; fogão = comida barata.</div>
+      <div data-tr-html class="ev bom">📈 Trabalha para ganhar reputação, estuda na Universidade (Baixa) e sobe de categoria — cada nível de cargo paga +25%.</div>
       <div data-tr-html class="ev">👥 Toca noutros jogadores para conversar, elogiar, dar presentes, enviar kumbu ou visitar a casa deles. A amizade sobe com cada conversa.</div>
-      <div data-tr-html class="ev">💞 Podes <b>namoriscar</b> e pedir em <b>namoro</b> quem quiseres — quanto mais se conhecem, mais fácil é. Para <b>casar</b> têm de namorar primeiro; o alambamento custa 100.000 Kz. Pedidos e fofocas ficam em 📱 → Social.</div>
+      <div data-tr-html class="ev">💞 Podes <b>namoriscar</b> e pedir em <b>namoro</b> quem quiseres — quanto mais se conhecem, mais fácil é. Para <b>casar</b> têm de namorar primeiro; o alambamento custa 100.000 MT. Pedidos e fofocas ficam em 📱 → Social.</div>
       <div data-tr-html class="ev">🌹 Toca em alguém → <b>Convidar para sair</b>: praia, Marginal, kizomba, cinema ou jantar. Quem convida paga.</div>
       <div data-tr-html class="ev renda">💍 Casados podem <b>morar juntos</b> (📱 → Perfil → Mudar para a casa…), decorar a mesma casa e ter uma <b>conta do casal</b>. No divórcio, a conta é dividida ao meio e quem se mudou volta a ficar sem casa.</div>
       <div data-tr-html class="ev bom">👶 Casais podem <b>ter um bebé</b> (toca no teu par → Ter um bebé) e qualquer pessoa com casa pode <b>adotar</b>. Os filhos crescem 1 ano por semana: brinca com eles, ajuda nos trabalhos de casa e paga a escola.</div>
-      <div data-tr-html class="ev">💪 <b>Forma física</b>: ginásio (Kilamba, Talatona), corrida (Marginal, praia da Ilha) ou treinos da equipa. Quem está em forma recupera energia mais depressa e vive mais anos.</div>
+      <div data-tr-html class="ev">💪 <b>Forma física</b>: ginásio (Costa do Sol, Sommerschield), corrida (Marginal da Baixa, praia da Costa do Sol) ou treinos da equipa. Quem está em forma recupera energia mais depressa e vive mais anos.</div>
       <div data-tr-html class="ev mau">😰 Trabalhar dá <b>stress</b>. Acima de 80 rendes menos; a 95 é burnout e não consegues trabalhar. Uma boa noite de sono, lazer, desporto, igreja e festas baixam-no.</div>
       <div data-tr-html class="ev">🥀 A <b>solidão</b> cresce quando não falas com ninguém e tira felicidade. Conversa, vai a festas e entra em grupos (📱 → Grupos).</div>
       <div data-tr-html class="ev bom">🎉 Em casa, dá uma <b>festa</b> (📱 → Perfil): os teus amigos são avisados. No dia de anos é festa de aniversário! Para ir à festa de alguém, toca na pessoa → Festejar.</div>
@@ -3158,7 +3186,7 @@ async function abrirTelemovel(sub, extra) {
       <div data-tr-html class="ev">🏦 No 📱 → Banco: poupança a 0,5% por dia (no primeiro milhão). Empréstimos só no Banco da Baixa: 1,5% por dia e 7 dias de prazo — depois vêm os cobradores e a penhora.</div>
       <div data-tr-html class="ev bom">📈 Nos empregos com requisitos há <b>entrevista</b> (estudo, reputação e a família contam). Começas como estagiário/a: trabalha bem e pede promoção (📱 → Perfil) — cada nível paga +25%. Desempenho abaixo de 15 = despedido/a. Aos 60 podes reformar-te com pensão.</div>
       <div data-tr-html class="ev renda">🏢 Abre um <b>negócio</b> em 📱 → Empresas: cantina, salão, loja, chapas, discoteca, construtora ou importadora. Fatura todos os dias, mesmo quando não jogas, e paga-se em cerca de uma semana. Os lugares livres têm ajudantes; outros jogadores podem candidatar-se. Paga 10% de impostos e, se a caixa ficar muito negativa, vai à falência.</div>
-      <div data-tr-html class="ev">💵 O kwanza vai perdendo valor. Guarda em <b>dólares</b> (📱 → Dólares): o banco da Baixa vende barato mas só 200 USD por dia; as kinguilas vendem quanto quiseres, mais caro — e às vezes com notas falsas.</div>
+      <div data-tr-html class="ev">💵 O metical pode desvalorizar. Guarda em <b>dólares</b> (📱 → Câmbio): o banco da Baixa vende barato mas só 200 USD por dia; os cambistas informais vendem quanto quiseres, mais caro — e às vezes com notas falsas.</div>
       <div data-tr-html class="ev mau">🤫 Podes pôr uma empresa a <b>fugir aos impostos</b>… mas se as Finanças inspecionarem, pagas o triplo.</div>
       <div data-tr-html class="ev">🎲 Em 📱 → Sorte: raspadinha, Lotaria da Vida diária (sorteio às 20h, o pote acumula) e apostas na Liga de Maputo. Joga com moderação.</div>
       <div data-tr-html class="ev bom">🗺️ <b>Moçambique é grande!</b> Da paragem apanhas o autocarro para Beira, Nampula ou Inhambane; do Aeroporto Internacional de Maputo voas. A Costa do Sol e a Ilha de Moçambique são destinos imperdíveis.</div>
@@ -3167,13 +3195,13 @@ async function abrirTelemovel(sub, extra) {
       <div data-tr-html class="ev mau">🦟 Na época das chuvas há <b>malária</b>; na época seca, <b>gripe</b>; em casas fracas, <b>febre tifoide</b>. Trata-te em 📱 → Saúde: farmácia, centro de saúde (grátis mas com filas), clínica privada, hospital ou curandeiro. Uma doença grave sem tratamento pode matar.</div>
       <div data-tr-html class="ev mau">🔪 Só <b>outros jogadores</b> te podem roubar: assaltos na rua e <b>SMS de burla</b> (📱 → Mensagens) — nunca pagues "taxas" de prémios. Faz queixa em 📱 → Justiça.</div>
       <div data-tr-html class="ev bom">😌 <b>Enquanto estás fora, os azares quase param</b> e a fome não desce abaixo de 35; o senhorio espera 4 dias pela renda. Nos primeiros <b>3 dias</b> tens proteção de novato 🛡️. Sem casa, dormes em casa da família.</div>
-      <div data-tr-html class="ev">🏠 As casas maiores têm <b>divisões</b> (quarto, sala, cozinha…) e as de luxo (Mussulo e Talatona) têm <b>escada para o 1.º andar</b>: toca na escada para subir ou descer.</div>
-      <div data-tr-html class="ev renda">💎 <b>Posses:</b> carros no Stand Automóvel (Sommerschield) — a carrinha dá para fazer corridas de chapa e o jipe 4x4 cansa menos nas viagens longas; telemóveis (melhor câmara = mais alcance no Muxima); moda e acessórios na Boutique; animais na Feira do Zimpeto (o cão afasta ladrões, as galinhas põem ovos). Tudo se pode vender por metade do preço.</div>
+      <div data-tr-html class="ev">🏠 As casas maiores têm <b>divisões</b> (quarto, sala, cozinha…) e as de luxo (Sommerschield e Costa do Sol) têm <b>escada para o 1.º andar</b>: toca na escada para subir ou descer.</div>
+      <div data-tr-html class="ev renda">💎 <b>Posses:</b> carros no Stand Automóvel (Sommerschield) — a carrinha dá para fazer corridas de chapa e o jipe 4x4 cansa menos nas viagens longas; telemóveis (melhor câmara = mais alcance no Muxima); moda e acessórios na Boutique (Baixa); animais na Feira da Zimpeto (o cão afasta ladrões, as galinhas põem ovos). Tudo se pode vender por metade do preço.</div>
       <div data-tr-html class="ev bom">💛 No <b>Muxima</b> (📱) publicas posts com "foto", ganhas gostos, comentários, seguidores e fãs — às vezes um post fica <b>viral</b> 🔥. Com 200 fãs ganhas uma receita diária; com 1.000, as marcas pagam-te posts patrocinados. O <b>📰 Jornal</b> conta tudo o que acontece em Moçambique.</div>
       <div data-tr-html class="ev">❗ De vez em quando a vida põe-te uma <b>escolha</b>: foi-se a luz, não há água, estás febril, a chuva entrou em casa, a gasolina subiu… Decide no ecrã — algumas escolhas até dão dinheiro (alugar o gerador, vender água, guardar lugar na fila da bomba).</div>
       <div data-tr-html class="ev renda">🏛️ Cada município tem um <b>administrador</b> (📱 → Governo). Todos os domingos às 20h há <b>eleições</b>: candidata-te (cadastro limpo, reputação 10+, casa no município), faz comícios e pede votos. Quem ganha gere o orçamento: investe na luz, água, estradas e segurança, fixa a taxa municipal… ou desvia fundos e arrisca uma auditoria.</div>
       <div data-tr-html class="ev mau">🕯️ Com pouco investimento há <b>cortes de luz</b> (um gerador ajuda) e <b>falta de água</b> (chama o camião-cisterna no 📱 → Governo). Estradas esburacadas cansam e furam pneus, e a <b>gasolina</b> muda de preço todos os dias.</div>
-      <div data-tr-html class="ev">🕶️ Nos becos do Cazenga e de Viana há <b>esquemas</b>; em Cabinda, <b>contrabando</b>. Se a polícia te apanha: <b>gasosa</b>, <b>advogado</b> ou defensor oficioso. Condenado/a vais para a <b>Cadeia de Viana</b>: trabalha na oficina para sair mais cedo ou paga fiança. Na esquadra (Baixa) podes entregar-te.</div>
+      <div data-tr-html class="ev">🕶️ Nos becos de Polana Caniço e Maxaquene há <b>esquemas</b>. Se a polícia te apanha: <b>gasosa</b>, <b>advogado</b> ou defensor oficioso. Condenado/a vais para a <b>Cadeia Central</b>: trabalha na oficina para sair mais cedo ou paga fiança. Na esquadra (Baixa) podes entregar-te.</div>
       <div data-tr-html class="ev">🕊️ Ninguém vive para sempre. Quando morreres, continuas a jogar como o/a filho/a do teu testamento (📱 → Família), com a herança. Sem filhos, um/a sobrinho/a herda.</div>
       <div data-tr-html class="ev mau">👀 Namoriscar outra pessoa quando já namoras ou és casado/a pode ser descoberto… e o bairro inteiro fica a saber.</div>
       <div data-tr-html class="ev">🎂 Envelheces um ano por cada semana real. 🛡️ Se alguém te incomodar: toca na pessoa → Bloquear ou Denunciar.</div></div>`;
@@ -3212,7 +3240,7 @@ function hud() {
   const gente = outros.size;
   const prov = cena?.tipo === 'bairro' ? bairro(J.bairro)?.provincia : null;
   $('#hLoc').textContent = `📍 ${onde}${cena?.tipo === 'bairro' && typeof salaAtiva !== 'undefined' && salaAtiva ? ' · ' + (typeof nomeSala === 'function' ? nomeSala(salaAtual) : tr('Sala {0}').replace('{0}', salaAtual)) : ''}${prov && prov !== onde ? ' · ' + prov : ''}${gente ? ` · 👥 ${gente + 1}` : ''} · ${cena?.tipo === 'bairro' ? tempoEmoji() : ''}${semLuzAqui() ? '🕯️' : ''}${humor()[0]} ${preso() ? '⛓️ Preso/a · ' + tempoFalta(J.preso_ate) : J.detencao ? '🚔 Detido/a!' : J.emprego ? (emprego(J.emprego)?.nome || J.emprego) : 'Desempregado'}`;
-  $('#hKz').textContent = saldoKz();
+  $('#hKz').textContent = saldoMt();
   const barras = [['energia', J.energia, 'var(--b-energia)', 'Energia'], ['fome', J.fome, 'var(--b-fome)', 'Barriga'], ['humor', J.felicidade, 'var(--b-humor)', 'Humor'], ['vida', J.saude, 'var(--b-saude)', 'Saúde']];
   const htmlBarras = barras.map(([n, v, c, rot]) => `<div class="bar ${v < 25 ? 'low' : ''}"><small><span class="bl" style="color:${c}">${icone(n, 13)}<span class="bn">${rot}</span></span><span>${Math.round(v)}</span></small><i><u style="width:${Math.max(0, Math.min(100, v))}%;background:${c}"></u></i></div>`).join('');
   if (hud._barras !== lingua + htmlBarras) { $('#bars').innerHTML = htmlBarras; hud._barras = lingua + htmlBarras; }   // só refaz as barras quando os números mudam

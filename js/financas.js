@@ -86,7 +86,7 @@ function finTabelaPrecos(dados, publicados) {
   const antes = new Map((publicados || []).map(p => [p.lugar, p]));
   return `<div class="list">${(dados.produtos || []).map(p => { const a = antes.get(p.lugar); return `<div class="row"><div class="t"><b>${esc(p.nome)}</b>
       <small><span data-sem-traducao>${p.pessoas}</span> <span>jogadores</span> · <span>valor</span> <span data-sem-traducao>${finNum(p.peso)}</span> · <span>${p.motivo === 'minimo' ? 'preço mínimo' : 'pela fórmula'}</span>${a ? ` · <span>antes</span> <span data-sem-traducao>${finEur(a.semana_eur_cent)}</span>` : ''}</small></div>
-      <div data-sem-traducao style="text-align:right;white-space:nowrap"><b>${finEur(p.semana_eur_cent)}</b> <small>/sem</small><br><small>${finEur(p.mes_eur_cent)} /mês · ≈ ${fmtKz(p.semana_kz)}</small></div></div>`; }).join('')}</div>`;
+      <div data-sem-traducao style="text-align:right;white-space:nowrap"><b>${finEur(p.semana_eur_cent)}</b> <small>/sem</small><br><small>${finEur(p.mes_eur_cent)} /mês · ≈ ${fmtMt(p.semana_kz)}</small></div></div>`; }).join('')}</div>`;
 }
 function finAvisos(dados) {
   const av = dados.avisos || [];

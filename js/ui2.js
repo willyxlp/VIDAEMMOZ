@@ -27,9 +27,9 @@ function ui2Desde(k) {
     : D.itens.filter(i => i.preco_ouro == null && (i.categoria || 'outros') === k).map(i => i.preco);
   return ps.length ? Math.min(...ps) : 0;
 }
-function ui2CurtoKz(v) { return v >= 1e6 ? (Math.round(v / 1e5) / 10).toLocaleString('pt-PT') + 'M Kz' : fmtKz(v); }
+function ui2CurtoMt(v) { return v >= 1e6 ? (Math.round(v / 1e5) / 10).toLocaleString('pt-PT') + 'M MT' : fmtMt(v); }
 function linhaMovelLoja(m) {
-  return `<div class="row">${miniaturaHTML('movel', m.id)}<div class="t"><b>${esc(m.nome)} ${m.preco >= 90000 ? '💎' : ''}</b><small>${esc(m.efeito)} · na loja ${fmtKz(m.preco)}</small></div><button class="btn sm" data-a="comprar_online" data-v="${m.id}">${fmtKz(lojaOnline(m.preco))}</button></div>`;
+  return `<div class="row">${miniaturaHTML('movel', m.id)}<div class="t"><b>${esc(m.nome)} ${m.preco >= 90000 ? '💎' : ''}</b><small>${esc(m.efeito)} · na loja ${fmtMt(m.preco)}</small></div><button class="btn sm" data-a="comprar_online" data-v="${m.id}">${fmtMt(lojaOnline(m.preco))}</button></div>`;
 }
 function ui2LojaSecoes(body) {
   const guardados = minhaMobilia.filter(m => m.x == null).length, lim = 60 + (J.armazem_extra || 0);
@@ -37,7 +37,7 @@ function ui2LojaSecoes(body) {
     const [img, objeto] = UI2_SEC[k], d = ui2Desde(k);
     const sub = k === 'casa' ? tr('Móveis · {0}/{1} guardados').replace('{0}', guardados).replace('{1}', lim) : tr(UI2_SEC_SUB[k]);
     return `<button class="row dest-card" data-sec="${k}"><div class="dest-foto${objeto ? ' obj' : ''}"><span class="e">${CATS[k][0]}</span><img src="${img}" alt="" loading="lazy" draggable="false"></div>
-      <div class="t"><b>${esc(tr(CATS[k][1]))}</b><small>${esc(sub)}</small></div><span class="dest-preco">${d ? `${esc(tr('desde'))} ${ui2CurtoKz(d)}` : ''} ›</span></button>`;
+      <div class="t"><b>${esc(tr(CATS[k][1]))}</b><small>${esc(sub)}</small></div><span class="dest-preco">${d ? `${esc(tr('desde'))} ${ui2CurtoMt(d)}` : ''} ›</span></button>`;
   };
   const pequeno = k => `<button class="ui2-mini" data-sec="${k}"><span class="e">${CATS[k][0]}</span><b>${esc(tr(CATS[k][1]))}</b></button>`;
   body.innerHTML = `<p class="ui2-q">${esc(tr('O que vais comprar? Escolhe a secção.'))}</p>
@@ -81,7 +81,7 @@ function ui2Vagas(body) {
   const cartao = e => {
     const f = requisitos(e), onde = e.bairro ? bairro(e.bairro)?.nome || '' : tr('Qualquer bairro');
     return `<div class="row dest-card ui2-vaga${f.length ? ' lock' : ''}"><div class="dest-foto${e.bairro ? '' : ' obj'}">${e.bairro ? `<img src="img/bairros/${esc(e.bairro)}.webp" alt="" loading="lazy" draggable="false">` : ''}<span class="ui2-arte">${arteListaHTML('emprego', e.id, e.emoji)}</span></div>
-      <div class="t"><b>${esc(tr(e.nome))}</b><span class="ui2-paga">${fmtKz(e.salario)}<small> / ${esc(tr('turno'))}</small></span><small>${f.length ? esc(tr('Precisas') + ': ' + f.join(', ')) : '📍 ' + esc(onde)}</small></div>
+      <div class="t"><b>${esc(tr(e.nome))}</b><span class="ui2-paga">${fmtMt(e.salario)}<small> / ${esc(tr('turno'))}</small></span><small>${f.length ? esc(tr('Precisas') + ': ' + f.join(', ')) : '📍 ' + esc(onde)}</small></div>
       <button class="btn sm" data-a="escolher_emprego" data-v="${e.id}" ${f.length ? 'disabled' : ''}>${esc(tr(f.length ? 'Ainda não' : 'Aceitar'))}</button></div>`;
   };
   body.innerHTML = (atual ? `<div class="list" style="margin-bottom:12px">${blocoEmprego(atual)}<div class="row" style="justify-content:flex-end"><button class="btn sm ghost" id="bDemitir">${esc(tr('Despedir-me'))}</button></div></div>` : '') +
@@ -100,26 +100,26 @@ function ui2VagasLigar(body) {
 /* ---------- 🏦 Banco ---------- */
 function ui2Banco(body, cr, irt, atraso, prazo) {
   const card = (op, ic, nome, sub, des) => `<button class="ui2-acao" data-b="${op}" ${des ? 'disabled' : ''}><span class="ui2-ic">${ic}</span><b>${esc(tr(nome))}</b><small>${sub}</small></button>`;
-  const podePedir = cr ? fmtKz(Math.max(0, cr.limite - J.divida)) : '…';
-  body.innerHTML = `<div class="ui2-saldo"><small>${esc(tr('Carteira'))}</small><b>${saldoKz()}</b>
-      <div class="ui2-tres"><span><small>${esc(tr('Poupança'))}</small><b style="color:var(--green)">${fmtKz(J.poupanca)}</b></span><span><small>${esc(tr('Dívida'))}</small><b style="color:${J.divida ? 'var(--red)' : 'inherit'}">${fmtKz(J.divida)}</b></span><span><small>${esc(tr('IRT esta semana'))}</small><b>${irt ? irt.taxa : 0}%</b></span></div>
+  const podePedir = cr ? fmtMt(Math.max(0, cr.limite - J.divida)) : '…';
+  body.innerHTML = `<div class="ui2-saldo"><small>${esc(tr('Carteira'))}</small><b>${saldoMt()}</b>
+      <div class="ui2-tres"><span><small>${esc(tr('Poupança'))}</small><b style="color:var(--green)">${fmtMt(J.poupanca)}</b></span><span><small>${esc(tr('Dívida'))}</small><b style="color:${J.divida ? 'var(--red)' : 'inherit'}">${fmtMt(J.divida)}</b></span><span><small>${esc(tr('IRT esta semana'))}</small><b>${irt ? irt.taxa : 0}%</b></span></div>
       ${J.divida ? `<small class="ui2-aviso${atraso ? ' mau' : ''}">${esc(atraso ? tr('📞 Em atraso! Os cobradores levam 30% da carteira por dia e, ao fim de 7 dias, penhoram um imóvel.') : tr('Prazo: {0} dias.').replace('{0}', prazo))}</small>` : ''}</div>
     <p class="ui2-q">${esc(tr('O que queres fazer?'))}</p>
     <div class="ui2-grid">
-      ${card('depositar', '🐷', 'Pôr na poupança', esc(tr('Rende 0,5% por dia, até 1.000.000 Kz')))}
+      ${card('depositar', '🐷', 'Pôr na poupança', esc(tr('Rende 0,5% por dia, até 1.000.000 MT')))}
       ${card('levantar', '🏧', 'Levantar', esc(tr('Volta para a carteira')))}
-      ${J.divida ? card('pagar', '💳', 'Pagar dívida', fmtKz(J.divida)) : ''}
+      ${J.divida ? card('pagar', '💳', 'Pagar dívida', fmtMt(J.divida)) : ''}
       ${card('emprestar', '🏦', 'Pedir empréstimo', esc(tr('Até {0}').replace('{0}', podePedir)) + (J.bairro !== 'mutamba' ? ' · ' + esc(tr('só ao balcão, na Baixa')) : ''), J.bairro !== 'mutamba')}
-      ${cr ? `<div class="ui2-acao"><span class="ui2-ic">📊</span><b>${esc(tr('Património'))}</b><small>${fmtKz(cr.patrimonio)}</small></div>` : ''}
+      ${cr ? `<div class="ui2-acao"><span class="ui2-ic">📊</span><b>${esc(tr('Património'))}</b><small>${fmtMt(cr.patrimonio)}</small></div>` : ''}
     </div>
     <p class="m">💡 ${esc(tr('Podes pedir até {0}. O limite sobe com a reputação, o estudo, o salário e os imóveis que tens. Comissão de 5% e 7 dias para pagar.').replace('{0}', podePedir))}</p>
-    <p class="m">🧾 ${esc(tr('IRT: o salário paga imposto por escalões da semana (segunda a domingo): até 70.000 Kz não paga, depois 10%, 17% acima de 300.000 e 25% acima de 1.500.000. Retido em cada turno.'))}${irt ? ' ' + esc(tr('Salário da semana: {0}.').replace('{0}', fmtKz(irt.bruto))) : ''}</p>`;
+    <p class="m">🧾 ${esc(tr('IRT: o salário paga imposto por escalões da semana (segunda a domingo): até 70.000 MT não paga, depois 10%, 17% acima de 300.000 e 25% acima de 1.500.000. Retido em cada turno.'))}${irt ? ' ' + esc(tr('Salário da semana: {0}.').replace('{0}', fmtMt(irt.bruto))) : ''}</p>`;
   const NOMES = { depositar: 'Pôr na poupança', levantar: 'Levantar', pagar: 'Pagar dívida', emprestar: 'Pedir empréstimo' };
   body.querySelectorAll('[data-b]').forEach(b => b.onclick = () => {
     const op = b.dataset.b;
-    pedirValor(esc(tr(NOMES[op])), esc(tr('Quanto? (mínimo 100 Kz)')), op === 'pagar' ? J.divida : '', async v => {
-      if (!v || v < 100) return toast('Escreve um valor (mínimo 100 Kz).', 'mau');
-      if (op === 'emprestar') return confirmar(`Pedir ${fmtKz(v)} emprestado?`, `Vais dever ${fmtKz(Math.ceil(v * 1.05))} e a dívida cresce 1,5% por dia. Tens 7 dias. Se não pagares, vêm os cobradores — e depois a penhora.`, 'Pedir empréstimo',
+    pedirValor(esc(tr(NOMES[op])), esc(tr('Quanto? (mínimo 100 MT)')), op === 'pagar' ? J.divida : '', async v => {
+      if (!v || v < 100) return toast('Escreve um valor (mínimo 100 MT).', 'mau');
+      if (op === 'emprestar') return confirmar(`Pedir ${fmtMt(v)} emprestado?`, `Vais dever ${fmtMt(Math.ceil(v * 1.05))} e a dívida cresce 1,5% por dia. Tens 7 dias. Se não pagares, vêm os cobradores — e depois a penhora.`, 'Pedir empréstimo',
         async () => { if (await acao('banco', { p_acao: op, p_valor: v })) { fecharSheets(); abrirTelemovel('banco'); } });
       if (await acao('banco', { p_acao: op, p_valor: v })) { fecharSheets(); abrirTelemovel('banco'); }
     });
@@ -144,7 +144,7 @@ function ui2Corpo() {
   const dica = J.stress >= 80 ? 'Precisas de descansar: praia, ginásio, igreja ou uma festa.' : J.solidao >= 70 ? 'Sentes-te sozinho/a. Conversa com alguém ou entra num grupo.' : '';
   return `<div class="ui2-grid ui2-stats">${tile('Humor', J.felicidade ?? 50, `${e} ${esc(tr(t))}`, true)}${tile('Forma física', J.forma, Math.round(J.forma), true)}${tile('Stress', J.stress, Math.round(J.stress), false)}${tile('Solidão', J.solidao, Math.round(J.solidao), false)}</div>
     ${dica ? `<small class="ui2-dica">${esc(tr(dica))}</small>` : ''}
-    ${meuLar() ? `<button class="btn full" id="bFesta" style="margin-top:10px">🎉 ${esc(tr('Dar uma festa em casa'))} · ${fmtKz(15000)}</button>` : ''}`;
+    ${meuLar() ? `<button class="btn full" id="bFesta" style="margin-top:10px">🎉 ${esc(tr('Dar uma festa em casa'))} · ${fmtMt(15000)}</button>` : ''}`;
 }
 function ui2Perfil(body) {
   if (!ui2()) return;
@@ -233,10 +233,10 @@ function ui2Grupos(body, gs, fundou, formHTML, aoFundar) {
     <div class="ui2-tres ui2-tipos">${[['', '✨', 'Todos'], ['clube', '⚽', 'Futebol'], ['igreja', '⛪', 'Igrejas'], ['associacao', '🤝', 'Associações']].map(([k, e, n]) => `<button class="ui2-mini${grupoTipo === k ? ' on' : ''}" data-gt="${k}"><span class="e">${e}</span><b>${esc(tr(n))}</b></button>`).join('')}</div>
     ${meus.length ? `<div class="sub2">${esc(tr('Os teus grupos'))}</div><div class="dest-grelha">${meus.map(cartao).join('')}</div>` : ''}
     <div class="sub2">${esc(tr('Outros grupos'))}</div>${outros.length ? `<div class="dest-grelha">${outros.map(cartao).join('')}</div>` : `<div class="empty">${esc(tr('Nenhum grupo aqui.'))}</div>`}
-    ${fundou ? '' : `<button class="row ui2-fundar" id="ui2Fundar"><span class="ui2-ic">＋</span><div class="t"><b>${esc(tr('Fundar o teu grupo'))}</b><small>${esc(tr('No bairro onde estás agora'))}</small></div><span class="dest-preco">${fmtKz(50000)}</span></button>`}
+    ${fundou ? '' : `<button class="row ui2-fundar" id="ui2Fundar"><span class="ui2-ic">＋</span><div class="t"><b>${esc(tr('Fundar o teu grupo'))}</b><small>${esc(tr('No bairro onde estás agora'))}</small></div><span class="dest-preco">${fmtMt(50000)}</span></button>`}
     <p class="m">${esc(tr('Igrejas, equipas e associações: participar tira stress e solidão, e ficas amigo/a de quem lá estiver. Para participar tens de estar no bairro do grupo.'))}</p>`;
   body.querySelectorAll('[data-gt]').forEach(b => b.onclick = () => { grupoTipo = b.dataset.gt; ui2Grupos(body, gs, fundou, formHTML, aoFundar); });
-  body.querySelector('#ui2Fundar')?.addEventListener('click', () => { const el = sheet(`<h3>${esc(tr('Fundar um grupo'))} · ${fmtKz(50000)}</h3>${formHTML}`); el.querySelector('#fGrupo')?.addEventListener('submit', e => { e.preventDefault(); aoFundar(el); }); });
+  body.querySelector('#ui2Fundar')?.addEventListener('click', () => { const el = sheet(`<h3>${esc(tr('Fundar um grupo'))} · ${fmtMt(50000)}</h3>${formHTML}`); el.querySelector('#fGrupo')?.addEventListener('submit', e => { e.preventDefault(); aoFundar(el); }); });
   ligarGrupos(body, () => abrirTelemovel('grupos'));
   ui2Como(body, 'Como funcionam os grupos');
 }
@@ -268,7 +268,7 @@ function ui2Objetivos(body, contar) {
     <p class="ui2-q">${esc(tr('O que queres ver?'))}</p>
     <div class="ui2-grid">
       ${card('diario', '🎁', 'Diário', esc(tr('Baú e roda')), dia && (dia.bau || dia.roda) ? esc(tr('Por abrir')) : '')}
-      ${card('hoje', '⭐', 'Hoje', esc(tr('{0} de {1} tarefas').replace('{0}', feitas).replace('{1}', h.lista.length)), h.bonus ? '✓' : '+' + fmtKz(5000))}
+      ${card('hoje', '⭐', 'Hoje', esc(tr('{0} de {1} tarefas').replace('{0}', feitas).replace('{1}', h.lista.length)), h.bonus ? '✓' : '+' + fmtMt(5000))}
       ${card('ambicao', a ? a.e : '✨', 'Ambição', a ? `${esc(a.nome)} · ${marcos.filter(m => m.feito).length} ${esc(tr('de'))} 4` : esc(tr('Escolhe a tua ambição')))}
       ${card('conquistas', '🏆', 'Conquistas', esc(tr('{0} de {1}').replace('{0}', tem).replace('{1}', cs.length)))}
     </div>
@@ -328,7 +328,7 @@ function ui2Jornal(body, noticias, coroas, virais) {
   const dia = new Date().toLocaleDateString(typeof provLoc === 'function' ? provLoc() : 'pt-PT', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'Africa/Luanda' });
   ui2Pilula(body, dia);
   const voltar = t => `<div class="ui2-cab"><button class="ui2-volta" data-js="">‹ ${esc(tr('Jornal'))}</button><b>${esc(tr(t))}</b></div>`;
-  const nota = n => `<div class="nota"><span>${emo(n.texto)}</span><div><b>${esc(corpo(n.texto))}</b><small>${esc(bairro(n.bairro)?.nome || 'Angola')} · há ${tempoRel(n.criado_em)}</small></div></div>`;
+  const nota = n => `<div class="nota"><span>${emo(n.texto)}</span><div><b>${esc(corpo(n.texto))}</b><small>${esc(bairro(n.bairro)?.nome || 'Maputo')} · há ${tempoRel(n.criado_em)}</small></div></div>`;
   let h;
   if (jornalSec === 'coroas') {
     h = voltar('Coroas') + (passadas.length ? `<div class="coroas">${passadas.map(({ t, e, nome, fmt, c }, i) => `<div class="coroa-c ${c.id === uid ? 'eu' : ''}">
@@ -336,7 +336,7 @@ function ui2Jornal(body, noticias, coroas, virais) {
         <small class="tit">${e} ${nome}</small><b>${esc(c.nome)}</b><small>${fmt(c.valor)}</small></div>`).join('')}</div>` : `<div class="empty">${esc(tr('Ainda ninguém foi coroado/a. As coroas saem à segunda-feira.'))}</div>`)
       + `<p class="m">${esc(tr('Fecha domingo à meia-noite. Quem ganhar leva a coroa e +5 de reputação.'))}</p>`;
   } else if (jornalSec === 'semana') {
-    const agora = COROAS.map(([t, e, nome]) => { const l = (coroas?.agora || {})[t] || []; return l.length ? `<div class="nota"><span>${e}</span><div><b>${nome}</b><small>${l.map((p, i) => `${i + 1}. ${esc(p.nome)} — ${t === 'rico' ? fmtKz(p.valor) : fmtN(p.valor)}`).join(' · ')}</small></div></div>` : ''; }).join('');
+    const agora = COROAS.map(([t, e, nome]) => { const l = (coroas?.agora || {})[t] || []; return l.length ? `<div class="nota"><span>${e}</span><div><b>${nome}</b><small>${l.map((p, i) => `${i + 1}. ${esc(p.nome)} — ${t === 'rico' ? fmtMt(p.valor) : fmtN(p.valor)}`).join(' · ')}</small></div></div>` : ''; }).join('');
     h = voltar('Esta semana') + (agora || `<div class="empty">${esc(tr('Ainda ninguém pontuou esta semana.'))}</div>`) + `<p class="m">${esc(tr('Fecha domingo à meia-noite. Quem ganhar leva a coroa e +5 de reputação.'))}</p>`;
   } else if (jornalSec === 'fofocas') {
     h = voltar('Fofocas') + (virais.length ? `<div class="sub2">🔥 ${esc(tr('Viral no Muxima'))}</div>${virais.map(p => `<div class="row"><span class="e">${p.foto || '🔥'}</span><div class="t"><b>"${esc(p.texto.slice(0, 70))}"</b><small>${esc(p.nome)} · ${fmtN(gostosDe(p))} gostos</small></div></div>`).join('')}<div class="sub2">${esc(tr('Últimas'))}</div>` : '')
@@ -345,7 +345,7 @@ function ui2Jornal(body, noticias, coroas, virais) {
     const fof24 = noticias.filter(n => Date.now() - new Date(n.criado_em) < 864e5).length;
     const el = typeof PROV !== 'undefined' && PROV ? (PROV.eleicoes || [])[0] : null;
     const foto = capa?.bairro && bairro(capa.bairro) ? capa.bairro : 'mutamba';
-    const manchete = rico ? [tr('{0} é o/a mais rico/a da semana').replace('{0}', rico.c.nome), fmtKz(rico.c.valor), 'coroas'] : capa ? [corpo(capa.texto), `${bairro(capa.bairro)?.nome || 'Angola'} · há ${tempoRel(capa.criado_em)}`, 'fofocas'] : null;
+    const manchete = rico ? [tr('{0} é o/a mais rico/a da semana').replace('{0}', rico.c.nome), fmtMt(rico.c.valor), 'coroas'] : capa ? [corpo(capa.texto), `${bairro(capa.bairro)?.nome || 'Maputo'} · há ${tempoRel(capa.criado_em)}`, 'fofocas'] : null;
     const sec = (k, ic, cor, nome, sub, acao) => `<button class="row dest-card ui2-secj" data-js="${k}"><div class="dest-foto" style="--c:${cor}"><span class="e">${ic}</span></div><div class="t"><b>${esc(tr(nome))}</b><small>${esc(sub)}</small></div><span class="dest-preco">${esc(acao)} ›</span></button>`;
     h = (manchete ? `<button class="ui2-manchete" data-js="${manchete[2]}"><img src="img/bairros/${esc(foto)}.webp" alt="" draggable="false"><span><i>${esc(tr('MANCHETE'))}</i><b>${esc(manchete[0])}</b><small>${esc(manchete[1])}</small></span></button>` : `<div class="empty">${esc(tr('Dia calmo em Luanda. Nada a reportar.'))}</div>`)
       + `<p class="ui2-q">${esc(tr('Secções do jornal'))}</p><div class="dest-grelha">
@@ -405,13 +405,13 @@ async function ui2Ranking(body, data) {
   const pod = lista.slice(0, 3), ordem = [1, 0, 2].filter(i => pod[i]);
   const av = (p, i) => `<span class="ui2-podav p${i + 1}">${p.aparencia ? `<img src="${ui2Retrato(p)}" alt="" draggable="false">` : `<b>${esc(p.nome.slice(0, 2).toUpperCase())}</b>`}</span>`;
   const eu = lista.findIndex(p => p.id === uid);
-  const linha = (p, i) => `<div class="ui2-nota${p.id === uid ? ' eu' : ''}"><b class="ui2-pos">${i + 1}</b><span class="t"><b>${esc(p.nome)}</b><small>${esc(bairro(p.bairro)?.nome || '')}${p.imoveis ? ` · 🏘️ ${p.imoveis}` : ''}</small></span><b class="ui2-val">${ui2CurtoKz(p.patrimonio)}</b></div>`;
-  body.innerHTML = ui2Chips([['angola', 'Angola'], ['bairro', 'O meu bairro'], ['amigos', 'Amigos']], ricosFiltro, 'rf')
-    + (pod.length ? `<div class="ui2-podio">${ordem.map(i => { const p = pod[i]; return `<div class="ui2-pod p${i + 1}${p.id === uid ? ' eu' : ''}">${i === 0 ? '<span class="cor">👑</span>' : ''}${av(p, i)}<b>${esc(p.nome)}</b><small>${ui2CurtoKz(p.patrimonio)}</small><span class="degrau">${i + 1}</span></div>`; }).join('')}</div>` : `<div class="empty">${esc(tr('Ninguém aqui ainda.'))}</div>`)
+  const linha = (p, i) => `<div class="ui2-nota${p.id === uid ? ' eu' : ''}"><b class="ui2-pos">${i + 1}</b><span class="t"><b>${esc(p.nome)}</b><small>${esc(bairro(p.bairro)?.nome || '')}${p.imoveis ? ` · 🏘️ ${p.imoveis}` : ''}</small></span><b class="ui2-val">${ui2CurtoMt(p.patrimonio)}</b></div>`;
+  body.innerHTML = ui2Chips([['maputo', 'Moçambique'], ['bairro', 'O meu bairro'], ['amigos', 'Amigos']], ricosFiltro, 'rf')
+    + (pod.length ? `<div class="ui2-podio">${ordem.map(i => { const p = pod[i]; return `<div class="ui2-pod p${i + 1}${p.id === uid ? ' eu' : ''}">${i === 0 ? '<span class="cor">👑</span>' : ''}${av(p, i)}<b>${esc(p.nome)}</b><small>${ui2CurtoMt(p.patrimonio)}</small><span class="degrau">${i + 1}</span></div>`; }).join('')}</div>` : `<div class="empty">${esc(tr('Ninguém aqui ainda.'))}</div>`)
     + (lista.length > 3 ? `<div class="ui2-caixa">${lista.slice(3).map((p, i) => p.id === uid ? '' : linha(p, i + 3)).join('')}</div>` : '')
-    + (eu >= 0 ? `<div class="ui2-eu"><b class="ui2-pos">${eu + 1}</b><span class="t"><b>${esc(tr('Tu'))} · ${esc(J.nome)}</b><small>${eu === 0 ? esc(tr('És o/a mais rico/a daqui!')) : esc(tr('Faltam {0} para o {1}.º lugar').replace('{0}', ui2CurtoKz(Math.max(1, lista[eu - 1].patrimonio - lista[eu].patrimonio))).replace('{1}', eu))}</small></span><b class="ui2-val">${ui2CurtoKz(lista[eu].patrimonio)}</b></div>`
+    + (eu >= 0 ? `<div class="ui2-eu"><b class="ui2-pos">${eu + 1}</b><span class="t"><b>${esc(tr('Tu'))} · ${esc(J.nome)}</b><small>${eu === 0 ? esc(tr('És o/a mais rico/a daqui!')) : esc(tr('Faltam {0} para o {1}.º lugar').replace('{0}', ui2CurtoMt(Math.max(1, lista[eu - 1].patrimonio - lista[eu].patrimonio))).replace('{1}', eu))}</small></span><b class="ui2-val">${ui2CurtoMt(lista[eu].patrimonio)}</b></div>`
       : `<div class="ui2-eu"><span class="t"><b>${esc(tr('Tu'))} · ${esc(J.nome)}</b><small>${esc(tr('Ainda fora da lista dos 30 mais ricos. Trabalha, poupa e compra casas!'))}</small></span></div>`)
-    + `<p class="m">${esc(tr('Património = carteira + poupança + imóveis − dívidas. A lista mostra os 30 mais ricos de Angola; «O meu bairro» e «Amigos» mostram quem deles mora onde tu moras ou é teu amigo/a.'))}</p>`;
+    + `<p class="m">${esc(tr('Património = carteira + poupança + imóveis − dívidas. A lista mostra os 30 mais ricos de Moçambique; «O meu bairro» e «Amigos» mostram quem deles mora onde tu moras ou é teu amigo/a.'))}</p>`;
   body.querySelectorAll('[data-rf]').forEach(b => b.onclick = () => { ricosFiltro = b.dataset.rf; ui2Ranking(body, data); });
   ui2Como(body, 'Como se conta o património');
 }
@@ -428,7 +428,7 @@ function ui2Tempo(body) {
   const fotoAqui = bairro(J.bairro) && ['mutamba', 'maianga', 'talatona', 'kilamba', 'viana', 'cazenga', 'ilha', 'mussulo', 'camama', 'rangel', 'novavida', 'zango', 'benguela', 'huambo', 'lubango', 'namibe', 'malanje', 'cabinda'].includes(J.bairro) ? J.bairro : UI2_REG_FOTO[minha] || 'mutamba';
   body.innerHTML = `<div class="ui2-agora"><img src="img/bairros/${esc(fotoAqui)}.webp" alt="" draggable="false"><span>
       <small>${esc(tr('Aqui'))} · ${esc(bairro(J.bairro)?.nome || '')}</small><b><em>${aqui ? ver(aqui)[0] : '…'}</em>${esc(tr(aqui ? ver(aqui)[1] : ''))}</b><small>${esc(chuva(minha) || tr('Sem chuva hoje'))}</small></span></div>
-    <p class="ui2-q">${esc(tr('No resto de Angola'))}</p>
+    <p class="ui2-q">${esc(tr('No resto de Moçambique'))}</p>
     <div class="dest-grelha">${Object.entries(nomes).filter(([k]) => r[k] && k !== minha).map(([k, n]) => { const t = tempoEm(k);
       return `<div class="row dest-card ui2-reg"><div class="dest-foto"><img src="img/bairros/${UI2_REG_FOTO[k]}.webp" alt="" loading="lazy" draggable="false"><span class="ui2-tic">${ver(t)[0]}</span></div><div class="t"><b>${n}</b><small style="color:${cor(t)};font-weight:700">${esc(chuva(k) || tr(ver(t)[1]))}</small></div></div>`; }).join('')}</div>
     <p class="m">${esc(tr(climaHoje?.epoca === 'chuvas' ? '🌧️ Época das chuvas (outubro a abril): cuidado com as tempestades, as estradas e as inundações. Boa altura para as lavras.' : '🌫️ Cacimbo (maio a setembro): céu cinzento, noites frescas, quase sem chuva. Rega as lavras!'))}</p>`;
@@ -447,7 +447,7 @@ function ui2Saude(body) {
   const aqui = k => SAUDE_LUGARES[k].includes(J.bairro), onde = k => SAUDE_LUGARES[k].map(b => bairro(b)?.nome || b)[0];
   const preco = { farmacia: J.doenca === 'malaria' ? 6000 : 1500, centro: 0, clinica: seguro ? 0 : 25000, hospital: seguro ? 2000 : 12000, curandeiro: 2000 };
   const pode = { farmacia: aqui('farmacia') && J.doenca && J.doenca !== 'tifoide', farmacia_online: J.doenca && J.doenca !== 'tifoide', centro: aqui('centro') && (J.doenca || s < 80), clinica: aqui('clinica'), hospital: aqui('hospital') && (J.doenca || s < 80), curandeiro: aqui('curandeiro') && J.doenca };
-  const pr = (k, v) => !pode[k] ? (SAUDE_LUGARES[k] && !aqui(k) ? esc(tr('Em {0}').replace('{0}', onde(k))) : '—') : v === 0 ? esc(tr('Grátis')) + ' ›' : fmtKz(v) + ' ›';
+  const pr = (k, v) => !pode[k] ? (SAUDE_LUGARES[k] && !aqui(k) ? esc(tr('Em {0}').replace('{0}', onde(k))) : '—') : v === 0 ? esc(tr('Grátis')) + ' ›' : fmtMt(v) + ' ›';
   const cor = s < 30 ? 'var(--red)' : s < 60 ? 'var(--gold)' : 'var(--green)';
   ui2Pilula(body, seguro ? tr('Seguro até {0}').replace('{0}', new Date(J.seguro_ate).toLocaleDateString(typeof provLoc === 'function' ? provLoc() : 'pt-PT', { weekday: 'short' })) : '');
   body.innerHTML = `<div class="ui2-estado"><span class="ui2-ic" style="--c:#ff8fa0">${d ? d[0] : '❤️'}</span><div><span class="ui2-l"><b>${esc(tr(d ? d[1] : 'Estás de boa saúde'))}</b><b style="color:${cor}">${s} / 100</b></span>
@@ -460,10 +460,10 @@ function ui2Saude(body) {
       ${ui2Card(`data-tratar="centro" ${pode.centro ? '' : 'disabled'}`, '', '🏥', '#c9c3cc', tr('Centro de saúde'), tr('Grátis · fila longa'), pr('centro', 0))}
     </div>
     <div class="ui2-dois">
-      <button class="ui2-peq" data-tratar="farmacia_online" ${pode.farmacia_online ? '' : 'disabled'}><span>🛵</span><b>${esc(tr('Com entrega'))}<small>${fmtKz(preco.farmacia + 2000)}</small></b></button>
-      <button class="ui2-peq" data-tratar="curandeiro" ${pode.curandeiro ? '' : 'disabled'}><span>🌿</span><b>${esc(tr('Curandeiro'))}<small>${pode.curandeiro ? fmtKz(2000) : esc(tr('Em {0}').replace('{0}', onde('curandeiro')))}</small></b></button>
+      <button class="ui2-peq" data-tratar="farmacia_online" ${pode.farmacia_online ? '' : 'disabled'}><span>🛵</span><b>${esc(tr('Com entrega'))}<small>${fmtMt(preco.farmacia + 2000)}</small></b></button>
+      <button class="ui2-peq" data-tratar="curandeiro" ${pode.curandeiro ? '' : 'disabled'}><span>🌿</span><b>${esc(tr('Curandeiro'))}<small>${pode.curandeiro ? fmtMt(2000) : esc(tr('Em {0}').replace('{0}', onde('curandeiro')))}</small></b></button>
     </div>
-    <button class="ui2-eu ui2-ouro-l" id="bSeguro"><span class="ui2-pos">🛡️</span><span class="t"><b>${esc(tr('Seguro de saúde · 7 dias'))}</b><small>${esc(tr('Clínica grátis, hospital a 2.000 Kz'))}${seguro ? ' · ' + esc(tr('renova por mais 7 dias')) : ''}</small></span><b class="ui2-val">${fmtKz(15000)} ›</b></button>
+    <button class="ui2-eu ui2-ouro-l" id="bSeguro"><span class="ui2-pos">🛡️</span><span class="t"><b>${esc(tr('Seguro de saúde · 7 dias'))}</b><small>${esc(tr('Clínica grátis, hospital a 2.000 MT'))}${seguro ? ' · ' + esc(tr('renova por mais 7 dias')) : ''}</small></span><b class="ui2-val">${fmtMt(15000)} ›</b></button>
     <p class="m">${esc(tr(climaHoje?.epoca === 'chuvas' ? '🦟 Época das chuvas: muita malária. Casas melhores (conforto 3+) protegem.' : '🤧 Cacimbo: gripes. Manter a forma ajuda.'))} ${esc(tr('Casas muito fracas apanham febre tifoide.'))}</p>
     <p class="m">${esc(tr('Centro de saúde: grátis, mas a fila é longa e às vezes não há médico. O curandeiro dá chá de raízes: às vezes resulta… O seguro dura 7 dias.'))}</p>`;
   body.querySelectorAll('[data-tratar]').forEach(b => b.onclick = async () => { if (await acao('tratar', { p_onde: b.dataset.tratar })) abrirTelemovel('saude'); });
@@ -479,9 +479,9 @@ function ui2Justica(body) {
   const velho = c => Date.now() - new Date(c.criado_em) > 3 * 864e5;
   const novos = crimesContra.filter(c => !velho(c) || c.queixa), velhos = crimesContra.filter(c => velho(c) && !c.queixa);
   const linha = (c, grande) => { const t = TIPO_CRIME[c.tipo] || ['⚠️', c.tipo];
-    return `<div class="ui2-nota${grande ? ' grande' : ''}"><span class="ui2-ic" style="--c:${c.queixa ? '#4cc38a' : '#ff8fa0'}">${t[0]}</span><span class="t"><b>${esc(tr(t[1]))}${c.valor ? ' · ' + fmtKz(c.valor) : ''}</b><small>${esc(bairro(c.bairro)?.nome || '')} · ${tempoRel(c.criado_em)}</small></span>
+    return `<div class="ui2-nota${grande ? ' grande' : ''}"><span class="ui2-ic" style="--c:${c.queixa ? '#4cc38a' : '#ff8fa0'}">${t[0]}</span><span class="t"><b>${esc(tr(t[1]))}${c.valor ? ' · ' + fmtMt(c.valor) : ''}</b><small>${esc(bairro(c.bairro)?.nome || '')} · ${tempoRel(c.criado_em)}</small></span>
       ${c.queixa ? `<span class="dest-preco" style="color:var(--green)">${esc(tr('Queixa feita'))}</span>` : velho(c) ? `<small class="m">${esc(tr('Arquivado'))}</small>` : `<button class="btn sm" data-queixa="${c.id}">${esc(tr('Fazer queixa'))}</button>`}</div>`; };
-  body.innerHTML = (J.detencao ? blocoDetencao() : preso() ? `<div class="ui2-estado mau"><span class="ui2-ic" style="--c:#ff8fa0">⛓️</span><div><b>${esc(tr('Na Cadeia de Viana'))}</b><small>${esc(tr('Faltam {0}. Na oficina sai-se mais cedo; a fiança é {1}.').replace('{0}', tempoFalta(J.preso_ate)).replace('{1}', fmtKz(Math.ceil((new Date(J.preso_ate) - Date.now()) / 3600e3) * 15000)))}</small></div></div>` : '')
+  body.innerHTML = (J.detencao ? blocoDetencao() : preso() ? `<div class="ui2-estado mau"><span class="ui2-ic" style="--c:#ff8fa0">⛓️</span><div><b>${esc(tr('Na Cadeia de Viana'))}</b><small>${esc(tr('Faltam {0}. Na oficina sai-se mais cedo; a fiança é {1}.').replace('{0}', tempoFalta(J.preso_ate)).replace('{1}', fmtMt(Math.ceil((new Date(J.preso_ate) - Date.now()) / 3600e3) * 15000)))}</small></div></div>` : '')
     + `<div class="ui2-grid">
       <div class="ui2-stat"><span><span>🚨 ${esc(tr('Procurado/a'))}</span><b style="color:${cor}">${p}</b></span><i><u style="width:${p}%;background:${cor}"></u></i><small class="m">${esc(tr(p >= 50 ? 'Há um mandado contra ti' : p > 0 ? 'A polícia anda de olho em ti' : 'Ninguém te procura'))}</small></div>
       <div class="ui2-stat"><span><span>📁 ${esc(tr('Cadastro'))}</span><b style="color:${cad ? 'var(--red)' : 'var(--green)'}">${cad}</b></span><i></i><small class="m">${esc(tr(cad ? 'Condenações no registo' : 'Nenhuma condenação'))}</small></div></div>
@@ -524,8 +524,8 @@ function ui2Governo(body, m, e, hp) {
   casa.innerHTML = `<div class="ui2-rot" style="margin-top:0">${esc(tr('Hoje onde moras'))}</div>
     <div class="ui2-tres3">
       ${tile(m.sem_luz ? '🕯️' : '💡', m.sem_luz ? 'Sem luz' : 'Há luz', esc(tr(m.sem_luz ? (tem('gerador') ? 'O gerador aguenta' : 'Dorme-se mal') : 'Aproveita')), m.sem_luz)}
-      ${tile(m.sem_agua ? '🚱' : '🚰', m.sem_agua ? 'Sem água' : 'Há água', semAgua ? '' : esc(tr(m.sem_agua ? 'Bidões cheios' : 'Corre a água')), m.sem_agua, semAgua ? `<button class="ui2-mini-b" id="bAgua2">${esc(tr('Bidões'))} ${fmtKz(2500)}</button>` : '')}
-      ${tile('⛽', fmtKz(combustivel.hoje) + '/l', esc(subiu > 0 ? tr('Subiu {0}').replace('{0}', subiu) : subiu < 0 ? tr('Desceu {0}').replace('{0}', -subiu) : tr('Igual a ontem')))}
+      ${tile(m.sem_agua ? '🚱' : '🚰', m.sem_agua ? 'Sem água' : 'Há água', semAgua ? '' : esc(tr(m.sem_agua ? 'Bidões cheios' : 'Corre a água')), m.sem_agua, semAgua ? `<button class="ui2-mini-b" id="bAgua2">${esc(tr('Bidões'))} ${fmtMt(2500)}</button>` : '')}
+      ${tile('⛽', fmtMt(combustivel.hoje) + '/l', esc(subiu > 0 ? tr('Subiu {0}').replace('{0}', subiu) : subiu < 0 ? tr('Desceu {0}').replace('{0}', -subiu) : tr('Igual a ontem')))}
     </div>
     ${el}
     <div class="dest-grelha">
@@ -554,9 +554,9 @@ function ui2Universidade(body) {
   const FOTO = { uan: 'mutamba', isaf: 'maianga', uor: 'talatona', isptec: 'talatona' };
   body.innerHTML = `<div class="ui2-estado"><span class="ui2-ic" style="--c:#8fa8ff">🎓</span><div><b>${minha ? `${esc(CURSOS[J.curso] || '')} · ${esc(UNIVS[minha].nome)}` : esc(tr('Ainda não estudas'))}</b>
       <span class="ui2-passos">${Array.from({ length: 10 }, (_, i) => `<i class="${i < J.estudo ? 'on' : ''}"></i>`).join('')}</span><small>${esc(tr(J.estudo >= 10 ? 'Estudo completo!' : 'Cada módulo abre vagas melhores'))}</small></div></div>
-    ${minha && J.estudo < 10 ? `<button class="btn full ui2-grande" data-estudar="${minha}" data-online="1">${esc(tr('Estudar o módulo {0} · à distância').replace('{0}', J.estudo + 1))}<span>${fmtKz(custo(minha, true))}</span></button>` : ''}
+    ${minha && J.estudo < 10 ? `<button class="btn full ui2-grande" data-estudar="${minha}" data-online="1">${esc(tr('Estudar o módulo {0} · à distância').replace('{0}', J.estudo + 1))}<span>${fmtMt(custo(minha, true))}</span></button>` : ''}
     <p class="ui2-q">${esc(tr(minha ? 'Ou escolhe outra universidade' : 'Escolhe a universidade'))}</p>
-    <div class="dest-grelha">${Object.entries(UNIVS).map(([id, u]) => ui2Card(`data-univ-sel="${id}"`, `img/bairros/${FOTO[id] || 'mutamba'}.webp`, '🎓', '', u.nome.replace('Universidade ', ''), tr(u.txt.split('.')[0]), `${esc(tr('desde'))} ${fmtKz(custo(id, false))} ›`, id === minha ? ' data-minha' : '')).join('')}</div>
+    <div class="dest-grelha">${Object.entries(UNIVS).map(([id, u]) => ui2Card(`data-univ-sel="${id}"`, `img/bairros/${FOTO[id] || 'mutamba'}.webp`, '🎓', '', u.nome.replace('Universidade ', ''), tr(u.txt.split('.')[0]), `${esc(tr('desde'))} ${fmtMt(custo(id, false))} ›`, id === minha ? ' data-minha' : '')).join('')}</div>
     <p class="m">${esc(tr('Estuda à distância em qualquer universidade (+50% nas propinas), ou vai lá pessoalmente e paga o preço normal. Mais estudo abre vagas melhores. Mudar de curso não apaga o teu nível de estudo.'))}</p>`;
   body.querySelectorAll('[data-univ-sel]').forEach(b => b.onclick = () => { univSel = b.dataset.univSel; ui2Universidade(body); body.scrollTop = 0; });
   ligarUniv(body, () => ui2Universidade(body));
@@ -569,11 +569,11 @@ function ui2Empregados(body, meus) {
   const c = J.casa ? casaDe(J.casa) : null;
   ui2Pilula(body, meus.size ? tr('{0} em casa').replace('{0}', meus.size) : '');
   body.innerHTML = `<div class="ui2-estado">${c ? `<img src="img/bairros/${esc(c.bairro)}.webp" alt="">` : '<span class="ui2-ic">🏠</span>'}<div><small>${c ? esc(tr('A tua casa')) + ' · ' + esc(bairro(c.bairro)?.nome || '') : esc(tr('Sem casa'))}</small>
-      <b style="font-size:18px">${c ? esc(tr('{0} por dia').replace('{0}', fmtKz(total))) : esc(tr('Primeiro precisas de uma casa'))}</b><small>${esc(tr(c ? 'Paga-se sozinho. Sem kumbu, vão-se embora.' : 'Arrenda ou compra em 📱 → Imóveis.'))}</small></div></div>
+      <b style="font-size:18px">${c ? esc(tr('{0} por dia').replace('{0}', fmtMt(total))) : esc(tr('Primeiro precisas de uma casa'))}</b><small>${esc(tr(c ? 'Paga-se sozinho. Sem kumbu, vão-se embora.' : 'Arrenda ou compra em 📱 → Imóveis.'))}</small></div></div>
     <p class="ui2-q">${esc(tr('Quem queres contratar?'))}</p>
     <div class="ui2-grid">${Object.entries(EMPREGADOS).map(([k, [e, n, sal, txt]]) => meus.has(k)
-      ? `<div class="ui2-acao ui2-tenho"><span class="ui2-ic">${e}</span><i class="ui2-tag">${esc(tr('Em casa'))}</i><b>${esc(tr(n))}</b><small>${esc(tr(txt))}</small><span class="ui2-l"><b class="ui2-val" style="color:var(--green)">${fmtKz(sal)}/${esc(tr('dia'))}</b><button class="ui2-link" data-desp="${k}">${esc(tr('Despedir'))}</button></span></div>`
-      : `<button class="ui2-acao" data-contr="${k}" ${J.casa ? '' : 'disabled'}><span class="ui2-ic">${e}</span><b>${esc(tr(n))}</b><small>${esc(tr(txt))}</small><small class="ui2-ouro">${fmtKz(sal)}/${esc(tr('dia'))} ›</small></button>`).join('')}</div>
+      ? `<div class="ui2-acao ui2-tenho"><span class="ui2-ic">${e}</span><i class="ui2-tag">${esc(tr('Em casa'))}</i><b>${esc(tr(n))}</b><small>${esc(tr(txt))}</small><span class="ui2-l"><b class="ui2-val" style="color:var(--green)">${fmtMt(sal)}/${esc(tr('dia'))}</b><button class="ui2-link" data-desp="${k}">${esc(tr('Despedir'))}</button></span></div>`
+      : `<button class="ui2-acao" data-contr="${k}" ${J.casa ? '' : 'disabled'}><span class="ui2-ic">${e}</span><b>${esc(tr(n))}</b><small>${esc(tr(txt))}</small><small class="ui2-ouro">${fmtMt(sal)}/${esc(tr('dia'))} ›</small></button>`).join('')}</div>
     <p class="m">${esc(tr('O salário sai sozinho da tua carteira todos os dias. Se não tiveres kumbu, vão-se embora. Podes despedir quando quiseres.'))}</p>`;
   body.querySelectorAll('[data-contr]').forEach(b => b.onclick = async () => { b.disabled = true; if (await acao('contratar_empregado', { p_tipo: b.dataset.contr })) renderEmpregados(body); else b.disabled = false; });
   body.querySelectorAll('[data-desp]').forEach(b => b.onclick = async () => { if (!await perguntar('Despedir?')) return; if (await acao('contratar_empregado', { p_tipo: b.dataset.desp, p_sim: false })) renderEmpregados(body); });
@@ -604,9 +604,9 @@ function ui2Empresas(body, minhas, nOutras) {
   const casa = document.createElement('div');
   casa.innerHTML = `${minhas.length ? `<div class="ui2-rot" style="margin-top:0">${esc(tr('Os teus negócios'))}</div><div class="dest-grelha">${minhas.map(e => { const espera = new Date(e.licenca_ate) > new Date();
       return `<button class="row dest-card ui2-c4" data-emp="${e.id}"><div class="dest-foto"><img src="img/bairros/${esc(e.bairro)}.webp" alt="" loading="lazy" draggable="false">${typeof tycoonTem === 'function' && tycoonTem(e.tipo) ? `<span class="ui2-jogar" role="button" tabindex="0" data-tyemp="${e.id}">🎮 ${esc(tr('Jogar'))}</span>` : ''}<i class="ui2-selo${espera ? ' ouro' : ''}">${esc(espera ? tr('À espera da licença') : (TAM_EMP[e.tamanho] || TAM_EMP.quiosque).replace(/^\S+\s/, ''))}</i></div>
-        <div class="t"><b>${T(e.tipo).e || ''} ${esc(e.nome)}</b><small>${e.ultimo_dia ? esc(tr('Último fecho: {0}').replace('{0}', fmtKz(e.ultimas_vendas || 0))) : esc(tr('Primeiras vendas às 18:00'))}</small></div>
-        <span class="dest-preco" style="color:${e.caixa < 0 ? 'var(--red)' : ''}">${esc(tr('Caixa'))} ${ui2CurtoKz(e.caixa)} ›</span></button>`; }).join('')}</div>` : ''}
-    <button class="row ui2-fundar" data-emp="abrir"><span class="ui2-ic">＋</span><div class="t"><b>${esc(tr('Abrir um negócio'))}</b><small>${esc(tr('Aqui em {0}').replace('{0}', bairro(J.bairro)?.nome || ''))} · ${esc(tr('{0} tipos').replace('{0}', Object.keys(TIPOS_EMP).length))}</small></div><span class="dest-preco">${esc(tr('desde'))} ${ui2CurtoKz(Math.min(...Object.values(TIPOS_EMP).map(t => t.custo || 1e12)))} ›</span></button>`;
+        <div class="t"><b>${T(e.tipo).e || ''} ${esc(e.nome)}</b><small>${e.ultimo_dia ? esc(tr('Último fecho: {0}').replace('{0}', fmtMt(e.ultimas_vendas || 0))) : esc(tr('Primeiras vendas às 18:00'))}</small></div>
+        <span class="dest-preco" style="color:${e.caixa < 0 ? 'var(--red)' : ''}">${esc(tr('Caixa'))} ${ui2CurtoMt(e.caixa)} ›</span></button>`; }).join('')}</div>` : ''}
+    <button class="row ui2-fundar" data-emp="abrir"><span class="ui2-ic">＋</span><div class="t"><b>${esc(tr('Abrir um negócio'))}</b><small>${esc(tr('Aqui em {0}').replace('{0}', bairro(J.bairro)?.nome || ''))} · ${esc(tr('{0} tipos').replace('{0}', Object.keys(TIPOS_EMP).length))}</small></div><span class="dest-preco">${esc(tr('desde'))} ${ui2CurtoMt(Math.min(...Object.values(TIPOS_EMP).map(t => t.custo || 1e12)))} ›</span></button>`;
   const ancora = filhos[iLista] || null;
   body.insertBefore(casa, ancora);
   casa.querySelectorAll('[data-emp]').forEach(b => b.onclick = () => { empSec = b.dataset.emp; ui2Empresas(body, minhas, nOutras); });
@@ -624,12 +624,12 @@ function ui2Dolares(body, c) {
   const W = 300, H = 64, vals = h.flatMap(x => [x.oficial, x.rua]), mn = Math.min(...vals), mx = Math.max(...vals);
   const pt = (v, i) => `${(i / Math.max(1, h.length - 1)) * W},${H - ((v - mn) / Math.max(1, mx - mn)) * (H - 8) - 4}`, linha = k => h.map((x, i) => pt(x[k], i)).join(' ');
   if (!cambioOnde) cambioOnde = naBaixa ? 'banco' : 'kinguila';
-  ui2Pilula(body, `1 $ = ${fmtTaxa(c.banco_compra)} Kz`);
+  ui2Pilula(body, `1 $ = ${fmtTaxa(c.banco_compra)} MT`);
   const pode = cambioOnde === 'banco' ? naBaixa : !semKinguilas;
   const compra = cambioOnde === 'banco' ? c.banco_compra : c.kinguila_compra, venda = cambioOnde === 'banco' ? c.banco_venda : c.kinguila_venda;
   const card = (k, foto, nome, sub, taxa, selo, ok) => `<button class="row dest-card ui2-c4${cambioOnde === k ? ' ui2-sel' : ''}" data-co="${k}"><div class="dest-foto"><img src="img/bairros/${foto}.webp" alt="" loading="lazy" draggable="false">${selo ? `<i class="ui2-selo${k === 'banco' ? ' verde' : ''}">${esc(tr(selo))}</i>` : ''}</div>
     <div class="t"><b>${esc(tr(nome))}</b><small>${esc(sub)}</small></div><span class="dest-preco"${ok ? '' : ' style="color:var(--muted)"'}>1 $ = ${fmtTaxa(taxa)} ›</span></button>`;
-  body.innerHTML = `<div class="ui2-estado ui2-usd"><div><small>${esc(tr('Os teus dólares'))}</small><span class="ui2-l"><b style="font-size:28px;color:var(--green)">${fmtUsd(J.dolares)}</b><small>≈ ${fmtKz(J.dolares * c.oficial)}</small></span>
+  body.innerHTML = `<div class="ui2-estado ui2-usd"><div><small>${esc(tr('Os teus dólares'))}</small><span class="ui2-l"><b style="font-size:28px;color:var(--green)">${fmtUsd(J.dolares)}</b><small>≈ ${fmtMt(J.dolares * c.oficial)}</small></span>
       ${h.length > 1 ? `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:64px" aria-hidden="true"><polyline points="${linha('oficial')}" fill="none" stroke="#5aa7e0" stroke-width="2.5"/><polyline points="${linha('rua')}" fill="none" stroke="#f5b81c" stroke-width="2.5"/></svg>` : ''}
       <span class="ui2-l"><small><b style="color:#5aa7e0">━</b> ${esc(tr('Banco'))} · <b style="color:#f5b81c">━</b> ${esc(tr('Rua'))}</small><small style="color:${varia > 0 ? 'var(--red)' : 'var(--green)'}">${esc(tr('Dólar {0}% em {1} dias').replace('{0}', (varia >= 0 ? '+' : '') + varia.toFixed(1)).replace('{1}', h.length))}</small></span></div></div>
     <p class="ui2-q">${esc(tr('Onde queres trocar?'))}</p>
@@ -637,7 +637,7 @@ function ui2Dolares(body, c) {
       ${card('kinguila', 'cazenga', 'Kinguilas', semKinguilas ? tr('Não há aqui') : tr('Quanto quiseres, mais caro'), c.kinguila_compra, 'Na rua', !semKinguilas)}</div>
     <div class="ui2-troca"><span class="ui2-l"><b>${esc(tr(cambioOnde === 'banco' ? 'Banco' : 'Kinguilas'))}</b><small>${cambioOnde === 'banco' && naBaixa ? esc(tr('Hoje ainda: {0}').replace('{0}', fmtUsd(c.limite_banco))) : !pode ? esc(tr(cambioOnde === 'banco' ? 'Vai à Baixa para trocar no banco' : 'Não há kinguilas neste bairro')) : ''}</small></span>
       <span class="ui2-qts">${[50, 100, 200].map(v => `<button class="${cambioUsd === v ? 'on' : ''}" data-usd="${v}">$ ${v}</button>`).join('')}<button class="${[50, 100, 200].includes(cambioUsd) ? '' : 'on'}" data-usd="">${[50, 100, 200].includes(cambioUsd) ? esc(tr('Outro')) : '$ ' + cambioUsd}</button></span>
-      <span class="ui2-dois" style="margin:0"><button class="btn" data-t="comprar" ${pode && !(cambioOnde === 'banco' && c.limite_banco <= 0) ? '' : 'disabled'}>${esc(tr('Comprar'))} · ${fmtKz(Math.round(cambioUsd * compra))}</button><button class="btn ghost" data-t="vender" ${pode ? '' : 'disabled'}>${esc(tr('Vender'))} · ${fmtKz(Math.round(cambioUsd * venda))}</button></span></div>
+      <span class="ui2-dois" style="margin:0"><button class="btn" data-t="comprar" ${pode && !(cambioOnde === 'banco' && c.limite_banco <= 0) ? '' : 'disabled'}>${esc(tr('Comprar'))} · ${fmtMt(Math.round(cambioUsd * compra))}</button><button class="btn ghost" data-t="vender" ${pode ? '' : 'disabled'}>${esc(tr('Vender'))} · ${fmtMt(Math.round(cambioUsd * venda))}</button></span></div>
     <p class="m">${esc(tr('O kwanza vai perdendo valor: guardar em dólares protege-te. O banco tem o melhor câmbio, mas só vende 200 $ por dia e só ao balcão, na Baixa. As kinguilas vendem quanto quiseres, mais caro.'))}</p>`;
   body.querySelectorAll('[data-co]').forEach(b => b.onclick = () => { cambioOnde = b.dataset.co; ui2Dolares(body, c); });
   body.querySelectorAll('[data-usd]').forEach(b => b.onclick = () => {
@@ -652,12 +652,12 @@ function ui2Dolares(body, c) {
 let kumbuPara = '', kumbuVal = 5000;
 async function ui2Kumbu(body, extra, nomes, recentes) {
   if (extra) kumbuPara = extra;
-  ui2Pilula(body, tr('Tens {0}').replace('{0}', ui2CurtoKz(J.kumbu)));
+  ui2Pilula(body, tr('Tens {0}').replace('{0}', ui2CurtoMt(J.kumbu)));
   const desenhar = () => {
     const ok = kumbuPara.trim() && kumbuVal >= 1 && kumbuVal <= J.kumbu;
-    body.querySelector('#ui2Env').textContent = kumbuPara.trim() ? tr('Enviar {0} a {1}').replace('{0}', fmtKz(kumbuVal || 0)).replace('{1}', kumbuPara.trim()) : tr('Escolhe para quem');
+    body.querySelector('#ui2Env').textContent = kumbuPara.trim() ? tr('Enviar {0} a {1}').replace('{0}', fmtMt(kumbuVal || 0)).replace('{1}', kumbuPara.trim()) : tr('Escolhe para quem');
     body.querySelector('#ui2Env').disabled = !ok;
-    body.querySelector('#ui2Fica').textContent = kumbuVal > J.kumbu ? tr('Não tens tanto kumbu') : tr('Ficas com {0}').replace('{0}', fmtKz(J.kumbu - (kumbuVal || 0)));
+    body.querySelector('#ui2Fica').textContent = kumbuVal > J.kumbu ? tr('Não tens tanto kumbu') : tr('Ficas com {0}').replace('{0}', fmtMt(J.kumbu - (kumbuVal || 0)));
     body.querySelectorAll('[data-kn]').forEach(b => b.classList.toggle('on', b.dataset.kn.toLowerCase() === kumbuPara.trim().toLowerCase()));
     body.querySelectorAll('[data-kv]').forEach(b => b.classList.toggle('on', +b.dataset.kv === kumbuVal));
   };
@@ -740,15 +740,15 @@ function ui2Sorte(body, s) {
   } else {
     const hojeAbertos = jogos.filter(aberto).length;
     body.innerHTML = fechado + `<div class="ui2-lotaria"><span class="ui2-l"><i class="ui2-tag">${esc(tr('Lotaria de hoje'))}</i><small>${meusBil.length ? esc(tr('Os teus bilhetes')) + ': ' + meusBil.map(b => String(b.numero).padStart(3, '0')).join(' · ') : ''}</small></span>
-        <small>${esc(tr('Pote'))}</small><b>${fmtKz(proxima?.pote ?? 1000000)}</b>
+        <small>${esc(tr('Pote'))}</small><b>${fmtMt(proxima?.pote ?? 1000000)}</b>
         <small>${esc(tr('Acerta os 3 números para levar o pote; os 2 últimos dão 10.000 Kz.'))}${ultima ? ' ' + esc(tr('Último número: {0}').replace('{0}', String(ultima.numero ?? '').padStart(3, '0'))) : ''}</small>
-        <span class="ui2-l"><input class="inp" id="iNum" type="number" min="0" max="999" placeholder="${esc(tr('Nº ou vazio = sorte'))}" aria-label="${esc(tr('Número do bilhete'))}"><button class="btn" id="bBilhete">${esc(tr('Comprar bilhete'))} · ${fmtKz(1000)}</button></span></div>
+        <span class="ui2-l"><input class="inp" id="iNum" type="number" min="0" max="999" placeholder="${esc(tr('Nº ou vazio = sorte'))}" aria-label="${esc(tr('Número do bilhete'))}"><button class="btn" id="bBilhete">${esc(tr('Comprar bilhete'))} · ${fmtMt(1000)}</button></span></div>
       <p class="ui2-q">${esc(tr('Ou tenta outra coisa'))}</p>
       <div class="dest-grelha">
-        ${ui2Card('id="bRaspa"', '', '🎟️', '#ffcb00', tr('Raspadinha'), tr('Vês na hora · até 100.000'), fmtKz(500) + ' ›')}
+        ${ui2Card('id="bRaspa"', '', '🎟️', '#ffcb00', tr('Raspadinha'), tr('Vês na hora · até 100.000'), fmtMt(500) + ' ›')}
         ${ui2Card('data-ss="liga"', '', '⚽', '#4cc38a', tr('Liga de Luanda'), tr('Aposta 1 X 2'), esc(hojeAbertos ? tr('{0} jogos').replace('{0}', hojeAbertos) : tr('Resultados')) + ' ›')}
       </div>
-      ${aps.length ? `<div class="ui2-rot">${esc(tr('As tuas apostas'))}</div><div class="ui2-caixa">${aps.slice(0, 6).map(a => `<div class="ui2-nota"><span class="t"><b>${esc(nomeJogo(a.jogo_id))} · ${esc(a.escolha)}</b><small>${fmtKz(a.valor)} @ ${fmtTaxa(a.odd)}</small></span><b class="ui2-val" style="color:${a.premio == null ? 'var(--muted)' : a.premio > 0 ? 'var(--green)' : 'var(--red)'}">${a.premio == null ? esc(tr('A decorrer')) : a.premio > 0 ? '+' + fmtKz(a.premio) : esc(tr('Perdeste'))}</b></div>`).join('')}</div>` : ''}
+      ${aps.length ? `<div class="ui2-rot">${esc(tr('As tuas apostas'))}</div><div class="ui2-caixa">${aps.slice(0, 6).map(a => `<div class="ui2-nota"><span class="t"><b>${esc(nomeJogo(a.jogo_id))} · ${esc(a.escolha)}</b><small>${fmtMt(a.valor)} @ ${fmtTaxa(a.odd)}</small></span><b class="ui2-val" style="color:${a.premio == null ? 'var(--muted)' : a.premio > 0 ? 'var(--green)' : 'var(--red)'}">${a.premio == null ? esc(tr('A decorrer')) : a.premio > 0 ? '+' + fmtMt(a.premio) : esc(tr('Perdeste'))}</b></div>`).join('')}</div>` : ''}
       <p class="m">${esc(tr('Raspadinha: 500 Kz, prémios até 100.000 Kz. Lotaria: bilhete de 1.000 Kz, sorteio todos os dias às 20h; se ninguém acertar, o pote acumula. Liga de Luanda: aposta no vencedor ou no empate; se acertares, recebes o valor vezes a odd. Joga só o que podes perder.'))}</p>`;
     body.querySelector('[data-ss]').onclick = () => { sorteSec = 'liga'; ui2Sorte(body, s); body.scrollTop = 0; };
     body.querySelector('#bRaspa').onclick = async () => { const r = await acao('raspadinha', {}, { silencio: true }); if (r) raspar(r.premio, r.msg); };
@@ -773,9 +773,9 @@ function ui2Lavras(body, data, noCampo, mult, chuvas, col) {
       return `<div class="row dest-card ui2-lavra${pronta ? ' pronta' : ''}"><div class="dest-foto"><img src="img/bairros/${FOTO(l.bairro)}.webp" alt="" loading="lazy" draggable="false"><i class="ui2-selo${pronta ? ' verde' : ''}">${esc(pronta ? tr('Pronta') : tr('Faltam {0} h').replace('{0}', h))}</i></div>
         <div class="t"><b>${c.e} ${esc(tr(c.nome))} · ${esc(bairro(l.bairro)?.nome || '')}</b>${pronta ? `<small>${esc(tr('{0} sacos à tua espera').replace('{0}', c.sacos))}</small>` : `<i class="ui2-barra"><u style="width:${pct}%"></u></i>`}${l.regada ? `<small>💧 ${esc(tr('regada'))}</small>` : ''}</div>
         ${aqui && pronta ? `<button class="btn sm" data-colher="${l.id}">${esc(tr('Colher'))}</button>` : aqui && !l.regada ? `<button class="btn sm ghost" data-regar="${l.id}">💧 ${esc(tr('Regar'))}</button>` : !aqui ? `<small class="m">${esc(tr('Vai lá para {0}').replace('{0}', tr(pronta ? 'colher' : 'regar')))}</small>` : ''}</div>`; }).join('')}</div>` : `<div class="ui2-heroi"><img src="img/bairros/huambo.webp" alt="" draggable="false"><div><b>${esc(tr('Planta a tua primeira lavra'))}</b><span>${esc(tr('No Huambo ou em Malanje. Colhes um ou dois dias depois e vendes em Luanda por mais.'))}</span></div></div>`}
-    ${noCampo ? `<p class="ui2-q">${esc(tr('Plantar aqui em {0}').replace('{0}', bairro(J.bairro).nome))}</p><div class="ui2-grid ui2-plantar">${Object.entries(CULTURAS).map(([k, c]) => `<button class="ui2-peq" data-plantar="${k}"><span>${c.e}</span><b>${esc(tr(c.nome))}<small>${c.horas} h · ${c.sacos} ${esc(tr('sacos'))}</small><small class="ui2-ouro">${fmtKz(c.semente)} ›</small></b></button>`).join('')}</div>`
+    ${noCampo ? `<p class="ui2-q">${esc(tr('Plantar aqui em {0}').replace('{0}', bairro(J.bairro).nome))}</p><div class="ui2-grid ui2-plantar">${Object.entries(CULTURAS).map(([k, c]) => `<button class="ui2-peq" data-plantar="${k}"><span>${c.e}</span><b>${esc(tr(c.nome))}<small>${c.horas} h · ${c.sacos} ${esc(tr('sacos'))}</small><small class="ui2-ouro">${fmtMt(c.semente)} ›</small></b></button>`).join('')}</div>`
       : `<button class="row ui2-fundar" id="ui2IrCampo"><span class="ui2-ic">🚂</span><div class="t"><b>${esc(tr('Ir plantar'))}</b><small>${esc(tr('Huambo ou Malanje · comboio desde Viana ou Benguela'))}</small></div><span class="dest-preco">›</span></button>`}
-    ${sacos ? `<div class="ui2-rot">${esc(tr('Armazém'))} · ${esc(tr(mult === 1.7 ? 'preço de Luanda' : mult === 1 ? 'preço do campo' : 'preço da cidade'))}</div><div class="ui2-caixa">${Object.entries(CULTURAS).filter(([k]) => col[k] > 0).map(([k, c]) => `<div class="ui2-nota"><span class="ui2-ic">${c.e}</span><span class="t"><b>${col[k]} ${esc(tr('sacos'))} · ${esc(tr(c.nome))}</b><small>${fmtKz(Math.round(c.preco * mult))} ${esc(tr('por saco'))}</small></span><button class="btn sm" data-vender="${k}" data-n="${col[k]}">${fmtKz(Math.round(c.preco * mult * col[k]))}</button></div>`).join('')}</div>` : ''}
+    ${sacos ? `<div class="ui2-rot">${esc(tr('Armazém'))} · ${esc(tr(mult === 1.7 ? 'preço de Luanda' : mult === 1 ? 'preço do campo' : 'preço da cidade'))}</div><div class="ui2-caixa">${Object.entries(CULTURAS).filter(([k]) => col[k] > 0).map(([k, c]) => `<div class="ui2-nota"><span class="ui2-ic">${c.e}</span><span class="t"><b>${col[k]} ${esc(tr('sacos'))} · ${esc(tr(c.nome))}</b><small>${fmtMt(Math.round(c.preco * mult))} ${esc(tr('por saco'))}</small></span><button class="btn sm" data-vender="${k}" data-n="${col[k]}">${fmtMt(Math.round(c.preco * mult * col[k]))}</button></div>`).join('')}</div>` : ''}
     <p class="m">${esc(tr(chuvas ? 'É a época das chuvas: as colheitas rendem mais.' : 'É o cacimbo: sem chuva, rega as lavras ou a colheita sai fraca.'))} ${esc(tr('Planta no campo (Huambo ou Malanje), colhe quando estiver pronto e vende. Em Luanda pagam mais (×1,7), na cidade ×1,3.'))}</p>`;
   const depois = () => abrirTelemovel('lavras');
   body.querySelectorAll('[data-plantar]').forEach(b => b.onclick = async () => { if (await acao('plantar', { p_cultura: b.dataset.plantar })) depois(); });
@@ -892,7 +892,7 @@ function ui2Lugar(el, o) {
     const precos = p.flatMap(n => [...n.querySelectorAll('button.btn')].map(b => { const m = b.textContent.replace(/\./g, '').match(/(\d+)\s*Kz/); return m ? +m[1] : null; })).filter(x => x > 0);
     const linhas = p.reduce((a, n) => a + n.querySelectorAll('.row').length, 0);
     const sub = p[0].querySelector('span')?.textContent?.trim() || (linhas > 1 ? tr('{0} opções').replace('{0}', linhas) : (p[1]?.querySelector('.row .t small')?.textContent || '').slice(0, 40));
-    return `<button class="ui2-acao" data-lsec="${i}"><span class="ui2-ic" style="--c:${cor}">${ic}</span><b>${esc(t)}</b><small>${esc(sub)}</small><small class="ui2-ouro">${precos.length ? `${esc(tr('desde'))} ${fmtKz(Math.min(...precos))} ›` : '›'}</small></button>`;
+    return `<button class="ui2-acao" data-lsec="${i}"><span class="ui2-ic" style="--c:${cor}">${ic}</span><b>${esc(t)}</b><small>${esc(sub)}</small><small class="ui2-ouro">${precos.length ? `${esc(tr('desde'))} ${fmtMt(Math.min(...precos))} ›` : '›'}</small></button>`;
   };
   const casa = document.createElement('div'); casa.className = 'ui2-lcasa';
   casa.innerHTML = `<p class="ui2-q">${esc(tr('O que queres fazer?'))}</p><div class="ui2-grid">${partes.map(cartao).join('')}</div>`;

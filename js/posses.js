@@ -29,10 +29,10 @@ async function abrirPosesCarro(id) {
     const meu = tem(i.id), ac = typeof acabDe === 'function' ? acabDe(i.id) : {}, idv = meu && ac?.pintura ? `${i.id}__${ac.pintura}` : i.id;
     const bt = document.querySelector(`[data-a="comprar"][data-v="${i.id}"], [data-encomendar="${i.id}"]`);
     const direto = !bt && noStand && i.onde === 'stand';
-    return { id: idv, item: i.id, nome: tr(i.nome), preco: meu ? '✓ ' + tr('É teu') : fmtKz(i.preco),
-      comprar: meu || (!bt && !direto) ? null : (bt?.dataset.encomendar ? '🚚 ' : '') + tr('Comprar') + ' · ' + (bt ? bt.textContent.replace(/^🚚\s*/, '').trim() : fmtKz(i.preco)),
+    return { id: idv, item: i.id, nome: tr(i.nome), preco: meu ? '✓ ' + tr('É teu') : fmtMt(i.preco),
+      comprar: meu || (!bt && !direto) ? null : (bt?.dataset.encomendar ? '🚚 ' : '') + tr('Comprar') + ' · ' + (bt ? bt.textContent.replace(/^🚚\s*/, '').trim() : fmtMt(i.preco)),
       podeComprar: bt ? !bt.disabled : direto ? J.kumbu >= i.preco : false,
-      aoComprar: async () => { if (bt) return bt.click(); if (await perguntar(`${tr('Comprar')} ${tr(i.nome)} · ${fmtKz(i.preco)}?`)) await acao('comprar', { p_item: i.id }); } };
+      aoComprar: async () => { if (bt) return bt.click(); if (await perguntar(`${tr('Comprar')} ${tr(i.nome)} · ${fmtMt(i.preco)}?`)) await acao('comprar', { p_item: i.id }); } };
   });
   window.STAND3D.abrir(carros, minhaAparencia(), { i: Math.max(0, lista.findIndex(i => i.id === id)) });
 }
@@ -41,14 +41,14 @@ function linhaItem(i, podeComprar) {
   const meu = tem(i.id);
   const onde = tr(i.onde === 'stand' ? 'No Stand Automóvel (Talatona)' : i.onde === 'feira' ? 'Na Feira dos Animais (Viana)' : '');
   const pose = posarCom(i);
-  return `<div class="row ${meu ? 'mine' : ''}">${pose ? `<button class="posar-mini" data-posar="${i.id}" aria-label="${esc(tr('Ver-me com este carro'))}">${miniaturaHTML('item', i.id)}<span>📸</span></button>` : miniaturaHTML('item', i.id)}<div class="t"${pose ? ` data-posar="${i.id}"` : ''}><b>${esc(tr(i.nome))} ${diamantes(i.nivel)}</b>${pose ? `<small class="posar-txt">📸 ${esc(tr('Ver-me com este carro'))}</small>` : ''}<small>${esc(tr(i.descricao))}${custoDiario(i) ? ' · <b class="custo-dia">' + esc(tr('Custa {0} por dia (piloto, seguro, manutenção)').replace('{0}', fmtKz(custoDiario(i)))) + '</b>' : ''}${!meu && !podeComprar && onde ? ' · ' + onde : ''}</small></div>
-    ${meu ? `<button class="btn sm ghost" data-vender="${i.id}">Vender ${fmtKz(Math.round(i.preco / 2))}</button>` : podeComprar ? `<button class="btn sm" data-a="comprar" data-v="${i.id}" ${J.kumbu < i.preco ? 'disabled' : ''}>${fmtKz(i.preco)}</button>` : i.onde === 'stand' ? (encomendados.has(i.id) ? `<span class="price">🚚 A caminho</span>` : `<button class="btn sm ghost" data-encomendar="${i.id}" ${J.kumbu < comEntrega(i.preco) ? 'disabled' : ''}>🚚 ${fmtKz(comEntrega(i.preco))}</button>`) : `<span class="price">${fmtKz(i.preco)}</span>`}</div>`;
+  return `<div class="row ${meu ? 'mine' : ''}">${pose ? `<button class="posar-mini" data-posar="${i.id}" aria-label="${esc(tr('Ver-me com este carro'))}">${miniaturaHTML('item', i.id)}<span>📸</span></button>` : miniaturaHTML('item', i.id)}<div class="t"${pose ? ` data-posar="${i.id}"` : ''}><b>${esc(tr(i.nome))} ${diamantes(i.nivel)}</b>${pose ? `<small class="posar-txt">📸 ${esc(tr('Ver-me com este carro'))}</small>` : ''}<small>${esc(tr(i.descricao))}${custoDiario(i) ? ' · <b class="custo-dia">' + esc(tr('Custa {0} por dia (piloto, seguro, manutenção)').replace('{0}', fmtMt(custoDiario(i)))) + '</b>' : ''}${!meu && !podeComprar && onde ? ' · ' + onde : ''}</small></div>
+    ${meu ? `<button class="btn sm ghost" data-vender="${i.id}">Vender ${fmtMt(Math.round(i.preco / 2))}</button>` : podeComprar ? `<button class="btn sm" data-a="comprar" data-v="${i.id}" ${J.kumbu < i.preco ? 'disabled' : ''}>${fmtMt(i.preco)}</button>` : i.onde === 'stand' ? (encomendados.has(i.id) ? `<span class="price">🚚 A caminho</span>` : `<button class="btn sm ghost" data-encomendar="${i.id}" ${J.kumbu < comEntrega(i.preco) ? 'disabled' : ''}>🚚 ${fmtMt(comEntrega(i.preco))}</button>`) : `<span class="price">${fmtMt(i.preco)}</span>`}</div>`;
 }
 function ligarVender(el, depois) {
   el.querySelectorAll('[data-vender]').forEach(b => b.onclick = async () => {
     const i = D.itens.find(x => x.id === b.dataset.vender);
     const ac = J.acabamentos?.[i.id], perde = ac && Object.keys(ac).length ? ' ' + tr('Os acabamentos de Ouro deste carro perdem-se ({0}).').replace('{0}', resumoAcab(ac)) : '';
-    if (!await perguntar(`Vender ${i.nome} por ${fmtKz(Math.round(i.preco / 2))} (metade do preço)?` + perde)) return;
+    if (!await perguntar(`Vender ${i.nome} por ${fmtMt(Math.round(i.preco / 2))} (metade do preço)?` + perde)) return;
     b.disabled = true; if (await acao('vender_item', { p_item: i.id })) depois && depois(); else b.disabled = false;
   });
 }
@@ -76,10 +76,10 @@ function renderLoja(body) {
   if (lojaCat === 'casa') {
     const online = p => Math.ceil(p * 115 / 10000) * 100 + 500;   // (contas inteiras, como o servidor)
     const guardados = minhaMobilia.filter(m => m.x == null).length, lim = 60 + (J.armazem_extra || 0), custoArm = 50000 * (1 + Math.floor((J.armazem_extra || 0) / 20));
-    h += `<div class="row" style="margin-bottom:10px"><span class="e">📦</span><div class="t"><b>Armazém: ${guardados}/${lim} móveis</b><small>Precisas de mais espaço? +20 lugares.</small></div><button class="btn sm ghost" id="bArmazem">${fmtKz(custoArm)}</button></div>`;
-    h += `<p class="m">Móveis entregues no teu armazém (+15% e 500 Kz de entrega). Mais baratos nos Móveis do Mercado (Viana) ou no Casa & Design (Talatona).</p>
+    h += `<div class="row" style="margin-bottom:10px"><span class="e">📦</span><div class="t"><b>Armazém: ${guardados}/${lim} móveis</b><small>Precisas de mais espaço? +20 lugares.</small></div><button class="btn sm ghost" id="bArmazem">${fmtMt(custoArm)}</button></div>`;
+    h += `<p class="m">Móveis entregues no teu armazém (+15% e 500 Kz de entrega). Mais baratos nos Móveis do Mercado Central ou no Casa & Design (Sommerschield).</p>
       ${J.casa ? `<div class="row mine" style="margin-bottom:10px"><span class="e">🔨</span><div class="t"><b>Como pôr na casa</b><small>Vai a casa (🏠 Casa), carrega em 🔨 Decorar, escolhe o móvel e toca no chão.${guardados ? ` Tens ${guardados} no armazém.` : ''}</small></div></div>` : ''}
-      ${gruposMoveis(D.moveis.filter(m => m.preco > 0 && (!(typeof ui2 === 'function' && ui2()) || !lojaSala || catMovel(m.tipo) === lojaSala)).sort((a, z) => a.preco - z.preco), ms => `<div class="list">${ms.map(m => `<div class="row">${miniaturaHTML('movel', m.id)}<div class="t"><b>${esc(m.nome)} ${m.preco >= 90000 ? '💎' : ''}</b><small>${esc(m.efeito)} · na loja ${fmtKz(m.preco)}</small></div><button class="btn sm" data-a="comprar_online" data-v="${m.id}">${fmtKz(online(m.preco))}</button></div>`).join('')}</div>`)}`;
+      ${gruposMoveis(D.moveis.filter(m => m.preco > 0 && (!(typeof ui2 === 'function' && ui2()) || !lojaSala || catMovel(m.tipo) === lojaSala)).sort((a, z) => a.preco - z.preco), ms => `<div class="list">${ms.map(m => `<div class="row">${miniaturaHTML('movel', m.id)}<div class="t"><b>${esc(m.nome)} ${m.preco >= 90000 ? '💎' : ''}</b><small>${esc(m.efeito)} · na loja ${fmtMt(m.preco)}</small></div><button class="btn sm" data-a="comprar_online" data-v="${m.id}">${fmtMt(online(m.preco))}</button></div>`).join('')}</div>`)}`;
   } else {
     const lista = D.itens.filter(i => i.preco_ouro == null && (i.categoria || 'outros') === lojaCat).sort((a, z) => (a.ordem || 0) - (z.ordem || 0));
     const fisico = lojaCat === 'aviao' ? 'Aviões e helicópteros. Só os mais ricos: cada um desbloqueia quando o teu património chega ao valor indicado.' : lojaCat === 'veiculo' ? 'Compra no Stand Automóvel (Talatona) ou toca em 🚚 para encomendar aqui: +10% e chega em 2 dias.' : lojaCat === 'animal' ? 'Os animais compram-se na <b>Feira dos Animais</b>, em Viana.' : '';
@@ -94,7 +94,7 @@ function renderLoja(body) {
   if (typeof ui2LojaLigar === 'function') ui2LojaLigar(body);
   body.querySelectorAll('[data-encomendar]').forEach(b => b.onclick = async () => {
     const i = D.itens.find(x => x.id === b.dataset.encomendar);
-    if (!await perguntar(`Encomendar ${i.nome} por ${fmtKz(comEntrega(i.preco))} (com entrega)? Chega daqui a 2 dias.`)) return;
+    if (!await perguntar(`Encomendar ${i.nome} por ${fmtMt(comEntrega(i.preco))} (com entrega)? Chega daqui a 2 dias.`)) return;
     b.disabled = true; if (await acao('encomendar_veiculo', { p_item: i.id })) { encomendados.add(i.id); renderLoja(body); } else b.disabled = false;
   });
 }
@@ -102,7 +102,7 @@ function renderLoja(body) {
 /* ---------- lojas físicas (stand, boutique, feira, shopping) ---------- */
 function lojaFisicaHTML(cats) {
   const lista = D.itens.filter(i => i.preco_ouro == null && cats.includes(i.categoria || 'outros')).sort((a, z) => (a.ordem || 0) - (z.ordem || 0));
-  return `<div class="sec"><h4>À venda</h4><span>💰 ${saldoKz()}</span></div><div class="list">${lista.map(i => linhaItem(i, true)).join('')}</div>`;
+  return `<div class="sec"><h4>À venda</h4><span>💰 ${saldoMt()}</span></div><div class="list">${lista.map(i => linhaItem(i, true)).join('')}</div>`;
 }
 
 /* ---------- Perfil: estilo e animais ---------- */
@@ -114,7 +114,7 @@ function blocoPosses() {
   return `<div class="rel"><div class="lbl"><span>💎 Estilo</span><span>${e}</span></div><small class="m">Sobe com carros, telemóveis, moda e luxo.</small>
     ${animais.length ? `<div class="list" style="margin-top:8px">
       ${['cao', 'gato', 'papagaio', 'cavalo_branco'].some(tem) ? `<div class="row"><span class="e">${tem('cavalo_branco') ? '🐎' : tem('cao') ? '🐕' : tem('gato') ? '🐈' : '🦜'}</span><div class="t"><b>Dar mimos</b><small>Humor +8, menos solidão · de 3 em 3 horas</small></div><button class="btn sm" data-animal-acao="mimar" ${pode ? 'disabled' : ''}>${pode ? 'Daqui a pouco' : 'Mimar'}</button></div>` : ''}
-      ${tem('galinhas') ? `<div class="row"><span class="e">🥚</span><div class="t"><b>Apanhar os ovos</b><small>2.000–4.000 Kz por dia</small></div><button class="btn sm" data-animal-acao="ovos" ${ovos ? 'disabled' : ''}>${ovos ? 'Amanhã' : 'Apanhar'}</button></div>` : ''}
+      ${tem('galinhas') ? `<div class="row"><span class="e">🥚</span><div class="t"><b>Apanhar os ovos</b><small>2.000–4.000 MT por dia</small></div><button class="btn sm" data-animal-acao="ovos" ${ovos ? 'disabled' : ''}>${ovos ? 'Amanhã' : 'Apanhar'}</button></div>` : ''}
     </div>` : ''}</div>`;
 }
 function ligarPosses(el, depois) {
@@ -128,7 +128,7 @@ function ligarPosses(el, depois) {
 }
 function corridaHTML() {
   if (!tem('carrinha')) return '';
-  return `<div class="sec"><h4>🚐 A tua carrinha</h4></div><div class="list"><div class="row"><span class="e">🚐</span><div class="t"><b>Fazer uma corrida de candongueiro</b><small>5.000–9.000 Kz (mais quando a gasolina sobe) · −20 energia · de 30 em 30 min</small></div><button class="btn sm" data-corrida>Fazer</button></div></div>`;
+  return `<div class="sec"><h4>🚐 A tua carrinha</h4></div><div class="list"><div class="row"><span class="e">🚐</span><div class="t"><b>Fazer uma corrida de candongueiro</b><small>5.000–9.000 MT (mais quando a gasolina sobe) · −20 energia · de 30 em 30 min</small></div><button class="btn sm" data-corrida>Fazer</button></div></div>`;
 }
 
 
@@ -309,11 +309,11 @@ function renderOuro(body) {
     <div class="sec"><h4>Comprar Ouro</h4><span class="abas" style="margin:0"><button data-moeda="eur" class="${moedaOuro() === 'eur' ? 'on' : ''}">€ EUR</button><button data-moeda="usd" class="${moedaOuro() === 'usd' ? 'on' : ''}">$ USD</button></span></div>
     <div class="pacotes">${(D.pacotes || []).map(p => `<div class="pacote ${p.destaque ? 'dest' : ''}">${p.destaque ? `<i class="selo">${esc(tr(p.destaque))}</i>` : ''}
       <div class="pq">🪙 ${(p.ouro + p.bonus).toLocaleString('pt-PT')}</div>${p.bonus ? `<small>${p.ouro} + ${p.bonus} ${tr('de bónus')}</small>` : '<small>&nbsp;</small>'}${maisOuroPct(p) > 0 ? `<small class="mais-ouro"${p.destaque ? ' style="color:var(--gold);font-weight:800"' : ''}>${tr('+{0}% de Ouro por €').replace('{0}', maisOuroPct(p))}</small>` : '<small>&nbsp;</small>'}
-      ${precoOuro(p) ? `<button class="btn sm" data-comprar-ouro="${esc(p.id)}">${precoOuro(p)}</button>` : ''}${D.pagaKz ? `<button class="btn sm ghost" data-ouro-kz="${esc(p.id)}" style="margin-top:4px">${fmtKz(p.preco_kz)}</button>` : (p.preco_usd_centimos ? '' : `<button class="btn sm" disabled>${fmtKz(p.preco_kz)}</button>`)}</div>`).join('')}</div>
-    <p class="m" style="margin-top:8px">${D.pagaKz ? 'Paga em euros ou dólares com cartão (Visa, Mastercard) numa página segura, ou em Kz por Multicaixa Express / transferência.' : 'Paga com cartão (Visa, Mastercard) numa página segura da Stripe. O Multicaixa Express chega em breve.'}</p>
-    ${(D.pacotesKz || []).length ? `<div class="sec"><h4>💵 ${tr('Comprar Kz')}</h4><span>${tr('máx. 250.000 Kz por semana')}</span></div>
+      ${precoOuro(p) ? `<button class="btn sm" data-comprar-ouro="${esc(p.id)}">${precoOuro(p)}</button>` : ''}${D.pagaKz ? `<button class="btn sm ghost" data-ouro-kz="${esc(p.id)}" style="margin-top:4px">${fmtMt(p.preco_kz)}</button>` : (p.preco_usd_centimos ? '' : `<button class="btn sm" disabled>${fmtMt(p.preco_kz)}</button>`)}</div>`).join('')}</div>
+    <p class="m" style="margin-top:8px">${D.pagaKz ? 'Paga em euros ou dólares com cartão (Visa, Mastercard) numa página segura, ou em MT por e-Moza Express / transferência.' : 'Paga com cartão (Visa, Mastercard) numa página segura da Stripe. O e-Moza Express chega em breve.'}</p>
+    ${(D.pacotesMt || []).length ? `<div class="sec"><h4>💵 ${tr('Comprar Kz')}</h4><span>${tr('máx. 250.000 Kz por semana')}</span></div>
     <p class="m aviso-kz">⚠️ ${tr('Quem compra Kz deixa de poder jogar a dinheiro (raspadinha, lotaria, apostas, casino) para sempre — nesta conta e nas do mesmo aparelho. Os Kz comprados não se enviam a outros jogadores.')}</p>
-    <div class="pacotes">${D.pacotesKz.map(p => `<div class="pacote"><div class="pq">💵 ${fmtKz(p.kz)}</div><small>&nbsp;</small>${precoOuro(p) ? `<button class="btn sm" data-comprar-kz="${esc(p.id)}">${precoOuro(p)}</button>` : ''}</div>`).join('')}</div>` : ''}
+    <div class="pacotes">${D.pacotesMt.map(p => `<div class="pacote"><div class="pq">💵 ${fmtMt(p.kz)}</div><small>&nbsp;</small>${precoOuro(p) ? `<button class="btn sm" data-comprar-kz="${esc(p.id)}">${precoOuro(p)}</button>` : ''}</div>`).join('')}</div>` : ''}
     <div class="sec"><h4>${tr('Pagar com Ouro')}</h4><span>1 🪙 = 100 Kz</span></div>
     <div class="abas" style="margin-bottom:6px"><button data-pagar="kz" class="${pagarComOuro() ? '' : 'on'}">${tr('Pagar compras em Kz')}</button><button data-pagar="ouro" class="${pagarComOuro() ? 'on' : ''}">🪙 ${tr('Pagar compras em Ouro')}</button></div>
     <p class="m">${tr('Lojas, stand, móveis e casas: escolhe se pagas em Kz ou em Ouro. Se te faltar Kz, também podes pagar com Ouro na hora.')}</p>
@@ -354,15 +354,15 @@ function renderOuro(body) {
     if (error) { toast(limparErro(error.message), 'mau'); return; }
     const linha = (t, v) => v ? `<div class="row"><div class="t"><small>${t}</small><b data-sem-traducao style="user-select:all">${esc(v)}</b></div></div>` : '';
     sheet(`<h3>Pagar em Kz</h3>
-      <p class="m">Transfere <b>${fmtKz(r.valor_kz)}</b> e escreve o código no descritivo. Quando confirmarmos, recebes 🪙 ${r.ouro} Ouro (normalmente no mesmo dia).</p>
+      <p class="m">Transfere <b>${fmtMt(r.valor_kz)}</b> e escreve o código no descritivo. Quando confirmarmos, recebes 🪙 ${r.ouro} Ouro (normalmente no mesmo dia).</p>
       <div class="list">${linha('Código (escreve no descritivo)', r.codigo)}${linha('Multicaixa Express', r.multicaixa)}${linha('IBAN', r.iban)}${linha('Titular', r.titular)}${linha('Banco', r.banco)}</div>
       ${r.contacto ? `<p class="m" style="margin-top:8px">Envia o comprovativo com o código para <b data-sem-traducao>${esc(r.contacto)}</b>.</p>` : ''}
       <button class="btn full" data-fechar>Já percebi</button>`);
   });
   // 7 nov (dono): comprar Kz — caro, com limite por semana; primeiro confirma que deixa de jogar a dinheiro
   body.querySelectorAll('[data-comprar-kz]').forEach(b => b.onclick = async () => {
-    const p = (D.pacotesKz || []).find(x => x.id === b.dataset.comprarKz); if (!p) return;
-    if (!await perguntar(tr('Comprar {0} por {1}? Depois disto não podes jogar a dinheiro (raspadinha, lotaria, apostas, casino) — nunca mais, nesta conta e nas do mesmo aparelho.').replace('{0}', fmtKz(p.kz)).replace('{1}', precoOuro(p)))) return;
+    const p = (D.pacotesMt || []).find(x => x.id === b.dataset.comprarKz); if (!p) return;
+    if (!await perguntar(tr('Comprar {0} por {1}? Depois disto não podes jogar a dinheiro (raspadinha, lotaria, apostas, casino) — nunca mais, nesta conta e nas do mesmo aparelho.').replace('{0}', fmtMt(p.kz)).replace('{1}', precoOuro(p)))) return;
     b.disabled = true; if (!await comprarKzNovaJanela(p.id)) b.disabled = false;
   });
   body.querySelectorAll('[data-comprar-ouro]').forEach(b => b.onclick = async () => {

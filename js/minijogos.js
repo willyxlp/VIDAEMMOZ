@@ -371,7 +371,7 @@ const TEMAS_MODA = [
   { id: 'igreja', e: '⛪', t: 'Culto de domingo', d: 'Domingo é dia de igreja com a família. Bonito e respeitoso.', roupas: [2, 3, 4], cores: ['#f2f2f2', '#f5b81c', '#2c6fb0', '#2a3b55'], maus: ['#e0313f'], acess: ['chapeu', 'colar', 'relogio'], evitar: ['auscultadores', 'oculos', 'corrente_ouro'], cabelos: [1, 3, 5] },
   { id: 'kuduro', e: '🎧', t: 'Festa de kuduro', d: 'Há festa de kuduro no bairro! Cores vivas e muita atitude.', roupas: [0], cores: ['#f07c2a', '#f5b81c', '#2f8f5b', '#e0313f', '#16a3a3'], maus: ['#8a5a32', '#2a3b55'], acess: ['auscultadores', 'oculos', 'corrente_ouro'], evitar: ['colar'], cabelos: [1, 2, 4] },
 ];
-const NOMES_CLIENTES = ['Dona Fátima', 'Djamila', 'Tia Rosa', 'Nádia', 'Kiesse', 'Mariana', 'Sr. Edson', 'Kiluanji', 'Mano Zé', 'Yola'];
+const NOMES_CLIENTES = ['Dona Graça', 'Tia Rosa', 'Noémia', 'Fátima', 'Celeste', 'Beatriz', 'Sr. Carlos', 'Mano João', 'Dona Lurdes', 'Zacarias', 'Amélia', 'Sr. Nelson', 'Dona Helena', 'Eduardo', 'Vitória'];
 function pontuarModa(tema, ap) {
   let p = 0;
   if (tema.roupas.includes(ap.roupa || 0)) p += 35;

@@ -36,14 +36,14 @@ function renderGuiaDinheiro(body) {
   const nm = e => e ? tr(e.nome) : '';
   const passos = [
     ['💼', tr('1. Arranja um emprego'),
-      melhor ? tr('O melhor que podes ter agora: {0}, {1} por turno.').replace('{0}', nm(melhor)).replace('{1}', fmtKz(melhor.salario))
-             : tr('Sem estudos já há trabalho: até {0} por turno.').replace('{0}', fmtKz(semEstudo?.salario || 9500)),
+      melhor ? tr('O melhor que podes ter agora: {0}, {1} por turno.').replace('{0}', nm(melhor)).replace('{1}', fmtMt(melhor.salario))
+             : tr('Sem estudos já há trabalho: até {0} por turno.').replace('{0}', fmtMt(semEstudo?.salario || 9500)),
       tr('Os 2 primeiros turnos do dia pagam tudo; a partir do 3.º pagam menos.'), 'vagas', tr('Ver vagas')],
     ['🎓', tr('2. Estuda para ganhar mais'),
-      proximo ? tr('Com estudo nível {0}: {1}, {2} por turno.').replace('{0}', proximo.estudo_min).replace('{1}', nm(proximo)).replace('{2}', fmtKz(proximo.salario)) : tr('Já tens o estudo máximo. Doutor!'),
-      tr('O próximo módulo custa {0} (até 3 por dia).').replace('{0}', fmtKz(custoModulo())), 'universidade', tr('Universidade')],
+      proximo ? tr('Com estudo nível {0}: {1}, {2} por turno.').replace('{0}', proximo.estudo_min).replace('{1}', nm(proximo)).replace('{2}', fmtMt(proximo.salario)) : tr('Já tens o estudo máximo. Doutor!'),
+      tr('O próximo módulo custa {0} (até 3 por dia).').replace('{0}', fmtMt(custoModulo())), 'universidade', tr('Universidade')],
     ['🍲', tr('3. Abre o teu primeiro negócio'),
-      tr('Uma Cantina custa {0} com a licença e vende todos os dias às 18:00, mesmo quando não jogas.').replace('{0}', fmtKz(custoCantina())),
+      tr('Uma Cantina custa {0} com a licença e vende todos os dias às 18:00, mesmo quando não jogas.').replace('{0}', fmtMt(custoCantina())),
       tr('Sem dinheiro? O banco empresta e pagas com uma parte do que o negócio faturar. Ou paga o que falta com Ouro.'), 'empresas', tr('Abrir negócio')],
     ['📈', tr('4. Faz o negócio crescer'),
       tr('Passa de quiosque a loja e a plaza, abre filiais noutros bairros e depois negócios maiores: candongueiros (500 mil) e discoteca (800 mil).'),
@@ -63,12 +63,12 @@ function renderGuiaDinheiro(body) {
 function semDinheiroAgora() { return J && (Math.max(0, J.kumbu || 0) + Math.max(0, J.poupanca || 0)) < SEM_DINHEIRO_KZ && !J.preso; }
 function melhoresTres() {
   const { melhor, proximo } = empregosParaMim(), r = [];
-  if (J.emprego) { const e = emprego(J.emprego); if (e) r.push(['💼', tr('Trabalha um turno como {0}').replace('{0}', tr(e.nome)), '+' + fmtKz(e.salario), 'vagas']); }
-  else if (melhor) r.push(['💼', tr('Aceita o emprego de {0}').replace('{0}', tr(melhor.nome)), '+' + fmtKz(melhor.salario) + ' ' + tr('por turno'), 'vagas']);
+  if (J.emprego) { const e = emprego(J.emprego); if (e) r.push(['💼', tr('Trabalha um turno como {0}').replace('{0}', tr(e.nome)), '+' + fmtMt(e.salario), 'vagas']); }
+  else if (melhor) r.push(['💼', tr('Aceita o emprego de {0}').replace('{0}', tr(melhor.nome)), '+' + fmtMt(melhor.salario) + ' ' + tr('por turno'), 'vagas']);
   if (J.pais_dia !== hojeLuanda()) r.push(['💸', tr('Pede dinheiro aos pais (1 vez por dia)'), tr('grátis'), 'pais']);
-  if (proximo && (J.kumbu || 0) >= custoModulo()) r.push(['🎓', tr('Estuda um módulo: abre {0}').replace('{0}', tr(proximo.nome)), fmtKz(proximo.salario) + ' ' + tr('por turno'), 'universidade']);
+  if (proximo && (J.kumbu || 0) >= custoModulo()) r.push(['🎓', tr('Estuda um módulo: abre {0}').replace('{0}', tr(proximo.nome)), fmtMt(proximo.salario) + ' ' + tr('por turno'), 'universidade']);
   if (r.length < 3 && melhor && J.emprego && melhor.id !== J.emprego && melhor.salario > (emprego(J.emprego)?.salario || 0))
-    r.push(['⬆️', tr('Muda para {0}').replace('{0}', tr(melhor.nome)), '+' + fmtKz(melhor.salario) + ' ' + tr('por turno'), 'vagas']);
+    r.push(['⬆️', tr('Muda para {0}').replace('{0}', tr(melhor.nome)), '+' + fmtMt(melhor.salario) + ' ' + tr('por turno'), 'vagas']);
   if (r.length < 3) r.push(['🛍️', tr('Faz biscates ou vende na zunga'), tr('dinheiro na hora'), 'mapa']);
   if (r.length < 3) r.push(['🏦', tr('Guarda o que ganhares no banco'), tr('a salvo de ladrões'), 'banco']);
   return r.slice(0, 3);

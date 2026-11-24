@@ -75,7 +75,7 @@ function blocoCasal() {
     <div class="lbl"><span>💍 Casado/a com ${esc(casal.nome)}</span><span style="color:var(--dim);font-weight:600">${dias != null ? (dias ? `há ${dias} dia${dias > 1 ? 's' : ''}` : 'desde hoje') : ''}</span></div>
     <p class="m" style="margin:6px 0 0">${juntos ? '🏠 Moram juntos.' : casal.casa || J.casa ? '🏠 Ainda não moram juntos.' : '🏠 Nenhum de vocês tem casa — arrendem uma e mudem-se juntos.'}</p>
     ${podeMudar ? `<button class="btn sm" id="bMorar" style="margin-top:8px">🏠 Mudar para a casa de ${esc(casal.nome)}</button>` : ''}
-    <div class="lbl" style="margin-top:12px"><span>🏦 Conta do casal</span><span class="price">${fmtKz(casal.cofre)}</span></div>
+    <div class="lbl" style="margin-top:12px"><span>🏦 Conta do casal</span><span class="price">${fmtMt(casal.cofre)}</span></div>
     <div style="display:flex;gap:6px;margin-top:8px"><input class="inp" id="iCofre" type="number" min="100" step="100" placeholder="Valor (Kz)" style="flex:1;padding:8px 10px">
     <button class="btn sm" id="bPor">Pôr</button><button class="btn sm ghost" id="bTirar">Tirar</button></div>
     <small style="display:block;color:var(--dim);font-size:11.5px;margin-top:6px">Os dois podem pôr e tirar. Se se divorciarem, a conta é dividida ao meio.</small>
@@ -271,12 +271,12 @@ async function fecharDesafio(d, corrida) {
 }
 function escolherSaida(p) {
   const el = sheet(`<h3>${esc(tr('Sair com {0}').replace('{0}', p.nome))} 🎉</h3><p class="m">${esc(tr('Se aceitar, vão os dois para lá e quem convida paga. Sobe o humor e a amizade.'))}</p>
-    <div class="list">${Object.entries(SAIDAS).map(([id, l]) => `<button class="row" data-s="${id}" style="text-align:left"><span class="e">${l.e}</span><div class="t"><b>${esc(tr(l.nome))}</b><small>📍 ${esc(bairro(l.bairro)?.nome || l.bairro)}</small></div><span class="price">${l.preco ? fmtKz(l.preco) : esc(tr('Grátis'))}</span></button>`).join('')}</div>`);
+    <div class="list">${Object.entries(SAIDAS).map(([id, l]) => `<button class="row" data-s="${id}" style="text-align:left"><span class="e">${l.e}</span><div class="t"><b>${esc(tr(l.nome))}</b><small>📍 ${esc(bairro(l.bairro)?.nome || l.bairro)}</small></div><span class="price">${l.preco ? fmtMt(l.preco) : esc(tr('Grátis'))}</span></button>`).join('')}</div>`);
   el.querySelectorAll('[data-s]').forEach(b => b.onclick = async () => { if (await acao('pedir', { p_alvo: p.id, p_tipo: 'saida', p_grau: b.dataset.s })) fecharSheets(); });
 }
 function escolherEncontro(p) {
   const el = sheet(`<h3>Convidar ${esc(p.nome)} para sair 🌹</h3><p class="m">Se aceitar, vão os dois para lá e quem convida paga. Pode correr muito bem… ou não.</p>
-    <div class="list">${Object.entries(LOCAIS).map(([id, l]) => `<button class="row" data-l="${id}" style="text-align:left"><span class="e">${l.e}</span><div class="t"><b>${l.nome}</b><small>📍 ${esc(bairro(l.bairro)?.nome || l.bairro)}</small></div><span class="price">${l.preco ? fmtKz(l.preco) : 'Grátis'}</span></button>`).join('')}</div>`);
+    <div class="list">${Object.entries(LOCAIS).map(([id, l]) => `<button class="row" data-l="${id}" style="text-align:left"><span class="e">${l.e}</span><div class="t"><b>${l.nome}</b><small>📍 ${esc(bairro(l.bairro)?.nome || l.bairro)}</small></div><span class="price">${l.preco ? fmtMt(l.preco) : 'Grátis'}</span></button>`).join('')}</div>`);
   el.querySelectorAll('[data-l]').forEach(b => b.onclick = async () => { if (await acao('pedir', { p_alvo: p.id, p_tipo: 'encontro', p_grau: b.dataset.l })) fecharSheets(); });
 }
 
@@ -773,7 +773,7 @@ async function blocoSugar(body) {
   const { data: s, error } = await sb.from('sugar').select('*').maybeSingle(); if (error) return;
   const el = document.createElement('div'); el.dataset.ui2 = 'p';
   el.innerHTML = `<div class="sub2">Sugar 💸</div>` + (s
-    ? `<div class="list"><div class="row mine"><span class="e">💸</span><div class="t"><b data-sem-traducao>${esc(s.npc_nome)}</b><small>Sugar ${s.tipo} · ${fmtKz(s.mesada)} por dia</small></div><button class="btn sm ghost" id="sgFim">Acabar</button></div></div>`
+    ? `<div class="list"><div class="row mine"><span class="e">💸</span><div class="t"><b data-sem-traducao>${esc(s.npc_nome)}</b><small>Sugar ${s.tipo} · ${fmtMt(s.mesada)} por dia</small></div><button class="btn sm ghost" id="sgFim">Acabar</button></div></div>`
     : `<p class="m">Uma pessoa rica paga-te uma mesada todos os dias. Dá jeito… mas o bairro fala, e pode acabar de repente.</p>
        <div style="display:flex;gap:8px"><button class="btn sm" data-sg="daddy">Procurar sugar daddy</button><button class="btn sm" data-sg="mummy">Procurar sugar mummy</button></div>`);
   const subs = body.querySelectorAll('.sub2'), ref = subs[subs.length - 1]; ref ? ref.before(el) : body.appendChild(el);
@@ -859,7 +859,7 @@ function cartaoFilho(f, completo) {
     <div class="chips" style="margin-top:8px">
       ${i >= 6 && i < 18 ? `<span class="chip">🏫 ${esc(nomeEscola(f.escola))}</span><span class="chip">📝 Notas ${Number(f.notas).toFixed(1).replace('.', ',')}/20</span>` : ''}
       ${i >= 8 && f.talento ? `<span class="chip">✨ ${TALENTOS[f.talento] || f.talento}</span>` : ''}
-      ${f.poupanca ? `<span class="chip">💰 Poupança ${fmtKz(f.poupanca)}</span>` : ''}
+      ${f.poupanca ? `<span class="chip">💰 Poupança ${fmtMt(f.poupanca)}</span>` : ''}
       ${herd ? `<span class="chip">📜 Vai herdar a tua vida</span>` : ''}
     </div>
     ${completo && eMeu(f) ? `<div class="grelha">
@@ -899,7 +899,7 @@ function ligarFilho(el, f, depois) {
   });
   el.querySelector('[data-f=mesada]')?.addEventListener('click', () => {
     const s2 = sheet(`<h3>💰 Mesada para ${esc(f.nome)}</h3><p class="m">Vai para a poupança dele/a. Se ${esc(f.nome)} herdar a tua vida, leva a poupança.</p>
-      <div class="grelha">${[1000, 5000, 20000, 100000].map(v => `<button data-v="${v}"><span class="e">💵</span><span>${fmtKz(v)}</span></button>`).join('')}</div>`);
+      <div class="grelha">${[1000, 5000, 20000, 100000].map(v => `<button data-v="${v}"><span class="e">💵</span><span>${fmtMt(v)}</span></button>`).join('')}</div>`);
     s2.querySelectorAll('[data-v]').forEach(b => b.onclick = () => faz('mesada', parseInt(b.dataset.v, 10)));
   });
   el.querySelector('[data-f=escola]')?.addEventListener('click', () => {
@@ -907,7 +907,7 @@ function ligarFilho(el, f, depois) {
     const melhor = Math.max(...(D.colegios || []).map(c => c.taxa), 0.06);
     const barra = t => `<div class="meter" style="margin-top:4px;height:5px"><u style="left:0;width:${Math.round(t / melhor * 100)}%;background:var(--gold)"></u></div>`;
     const linha = (id, nome, preco, t, rep) => `<button class="row ${f.escola === id ? 'mine' : ''}" data-e="${id}" style="text-align:left"><span class="e">${id === 'publica' ? '🏫' : '🎒'}</span>
-      <div class="t"><b>${esc(nome)}${f.escola === id ? ' · ✓' : ''}</b><small>${preco ? fmtKz(preco) + '/dia' : 'Grátis'} · ${tr('notas')} ${'▲'.repeat(Math.max(1, Math.round(t / melhor * 4)))}${rep ? ` · +${rep} ${tr('reputação ao herdar')}` : ''}</small>${barra(t)}</div></button>`;
+      <div class="t"><b>${esc(nome)}${f.escola === id ? ' · ✓' : ''}</b><small>${preco ? fmtMt(preco) + '/dia' : 'Grátis'} · ${tr('notas')} ${'▲'.repeat(Math.max(1, Math.round(t / melhor * 4)))}${rep ? ` · +${rep} ${tr('reputação ao herdar')}` : ''}</small>${barra(t)}</div></button>`;
     const s2 = sheet(`<h3>🎒 ${tr('Colégio de')} ${esc(f.nome)}</h3><p class="m">${tr('Colégios melhores fazem as notas subirem mais depressa. Se')} ${esc(f.nome)} ${tr('herdar a tua vida, começa com estudo (das notas), reputação extra e o selo do colégio no perfil. A propina é cobrada todos os dias; se não houver dinheiro, volta para a pública.')}</p>
       <div class="list">${linha('publica', 'Escola pública', 0, 0.06, 0)}${(D.colegios || []).map(c => linha(c.id, c.nome, c.propina, c.taxa, c.rep)).join('')}</div>`);
     s2.querySelectorAll('[data-e]').forEach(b => b.onclick = () => { if (f.escola !== b.dataset.e) faz(b.dataset.e); });
@@ -1106,7 +1106,7 @@ function cartaoGravidez(f, itens) {
     <div class="sub2" style="margin:12px 0 6px">🧸 ${tr('Quarto do bebé')} · ${itens.length}/4</div>
     <div class="grelha">${Object.entries(ITENS_BEBE).map(([id, [e, n, preco, dica]]) => itens.includes(id)
       ? `<button disabled style="border-color:var(--green)"><span class="e">${e}</span><span>${tr(n)} ✓</span></button>`
-      : `<button data-item="${id}"><span class="e">${e}</span><span>${tr(n)} · ${fmtKz(preco)}<small style="display:block;color:var(--dim);font-size:11px;font-weight:600">${tr(dica)}</small></span></button>`).join('')}</div>
+      : `<button data-item="${id}"><span class="e">${e}</span><span>${tr(n)} · ${fmtMt(preco)}<small style="display:block;color:var(--dim);font-size:11px;font-weight:600">${tr(dica)}</small></span></button>`).join('')}</div>
     <div class="grelha" style="margin-top:8px"><button data-prep="${f.id}"><span class="e">🎨</span><span>${tr('Nome e aparência')}</span></button></div>
   </div>`;
 }
@@ -1127,7 +1127,7 @@ function cartaoBebe(f, n, itens, pares) {
       <button class="btn sm ${n && n[k] < 40 ? '' : 'ghost'}" data-cuidar="${ac}" style="width:100%;margin-top:6px">${tr(bt)}</button></div>`).join('')}</div>
     <div class="grelha" style="margin-top:8px">
       ${itens.includes('carrinho') ? `<button data-cuidar="passear"><span class="e">🌅</span><span>${tr('Passear')}</span></button>` : ''}
-      <button data-ama="${f.id}"><span class="e">🤝</span><span>${tr(i >= 1 ? 'Creche' : 'Ama')} · ${fmtKz(4000)}/${tr('dia')}</span></button>
+      <button data-ama="${f.id}"><span class="e">🤝</span><span>${tr(i >= 1 ? 'Creche' : 'Ama')} · ${fmtMt(4000)}/${tr('dia')}</span></button>
       <button data-f="brincar"><span class="e">🧸</span><span>${tr('Brincar')}</span></button>
     </div>
   </div>`;
@@ -1214,9 +1214,9 @@ async function renderFamilia(body) {
     </div>
     <div class="grelha" style="margin-top:8px">
       <div class="row"><div class="t"><small>🏠 ${tr('Casa')}</small><b>${casa ? esc(casa.nome) : tr('Sem casa')}</b></div></div>
-      ${casal ? `<div class="row"><div class="t"><small>🏦 ${tr('Conta do casal')}</small><b>${fmtKz(casal.cofre || 0)}</b></div></div>` : ''}
+      ${casal ? `<div class="row"><div class="t"><small>🏦 ${tr('Conta do casal')}</small><b>${fmtMt(casal.cofre || 0)}</b></div></div>` : ''}
     </div>
-    ${propinas || amas ? `<div class="row" style="margin-top:8px"><div class="t"><small>${tr('Custos da família esta semana')}</small><b>${[amas ? `${tr('Ama/creche')} ${fmtKz(amas)}` : '', propinas ? `${tr('Colégio')} ${fmtKz(propinas)}` : ''].filter(Boolean).join(' · ')}</b></div></div>` : ''}
+    ${propinas || amas ? `<div class="row" style="margin-top:8px"><div class="t"><small>${tr('Custos da família esta semana')}</small><b>${[amas ? `${tr('Ama/creche')} ${fmtMt(amas)}` : '', propinas ? `${tr('Colégio')} ${fmtMt(propinas)}` : ''].filter(Boolean).join(' · ')}</b></div></div>` : ''}
     <div class="sub2">📜 Testamento</div>
     <div class="rel" style="margin-top:0"><p class="m" style="margin:0">Quando morreres, continuas a jogar como <b>${herdeiro ? esc(herdeiro.nome) : meus.length ? 'o/a filho/a mais velho/a' : 'um/a sobrinho/a (sem filhos, o Estado fica com 30%)'}</b>, com a tua casa e o teu kumbu.</p>
       ${casal ? `<label>Parte do kumbu para ${esc(casal.nome)}</label><select class="inp" id="sParte">${[0, 25, 50, 75].map(v => `<option value="${v}" ${(J.parte_conjuge ?? 25) === v ? 'selected' : ''}>${v}%</option>`).join('')}</select>` : ''}
@@ -1231,7 +1231,7 @@ async function renderFamilia(body) {
     el.querySelectorAll('[data-cuidar]').forEach(b => b.onclick = async () => { if (await acao('cuidar_bebe', { p_id: f.id, p_acao: b.dataset.cuidar })) volta(); });
     el.querySelector('[data-ama]')?.addEventListener('click', () => {
       const s2 = sheet(`<h3>🤝 ${tr(idadeDe(f) >= 1 ? 'Creche' : 'Ama')} · ${esc(f.nome)}</h3><p class="m">${tr('Enquanto trabalhas, a Tia Rosa cuida do bebé: as necessidades não descem abaixo de 70.')}</p>
-        <div class="grelha">${[1, 3, 7].map(d => `<button data-d="${d}"><span class="e">📅</span><span>${d} ${tr(d === 1 ? 'dia' : 'dias')} · ${fmtKz(4000 * d)}</span></button>`).join('')}</div>`);
+        <div class="grelha">${[1, 3, 7].map(d => `<button data-d="${d}"><span class="e">📅</span><span>${d} ${tr(d === 1 ? 'dia' : 'dias')} · ${fmtMt(4000 * d)}</span></button>`).join('')}</div>`);
       s2.querySelectorAll('[data-d]').forEach(b => b.onclick = async () => { if (await acao('contratar_ama', { p_id: f.id, p_dias: +b.dataset.d })) { fecharSheets(); volta(); } });
     });
   }
@@ -1284,7 +1284,7 @@ function blocoCorpo() {
   return `<div class="rel"><div class="lbl"><span>${e} ${t}</span></div>
     ${barra('💪 Forma física', J.forma, true)}${barra('😰 Stress', J.stress, false)}${barra('🥀 Solidão', J.solidao, false)}
     ${dica ? `<small style="display:block;color:var(--muted);font-size:12px;margin-top:8px">${dica}</small>` : ''}
-    ${meuLar() ? `<button class="btn sm" id="bFesta" style="margin-top:10px">🎉 Dar uma festa em casa · ${fmtKz(15000)}</button>` : ''}
+    ${meuLar() ? `<button class="btn sm" id="bFesta" style="margin-top:10px">🎉 Dar uma festa em casa · ${fmtMt(15000)}</button>` : ''}
   </div>`;
 }
 document.addEventListener('click', async e => {
@@ -1351,7 +1351,7 @@ async function renderGrupos(body) {
     <div class="list">${meus.length ? meus.map(linhaGrupo).join('') : '<div class="empty">Ainda não estás em nenhum grupo.</div>'}</div>
     <div class="sub2">Todos os grupos</div>
     <div class="list">${outros.map(linhaGrupo).join('') || '<div class="empty">Já estás em todos!</div>'}</div>
-    ${fundou ? '' : `<div class="sub2">Fundar um grupo · ${fmtKz(50000)}</div>
+    ${fundou ? '' : `<div class="sub2">Fundar um grupo · ${fmtMt(50000)}</div>
     <form id="fGrupo"><label>Tipo</label><select class="inp" id="gTipo"><option value="clube">⚽ Equipa de futebol</option><option value="igreja">⛪ Igreja</option><option value="associacao">🤝 Associação</option></select>
       <label>Nome</label><input class="inp" id="gNome" maxlength="40" required placeholder="ex: Kilamba Leões">
       <label>Descrição (opcional)</label><input class="inp" id="gDesc" maxlength="140">

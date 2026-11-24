@@ -136,13 +136,13 @@ window.guiaIniciar = guiaIniciar; window.guiaRetomar = guiaRetomar;
 function guiaBoasVindas() {
   const b = typeof bairro === 'function' ? bairro(J.bairro) : null, total = guiaPremios.reduce((a, x) => a + x, 0);
   const cartao = (p, k) => `<div class="gu2-passo${k === 0 ? ' on' : ''}"><i class="gu2-n">${k + 1}</i><span class="gu2-ic" style="--c:${p.cor}">${guiaIc(p.ic, p.cor, 22)}</span>
-      <b>${esc(tr(p.t))}</b><small>${esc(tr(p.s))}</small><b class="gu2-kz">+${fmtKz(guiaPremios[k])}</b></div>`;
+      <b>${esc(tr(p.t))}</b><small>${esc(tr(p.s))}</small><b class="gu2-kz">+${fmtMt(guiaPremios[k])}</b></div>`;
   const p5 = GUIA_PASSOS[4];
   const el = sheet(`<div class="gu2-heroi"><img src="img/bairros/${esc(J.bairro)}.webp" alt="" onerror="this.src='img/bairros/mutamba.webp'"><div><b>${esc(tr('Bem-vindo a Luanda!'))}</b><span>${esc(tr('Estás em {0}, ao pé da paragem.').replace('{0}', b?.nome || 'Luanda'))}</span></div></div>
-    <div class="gu2-l"><span>${esc(tr('O teu primeiro dia: 5 passos'))}</span><b>+${fmtKz(total)}</b></div>
+    <div class="gu2-l"><span>${esc(tr('O teu primeiro dia: 5 passos'))}</span><b>+${fmtMt(total)}</b></div>
     <div class="gu2-grelha">${GUIA_PASSOS.slice(0, 4).map(cartao).join('')}</div>
-    <div class="gu2-linha"><span class="gu2-ic" style="--c:${p5.cor}">${guiaIc(p5.ic, p5.cor, 22)}</span><span class="gu2-t"><b>5 · ${esc(tr(p5.t))}</b><small>${esc(tr(p5.s))}</small></span><b class="gu2-kz">+${fmtKz(guiaPremios[4])}</b></div>
-    <div class="gu2-ouro">${guiaIc('presente', 'var(--gold)', 22)}<span>${esc(tr('No fim:'))} <b>${esc(tr('+{0} e um candeeiro para a casa').replace('{0}', fmtKz(guiaEst?.premio_fim || 2000)))}</b></span></div>
+    <div class="gu2-linha"><span class="gu2-ic" style="--c:${p5.cor}">${guiaIc(p5.ic, p5.cor, 22)}</span><span class="gu2-t"><b>5 · ${esc(tr(p5.t))}</b><small>${esc(tr(p5.s))}</small></span><b class="gu2-kz">+${fmtMt(guiaPremios[4])}</b></div>
+    <div class="gu2-ouro">${guiaIc('presente', 'var(--gold)', 22)}<span>${esc(tr('No fim:'))} <b>${esc(tr('+{0} e um candeeiro para a casa').replace('{0}', fmtMt(guiaEst?.premio_fim || 2000)))}</b></span></div>
     <button class="btn full gu2-grande" id="guComecar">${esc(tr('Bora começar'))}</button>
     <button class="gu2-link" id="guSaltar">${esc(tr('Já sei jogar — saltar o guia'))}</button>`, () => { if (!guiaAtivo && !guiaEst?.saltou) guiaComecar(); });
   el.classList.add('gu2-sheet');
@@ -183,7 +183,7 @@ function guiaDesenhar() {
   }
   const ac = guiaAcaoPasso(k);
   c.innerHTML = `<div class="gu-top"><span class="gu-ic gu2-icg" style="--c:${p.cor}">${guiaIc(p.ic, p.cor, 26)}</span>
-      <div class="gu-tx"><span class="gu-k">${esc(tr('PASSO {0} DE 5').replace('{0}', k + 1))} · +${fmtKz(guiaPremios[k])}</span><b class="gu-t">${esc(tr(p.t))}</b><span class="gu-d">${esc(tr(p.dica))}</span></div>
+      <div class="gu-tx"><span class="gu-k">${esc(tr('PASSO {0} DE 5').replace('{0}', k + 1))} · +${fmtMt(guiaPremios[k])}</span><b class="gu-t">${esc(tr(p.t))}</b><span class="gu-d">${esc(tr(p.dica))}</span></div>
       <button class="gu-x" id="guMin" aria-label="${esc(tr('Minimizar o guia'))}">${guiaIc('cima')}</button></div>
     <div class="gu-seg" aria-hidden="true">${segs}</div>
     ${ac ? `<button class="gu2-ir" id="guIr">${esc(ac.txt)} ›</button>` : ''}`;
@@ -268,9 +268,9 @@ function guiaMostrarFeitos() {
   const n = GUIA_PASSOS[prox], ac = guiaAcaoPasso(prox);
   const el = sheet(`<div class="gu-centro"><div class="gu-ok">${guiaIc('certo', '#121014', 34, 3)}</div>
       <span class="gu2-k verde">${esc(tr('PASSO {0} DE 5 FEITO').replace('{0}', k + 1))}</span>
-      <h3 style="margin:4px 0">${esc(tr(p.feito))}</h3><div class="gu-big">+${fmtKz(guiaPremios[k])}</div></div>
+      <h3 style="margin:4px 0">${esc(tr(p.feito))}</h3><div class="gu-big">+${fmtMt(guiaPremios[k])}</div></div>
     <span class="gu2-k">${esc(tr('A seguir'))}</span>
-    <div class="gu2-linha on"><span class="gu2-ic" style="--c:${n.cor}">${guiaIc(n.ic, n.cor, 22)}</span><span class="gu2-t"><b>${esc(tr(n.t))}</b><small>${esc(tr(n.s))}</small></span><b class="gu2-kz">+${fmtKz(guiaPremios[prox])}</b></div>
+    <div class="gu2-linha on"><span class="gu2-ic" style="--c:${n.cor}">${guiaIc(n.ic, n.cor, 22)}</span><span class="gu2-t"><b>${esc(tr(n.t))}</b><small>${esc(tr(n.s))}</small></span><b class="gu2-kz">+${fmtMt(guiaPremios[prox])}</b></div>
     <p class="m">${esc(tr(p.feitoTxt))}</p>
     ${ac ? `<button class="btn full gu2-grande" id="guSeg">${esc(ac.txt)}</button>` : ''}
     <button class="gu2-link" data-fechar>${esc(tr(ac ? 'Depois' : 'Continuar'))}</button>`, () => setTimeout(guiaMostrarFeitos, 400));
@@ -285,10 +285,10 @@ function guiaFim(repetir) {
   const curto = ['Comer', 'Emprego', 'Turno', 'Sonho', 'Olá'], total = guiaPremios.reduce((a, x) => a + x, 0) + (guiaEst?.premio_fim || 2000);
   const el = sheet(`<div class="gu-centro"><span class="gu2-k">5 / 5</span>
       <h3 style="margin:4px 0;font-size:28px">${esc(tr('Primeiro dia feito!'))}</h3><p class="m">${esc(tr('Já és da banda, {0}. Luanda é tua.').replace('{0}', (J?.nome || '').split(' ')[0]))}</p></div>
-    <div class="gu2-dois"><div class="gu2-ouro col"><b>+${fmtKz(guiaEst?.premio_fim || 2000)}</b><small>${esc(tr('Bónus do 1.º dia'))}</small></div>
+    <div class="gu2-dois"><div class="gu2-ouro col"><b>+${fmtMt(guiaEst?.premio_fim || 2000)}</b><small>${esc(tr('Bónus do 1.º dia'))}</small></div>
       <div class="gu2-ouro col">${guiaIc('candeeiro', 'var(--gold)', 30)}<small>${esc(tr('Candeeiro para a casa'))}</small></div></div>
     <div class="gu2-cinco">${curto.map(t => `<span>${guiaIc('certo', 'var(--green)', 18, 3)}${esc(tr(t))}</span>`).join('')}</div>
-    <p class="m" style="text-align:center">${esc(tr('Ganhaste {0} hoje no guia.').replace('{0}', fmtKz(total)))}</p>
+    <p class="m" style="text-align:center">${esc(tr('Ganhaste {0} hoje no guia.').replace('{0}', fmtMt(total)))}</p>
     <button class="btn full gu2-grande" id="guReceber">${esc(tr('Receber prémio'))}</button>`);
   el.classList.add('gu2-sheet');
   el.querySelector('#guReceber').onclick = async (ev) => {
@@ -309,9 +309,9 @@ function guiaDepoisDoFim() {
 /* ---------- 6 · volta amanhã ---------- */
 function guiaAmanha() {
   if (guiaJanelaAberta()) return setTimeout(guiaAmanha, 2500);
-  const dias = [[1, 'certo', tr('Feito'), 'feito'], [2, 'presente', fmtKz(3000), 'hoje'], [3, 'bau', tr('Baú ×2'), ''], [5, 'sofa', tr('Sofá'), ''], [7, 'taca', fmtKz(10000), '']];
+  const dias = [[1, 'certo', tr('Feito'), 'feito'], [2, 'presente', fmtMt(3000), 'hoje'], [3, 'bau', tr('Baú ×2'), ''], [5, 'sofa', tr('Sofá'), ''], [7, 'taca', fmtMt(10000), '']];
   const el = sheet(`<span class="gu2-k">${esc(tr('AMANHÃ ESPERA-TE'))}</span>
-    <h3 style="margin:4px 0">${esc(tr('Volta amanhã e recebe {0}').replace('{0}', fmtKz(3000)))}</h3>
+    <h3 style="margin:4px 0">${esc(tr('Volta amanhã e recebe {0}').replace('{0}', fmtMt(3000)))}</h3>
     <div class="gu-dias">${dias.map(([n, ic, txt, cl]) => `<div class="${cl}"><span>${esc(tr('Dia {0}').replace('{0}', n))}</span>${guiaIc(ic, cl === 'feito' ? 'var(--green)' : cl === 'hoje' ? 'var(--gold)' : 'var(--dim)', 22)}<b>${esc(txt)}</b></div>`).join('')}</div>
     <div class="gu2-dois"><div class="gu2-cx">${guiaIc('vagas', '#a98bff', 22)}<b>${esc(tr('Turno de amanhã'))}</b><small>${esc(tr('Paga mais se não faltares'))}</small></div>
       <div class="gu2-cx">${guiaIc('falar', '#35c2b4', 22)}<b>${esc(tr('O bairro responde'))}</b><small>${esc(tr('À tua mensagem de hoje'))}</small></div></div>
@@ -342,7 +342,7 @@ function guiaOferta() {
           <b style="font:800 22px var(--f-disp),sans-serif;line-height:1.1;max-width:170px;color:#f6efe6">${esc(tr('Pacote de boas-vindas'))}</b></div></div>
       <div class="gu-pack-b"><div style="display:flex;align-items:baseline;gap:8px"><b style="font:800 40px var(--f-disp),sans-serif;color:var(--gold);line-height:1">500</b><b>${esc(tr('Ouro'))}</b>
           <span style="margin-left:auto;font-size:13px;color:var(--muted)">${esc(tr('normalmente'))} <s>200</s></span></div>
-        <div class="gu-pack-g"><div><b>2,5×</b><span>${esc(tr('mais Ouro pelo mesmo preço'))}</span></div><div><b>${fmtKz(50000)}</b><span>${esc(tr('em compras nas lojas'))}</span></div><div><b>16</b><span>${esc(tr('ajudantes no teu negócio'))}</span></div></div></div></div>
+        <div class="gu-pack-g"><div><b>2,5×</b><span>${esc(tr('mais Ouro pelo mesmo preço'))}</span></div><div><b>${fmtMt(50000)}</b><span>${esc(tr('em compras nas lojas'))}</span></div><div><b>16</b><span>${esc(tr('ajudantes no teu negócio'))}</span></div></div></div></div>
     <button class="btn full" id="guComprar">${esc(tr('Comprar · 1,99 €'))}</button>
     <button class="btn full ghost" id="guAgoraNao" style="margin-top:8px">${esc(tr('Agora não — começar a minha vida'))}</button>
     <p class="m" style="font-size:12px;text-align:center;margin-top:8px">${esc(tr('Pagas com cartão numa página segura da Stripe. Se fechares, o pacote espera por ti na loja de Ouro até à tua primeira compra.'))}</p>`);
@@ -354,8 +354,8 @@ function guiaOferta() {
 function guiaPremioDia() {
   if (guiaJanelaAberta()) return setTimeout(guiaPremioDia, 3000);
   const m = guiaEst?.dia_por_receber; if (!m) return;
-  const premio = { 2: [fmtKz(3000), 'presente'], 3: [tr('Baú ×2'), 'bau'], 5: [tr('Um sofá'), 'sofa'], 7: [fmtKz(10000), 'taca'] }[m] || ['', 'presente'];
-  const seguinte = { 2: [3, tr('baú a dobrar')], 3: [5, tr('um sofá')], 5: [7, fmtKz(10000)] }[m];
+  const premio = { 2: [fmtMt(3000), 'presente'], 3: [tr('Baú ×2'), 'bau'], 5: [tr('Um sofá'), 'sofa'], 7: [fmtMt(10000), 'taca'] }[m] || ['', 'presente'];
+  const seguinte = { 2: [3, tr('baú a dobrar')], 3: [5, tr('um sofá')], 5: [7, fmtMt(10000)] }[m];
   const el = sheet(`<div class="gu-centro"><span class="gu2-k">${esc(tr('DIA {0} EM LUANDA').replace('{0}', m))}</span>
       <h3 style="margin:4px 0">${esc(tr('Voltaste! Aqui está o teu prémio'))}</h3>
       <div class="gu2-premio">${guiaIc(premio[1], '#121014', 44)}</div><div class="gu-big">${esc(premio[0])}</div></div>

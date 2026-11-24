@@ -49,7 +49,7 @@ async function admInicio(body) {
   const [{ data: d, error }, est] = await Promise.all([sb.rpc('admin_inicio'), sb.rpc('admin_estatisticas')]);
   if (error) return admErro(body.querySelector('#admNum'), error);
   const e = est.data || {}, v = e.voltaram_no_dia_seguinte || {}, dh = d.dinheiro_hoje || {};
-  const din = [...(dh.ouro || []).map(x => admCent(x.centimos, x.moeda)), dh.anuncios_eur_cent ? admCent(dh.anuncios_eur_cent, 'EUR') : '', dh.anuncios_usd_cent ? admCent(dh.anuncios_usd_cent, 'USD') : '', dh.kz_confirmados ? fmtKz(dh.kz_confirmados) : ''].filter(Boolean);
+  const din = [...(dh.ouro || []).map(x => admCent(x.centimos, x.moeda)), dh.anuncios_eur_cent ? admCent(dh.anuncios_eur_cent, 'EUR') : '', dh.anuncios_usd_cent ? admCent(dh.anuncios_usd_cent, 'USD') : '', dh.kz_confirmados ? fmtMt(dh.kz_confirmados) : ''].filter(Boolean);
   body.querySelector('#admOn b').textContent = admN(d.online);
   body.querySelector('#admNum').innerHTML = `<div class="admNums">
       <div class="admNum"><span>${esc(tr('Novos hoje'))}</span><b data-sem-traducao>${admN(d.novos_hoje)}</b><small class="ok" data-sem-traducao>${admN(d.total)} ${esc(tr('no total'))}</small></div>
@@ -75,7 +75,7 @@ async function admEconomia(el) {
   if (!el) return;
   const { data, error } = await sb.rpc('admin_economia');
   if (error) return admErro(el, error);
-  const D = data || [], k = v => fmtKz(+v || 0);
+  const D = data || [], k = v => fmtMt(+v || 0);
   el.innerHTML = `<div class="admCartao"><div class="admLinha"><small>🏛️ ${esc(tr('Economia · o que saiu do jogo por dia'))}</small></div>
     ${D.length ? D.slice(0, 7).map(x => `<details><summary class="admLinha"><small data-sem-traducao>${esc(x.dia)}</small><b data-sem-traducao>${k(+x.imposto_riqueza + +x.manutencao + +x.multas + +x.roubos + +x.apreendido)}</b></summary>
       <div class="admLinha"><small>${esc(tr('Imposto sobre o património'))} (<span data-sem-traducao>${x.jogadores_taxados}</span>)</small><small data-sem-traducao>${k(x.imposto_riqueza)}</small></div>
@@ -199,7 +199,7 @@ async function admJogadores(body) {
   lj.innerHTML = `<small class="m" data-sem-traducao>${admN(data.total)} ${tr(data.total === 1 ? 'jogador' : 'jogadores')}</small>
     ${R.length ? `<div class="list">${R.map(j => `<button class="row admJ ${j.banido ? 'mau' : ''}" type="button" data-j="${j.id}" style="text-align:left"><span class="admAv" style="background:${['#2c6fb0', '#7a4b8c', '#2f8f5b', '#f07c2a', '#16a3a3', '#cc092f'][(j.nome || '?').charCodeAt(0) % 6]}" data-sem-traducao>${esc((j.nome || '?')[0].toUpperCase())}${online(j) ? '<i></i>' : ''}</span><div class="t">
       <b data-sem-traducao>${esc(j.nome)}${j.admin ? ' 🛡️' : ''}${j.banido ? ' ⛔' : ''}${j.mudo_ate && new Date(j.mudo_ate) > new Date() ? ' 🔇' : ''}${j.alertas > 0 ? ` 🚨${j.alertas}` : ''}${j.denuncias > 0 ? ` 🚩${j.denuncias}` : ''}</b>
-      <small><span data-sem-traducao>${esc(bairro(j.bairro)?.nome || j.bairro || '')}</span> · ${online(j) ? `<span class="ok">${esc(tr('online'))}</span>` : `${tr('visto')} ${j.visto_em ? admT(j.visto_em) : '—'}`}</small></div><b class="admKz" data-sem-traducao>${fmtKz(j.kumbu)}</b></button>`).join('')}</div>` : '<div class="empty">Ninguém com esses filtros.</div>'}
+      <small><span data-sem-traducao>${esc(bairro(j.bairro)?.nome || j.bairro || '')}</span> · ${online(j) ? `<span class="ok">${esc(tr('online'))}</span>` : `${tr('visto')} ${j.visto_em ? admT(j.visto_em) : '—'}`}</small></div><b class="admKz" data-sem-traducao>${fmtMt(j.kumbu)}</b></button>`).join('')}</div>` : '<div class="empty">Ninguém com esses filtros.</div>'}
     ${paginas > 1 ? `<div class="admPag"><button class="btn ghost" type="button" id="admAnt" aria-label="${esc(tr('Página anterior'))}" ${L.pagina <= 0 ? 'disabled' : ''}>‹</button><small data-sem-traducao>${esc(tr('Página {0} de {1}').replace('{0}', L.pagina + 1).replace('{1}', paginas))}</small><button class="btn" type="button" id="admSeg" aria-label="${esc(tr('Página seguinte'))}" ${L.pagina + 1 >= paginas ? 'disabled' : ''}>›</button></div>` : ''}`;
   lj.querySelectorAll('[data-j]').forEach(b => b.onclick = () => admIr('jogador', b.dataset.j));
   lj.querySelector('#admAnt')?.addEventListener('click', () => { L.pagina--; admIr('jogadores'); });
@@ -224,20 +224,20 @@ async function admJogador(body) {
   const real = (j.dinheiro_real || []).map(x => `${admCent(x.centimos, x.moeda)} (${x.vezes}×)`).join(' + ');
   const sec = (t, h) => `<div class="sub2">${t}</div>${h}`;
   const linha = (e, b, s = '') => `<div class="row"><span class="e">${e}</span><div class="t"><b>${b}</b>${s ? `<small>${s}</small>` : ''}</div></div>`;
-  f.innerHTML = `<div class="rel"><div class="lbl"><span data-sem-traducao>${on ? '🟢' : '⚪'} ${esc(j.nome)}</span><span class="price" data-sem-traducao>${fmtKz(j.kumbu)}</span></div>
+  f.innerHTML = `<div class="rel"><div class="lbl"><span data-sem-traducao>${on ? '🟢' : '⚪'} ${esc(j.nome)}</span><span class="price" data-sem-traducao>${fmtMt(j.kumbu)}</span></div>
       <small style="display:block;color:var(--muted);font-size:12px"><span data-sem-traducao>${esc(bairro(j.bairro)?.nome || j.bairro || '')}</span> · ${tr('visto')} ${j.visto_em ? admT(j.visto_em) : '—'} · ${tr('desde')} ${new Date(j.criado_em).toLocaleDateString('pt-PT')}</small>
       <div class="chips" style="margin-top:8px">${j.banido ? `<span class="chip">⛔ ${tr('Suspensa')}</span>` : ''}${mudo ? `<span class="chip">🔇 ${tr('Silenciado/a até')} ${new Date(j.mudo_ate).toLocaleString('pt-PT', { dateStyle: 'short', timeStyle: 'short' })}</span>` : ''}${j.preso_ate && new Date(j.preso_ate) > new Date() ? `<span class="chip">🚔 ${tr('Preso/a')}</span>` : ''}
-        <span class="chip">🪙 <span data-sem-traducao>${admN(j.ouro)}</span> ${tr('Ouro')}</span><span class="chip">💵 <span data-sem-traducao>${admN(j.dolares)}</span> USD</span><span class="chip">🏦 <span data-sem-traducao>${fmtKz(j.poupanca)}</span></span>${j.divida > 0 ? `<span class="chip">📉 <span data-sem-traducao>${fmtKz(j.divida)}</span></span>` : ''}</div></div>
+        <span class="chip">🪙 <span data-sem-traducao>${admN(j.ouro)}</span> ${tr('Ouro')}</span><span class="chip">💵 <span data-sem-traducao>${admN(j.dolares)}</span> USD</span><span class="chip">🏦 <span data-sem-traducao>${fmtMt(j.poupanca)}</span></span>${j.divida > 0 ? `<span class="chip">📉 <span data-sem-traducao>${fmtMt(j.divida)}</span></span>` : ''}</div></div>
     <div class="grelha" style="margin-top:10px">${Object.entries(ADM_ACOES).filter(([k]) => !(k === 'desmutar' && !mudo) && !(k === 'mutar' && mudo) && !(k === 'banir' && j.banido) && !(k === 'desbanir' && !j.banido))
       .map(([k, [e, t]]) => `<button type="button" data-ac="${k}" class="${k === 'banir' || k === 'tirar_kumbu' ? 'perigo' : ''}"><span class="e">${e}</span><span>${t}</span></button>`).join('')}</div>
     ${sec('Vida', `<div class="list">${linha('💼', esc(tr(emp)), j.cargo_nivel ? `${tr('Cargo')} ${j.cargo_nivel}` : '')}${linha('⏱️', `${tr('Turnos hoje')}: <span data-sem-traducao>${admN(j.turnos_hoje)}</span>`, `${tr('Ações hoje')}: <span data-sem-traducao>${admN(j.acoes_hoje)}</span>`)}
       ${linha('🍼', `${tr('Família')}: ${esc(tr({ musseque: 'Musseque', media: 'Classe média', rica: 'Rica', rica_cem: 'Rica (centenas de milhões)', rica_mil: 'Rica (milhares de milhões)' }[j.berco || j.classe] || j.classe || '—'))}`, `${tr('Estudo')} ${j.estudo} · ${tr('Reputação')} ${j.reputacao}`)}
-      ${linha('💳', `${tr('Dinheiro real gasto')}: <span data-sem-traducao>${real || '0'}</span>`, j.kz_banco ? `${tr('Pagamentos em Kz')}: <span data-sem-traducao>${fmtKz(j.kz_banco)}</span>` : '')}</div>`)}
+      ${linha('💳', `${tr('Dinheiro real gasto')}: <span data-sem-traducao>${real || '0'}</span>`, j.kz_banco ? `${tr('Pagamentos em Kz')}: <span data-sem-traducao>${fmtMt(j.kz_banco)}</span>` : '')}</div>`)}
     ${(j.itens || []).length ? sec('Posses', `<div class="chips">${j.itens.map(i => `<span class="chip">${i.emoji} ${esc(tr(i.nome))}</span>`).join('')}</div>`) : ''}
-    ${(j.empresas || []).length ? sec('Empresas', `<div class="list">${j.empresas.map(e => linha(TIPOS_EMP[e.tipo]?.e || '🏢', `<span data-sem-traducao>${esc(e.nome)}</span>${e.falida ? ' · 💥' : ''}`, `${tr(TAM_EMP?.[e.tamanho] || e.tamanho || '')} · ${tr('Caixa')} <span data-sem-traducao>${fmtKz(e.caixa)}</span>`)).join('')}</div>`) : ''}
+    ${(j.empresas || []).length ? sec('Empresas', `<div class="list">${j.empresas.map(e => linha(TIPOS_EMP[e.tipo]?.e || '🏢', `<span data-sem-traducao>${esc(e.nome)}</span>${e.falida ? ' · 💥' : ''}`, `${tr(TAM_EMP?.[e.tamanho] || e.tamanho || '')} · ${tr('Caixa')} <span data-sem-traducao>${fmtMt(e.caixa)}</span>`)).join('')}</div>`) : ''}
     ${sec('Alertas', (j.alertas || []).length ? `<div class="list">${j.alertas.map(a => linha(a.estado === 'novo' ? '🚨' : '☑️', esc(TIPOS_ALERTA[a.tipo] || a.tipo), `${tr('Gravidade')} ${a.gravidade}/3 · ${a.vezes}× · ${admT(a.em)}`)).join('')}</div>` : '<div class="empty">Sem alertas.</div>')}
     ${sec('Denúncias', (j.denuncias || []).length ? `<div class="list">${j.denuncias.map(x => linha('🚩', esc(x.motivo), `${tr('por')} <span data-sem-traducao>${esc(x.de || '?')}</span> · ${admT(x.em)}${x.texto ? ` · “<span data-sem-traducao>${esc(x.texto)}</span>”` : ''}`)).join('')}</div>` : '<div class="empty">Sem denúncias.</div>')}
-    ${sec('O que os admins fizeram', (j.moderacao || []).length ? `<div class="list">${j.moderacao.map(m => linha(ADM_ACOES[m.acao]?.[0] || '•', `${esc(tr(ADM_ACOES[m.acao]?.[1] || m.acao))}${m.horas ? ` · <span data-sem-traducao>${m.horas} h</span>` : ''}${m.valor ? ` · <span data-sem-traducao>${fmtKz(m.valor)}</span>` : ''}`, `<span data-sem-traducao>${esc(m.motivo || '')}</span> · ${tr('por')} <span data-sem-traducao>${esc(m.por || '?')}</span> · ${admT(m.em)}`)).join('')}</div>` : '<div class="empty">Nada ainda.</div>')}
+    ${sec('O que os admins fizeram', (j.moderacao || []).length ? `<div class="list">${j.moderacao.map(m => linha(ADM_ACOES[m.acao]?.[0] || '•', `${esc(tr(ADM_ACOES[m.acao]?.[1] || m.acao))}${m.horas ? ` · <span data-sem-traducao>${m.horas} h</span>` : ''}${m.valor ? ` · <span data-sem-traducao>${fmtMt(m.valor)}</span>` : ''}`, `<span data-sem-traducao>${esc(m.motivo || '')}</span> · ${tr('por')} <span data-sem-traducao>${esc(m.por || '?')}</span> · ${admT(m.em)}`)).join('')}</div>` : '<div class="empty">Nada ainda.</div>')}
     ${sec('Atividade recente', (j.eventos || []).length ? `<div class="list">${j.eventos.map(x => `<div class="row"><div class="t"><small>${esc(tr(x.texto))}</small><small>${admT(x.em)}</small></div></div>`).join('')}</div>` : '<div class="empty">Sem atividade.</div>')}`;
   f.querySelectorAll('[data-ac]').forEach(b => b.onclick = () => {
     const k = b.dataset.ac, [e, t, d] = ADM_ACOES[k];
@@ -274,7 +274,7 @@ async function admLoja(ll) {
   const EST = { paga: '⏳ Paga, por rever', aprovada: '✅ No ar', recusada: '❌ Recusada', reembolsada: '↩️ Recusada e reembolsada', retirada: '⛔ Retirada', retirada_reembolsada: '⛔ Retirada e reembolsada' };
   const ordem = [...data].sort((a, b) => (a.estado === 'paga' ? 0 : 1) - (b.estado === 'paga' ? 0 : 1));
   ll.innerHTML = ordem.length ? `<div class="list">${ordem.map(e => `<div class="row" style="flex-wrap:wrap;align-items:flex-start"><div class="t" style="flex-basis:100%">
-      <b data-sem-traducao>${esc(e.marca)} · ${e.total_eur_centimos ? admCent(e.total_eur_centimos, 'EUR') : 'US$ ' + (e.total_usd_centimos / 100).toFixed(2)} (${fmtKz(e.total_kz)})</b>
+      <b data-sem-traducao>${esc(e.marca)} · ${e.total_eur_centimos ? admCent(e.total_eur_centimos, 'EUR') : 'US$ ' + (e.total_usd_centimos / 100).toFixed(2)} (${fmtMt(e.total_kz)})</b>
       <small>${EST[e.estado] || esc(e.estado)} · ${esc(e.email)}${e.link ? ` · <a href="${esc(e.link)}" target="_blank" rel="noopener nofollow">${esc(e.link)}</a>` : ''}${e.motivo ? ` · motivo: ${esc(e.motivo)}` : ''}</small></div>
       ${(e.itens || []).map(i => `<div style="flex:1 1 220px;min-width:0"><img src="${esc(i.imagem)}" alt="" style="width:100%;border-radius:8px;background:#000;display:block">
         <small data-sem-traducao>${esc(i.nome)} · ${i.largura}×${i.altura} · ${new Date(i.inicio).toLocaleDateString('pt-PT')}–${new Date(i.fim).toLocaleDateString('pt-PT')}</small></div>`).join('')}
@@ -341,7 +341,7 @@ async function admDinheiro(body) {
   admConversao(body.querySelector('#admConv'));
   const { data, error } = await sb.rpc('admin_pagamentos_locais');
   const lp = body.querySelector('#pagList'); if (error) return admErro(lp, error);
-  lp.innerHTML = data.length ? `<div class="list">${data.map(x => `<div class="row" style="flex-wrap:wrap"><div class="t"><b data-sem-traducao>${esc(x.codigo)} · ${fmtKz(x.valor_kz)}</b><small>${esc(x.nome)} · ${admT(x.criado_em)}</small></div>
+  lp.innerHTML = data.length ? `<div class="list">${data.map(x => `<div class="row" style="flex-wrap:wrap"><div class="t"><b data-sem-traducao>${esc(x.codigo)} · ${fmtMt(x.valor_kz)}</b><small>${esc(x.nome)} · ${admT(x.criado_em)}</small></div>
     <button class="btn sm" data-pag="${x.id}" data-ok="1">Recebido</button><button class="btn sm ghost" data-pag="${x.id}" data-ok="">Não chegou</button></div>`).join('')}</div>` : '<div class="empty">Nenhum pagamento à espera.</div>';
   lp.querySelectorAll('[data-pag]').forEach(b => b.onclick = async () => {
     const ok = !!b.dataset.ok; if (!await perguntar(ok ? 'Confirmas que o dinheiro chegou à conta?' : 'Recusar este pagamento?')) return;
@@ -370,7 +370,7 @@ async function admReceitas(el) {
         <i style="height:${Math.round(100 * x.anuncios / max)}%;background:#5aa7e0"></i><i style="height:${Math.round(100 * x.ouro / max)}%;background:#ffcb00"></i><small>${esc(dNome(x.dia))}</small></div>`).join('')}</div></div>` : ''}
     <div class="admCartao"><small>${esc(tr('De onde vem'))}</small><div class="admBarra"><i style="width:${pOuro}%;background:#ffcb00"></i><i style="width:${tot ? 100 - pOuro : 0}%;background:#5aa7e0"></i></div>
       <div class="admTres"><div><span style="color:#ffcb00">${esc(tr('Ouro'))}</span><b data-sem-traducao>${eur(r.ouro_eur_cent)}</b></div><div><span style="color:#5aa7e0">${esc(tr('Anúncios'))}</span><b data-sem-traducao>${eur(r.anuncios_eur_cent)}</b></div>
-        <div><span>${esc(tr('Kz (banco)'))}</span><b data-sem-traducao>${r.kz_ligado ? fmtKz(r.kz_total) : esc(tr('desligado'))}</b></div></div>
+        <div><span>${esc(tr('Kz (banco)'))}</span><b data-sem-traducao>${r.kz_ligado ? fmtMt(r.kz_total) : esc(tr('desligado'))}</b></div></div>
       ${(r.por_moeda || []).length > 1 ? `<small>${(r.por_moeda || []).map(x => `<span data-sem-traducao>${admCent(x.cent, x.moeda)}</span> (${x.vezes}×)`).join(' + ')} · ${esc(tr('US$ contam a {0} €').replace('{0}', String(r.taxa_usd_eur).replace('.', ',')))}</small>` : ''}</div>
     ${(r.pacotes || []).length ? `<div class="admCartao"><small>${esc(tr('Pacotes de Ouro · receita'))}</small><div class="admPacotes">${r.pacotes.map(x => `<span data-sem-traducao>${admN(x.ouro)} ${esc(tr('Ouro'))}</span><i style="width:${Math.round(100 * x.eur_cent / pmax)}%"></i><b data-sem-traducao>${eurCurto(x.eur_cent)} · ${x.vezes}×</b>`).join('')}</div></div>` : ''}
     <div class="admNums admNums3"><div class="admNum"><span>${esc(tr('Pagaram'))}</span><b data-sem-traducao>${admN(r.pagantes)}</b><small>${esc(tr('jogadores'))}</small></div>
@@ -393,7 +393,7 @@ async function admSeguranca(body) {
       el.innerHTML = (r.data || []).length ? `<div class="list">${r.data.map(linha).join('')}</div>` : '<div class="empty">Nenhum por decidir 🎉</div>'; ligar(el); };
     caixa('#recSusp', rs, x => `<div class="row"><div class="t"><b>${esc(x.nome)}</b><small>${x.motivo ? 'Motivo: ' + esc(x.motivo) + ' · ' : ''}${new Date(x.criado_em).toLocaleString()}</small><small style="display:block;margin-top:4px;white-space:pre-wrap" data-sem-traducao>«${esc(x.texto)}»</small></div><div style="display:flex;flex-direction:column;gap:4px"><button class="btn sm" data-sus="${x.id}:1">Reativar</button><button class="btn sm ghost" data-sus="${x.id}:0">Manter</button></div></div>`,
       el => el.querySelectorAll('[data-sus]').forEach(b => b.onclick = async () => { const [id, sim] = b.dataset.sus.split(':'); if (await acao('admin_decidir_suspensao', { p_id: +id, p_levantar: sim === '1' })) admSeguranca(body); }));
-    caixa('#recCfb', rc, x => `<div class="row"><div class="t"><b>${esc(x.nome)}</b><small>${esc(x.motivo)} · ${fmtKz(x.patrimonio_antes || 0)}</small><small style="display:block;margin-top:4px;white-space:pre-wrap" data-sem-traducao>«${esc(x.recurso || '')}»</small></div><div style="display:flex;flex-direction:column;gap:4px"><button class="btn sm" data-cfb="${x.id}:1">Devolver</button><button class="btn sm ghost" data-cfb="${x.id}:0">Manter</button></div></div>`,
+    caixa('#recCfb', rc, x => `<div class="row"><div class="t"><b>${esc(x.nome)}</b><small>${esc(x.motivo)} · ${fmtMt(x.patrimonio_antes || 0)}</small><small style="display:block;margin-top:4px;white-space:pre-wrap" data-sem-traducao>«${esc(x.recurso || '')}»</small></div><div style="display:flex;flex-direction:column;gap:4px"><button class="btn sm" data-cfb="${x.id}:1">Devolver</button><button class="btn sm ghost" data-cfb="${x.id}:0">Manter</button></div></div>`,
       el => el.querySelectorAll('[data-cfb]').forEach(b => b.onclick = async () => { const [id, sim] = b.dataset.cfb.split(':'); if (await acao('admin_cfb_decidir', { p_caso: +id, p_devolver: sim === '1' })) admSeguranca(body); }));
   });
   const [al, den, reg] = await Promise.all([sb.rpc('admin_alertas'), sb.rpc('admin_denuncias'), sb.rpc('admin_registo')]);
@@ -410,7 +410,7 @@ async function admSeguranca(body) {
     <small>${esc(d.motivo)} · por ${esc(d.de)} · ${admT(d.criado_em)}</small>${d.texto ? `<small>“${esc(d.texto)}”</small>` : ''}</div></div>`).join('')}</div>` : '<div class="empty">Sem denúncias.</div>';
   const lr = body.querySelector('#regList');
   if (reg.error) admErro(lr, reg.error);
-  else lr.innerHTML = reg.data.length ? `<div class="list">${reg.data.map(m => `<div class="row"><span class="e">${ADM_ACOES[m.acao]?.[0] || '•'}</span><div class="t"><b>${esc(tr(ADM_ACOES[m.acao]?.[1] || m.acao))} · <button class="lnk" type="button" data-nome="${esc(m.alvo || '')}">${esc(m.alvo || '?')}</button>${m.horas ? ` · <span data-sem-traducao>${m.horas} h</span>` : ''}${m.valor ? ` · <span data-sem-traducao>${fmtKz(m.valor)}</span>` : ''}</b>
+  else lr.innerHTML = reg.data.length ? `<div class="list">${reg.data.map(m => `<div class="row"><span class="e">${ADM_ACOES[m.acao]?.[0] || '•'}</span><div class="t"><b>${esc(tr(ADM_ACOES[m.acao]?.[1] || m.acao))} · <button class="lnk" type="button" data-nome="${esc(m.alvo || '')}">${esc(m.alvo || '?')}</button>${m.horas ? ` · <span data-sem-traducao>${m.horas} h</span>` : ''}${m.valor ? ` · <span data-sem-traducao>${fmtMt(m.valor)}</span>` : ''}</b>
     <small><span data-sem-traducao>${esc(m.motivo || '')}</span> · ${tr('por')} <span data-sem-traducao>${esc(m.por || '?')}</span> · ${admT(m.em)}</small></div></div>`).join('')}</div>` : '<div class="empty">Nada ainda.</div>';
   body.querySelectorAll('[data-nome]').forEach(b => b.onclick = () => admAbrirNome(b.dataset.nome));
 }

@@ -56,15 +56,15 @@ function blocoCarreira() {
     const t = TIPOS_EMP[minhaEmpresaTrab.tipo] || {};
     // 8 nov: com a licença por sair, o servidor recusa o turno («ainda está à espera da licença», ~200 vezes por dia)
     if (minhaEmpresaTrab.licenca_ate && new Date(minhaEmpresaTrab.licenca_ate) > new Date())
-      return `<div class="rel"><div class="lbl"><span>${t.e || '🏢'} ${esc(minhaEmpresaTrab.nome)}</span><span class="price">${fmtKz(minhaEmpresaTrab.salario)}/turno</span></div>
+      return `<div class="rel"><div class="lbl"><span>${t.e || '🏢'} ${esc(minhaEmpresaTrab.nome)}</span><span class="price">${fmtMt(minhaEmpresaTrab.salario)}/turno</span></div>
       <small style="display:block;color:var(--muted);font-size:12px;margin-top:4px">📄 ${tr('À espera da licença. Podes trabalhar quando sair.')}</small>
       <div class="grelha"><button id="bSairEmp" class="perigo"><span class="e">👋</span><span>Despedir-me</span></button></div></div>`;
-    return `<div class="rel"><div class="lbl"><span>${t.e || '🏢'} ${esc(minhaEmpresaTrab.nome)}</span><span class="price">${fmtKz(minhaEmpresaTrab.salario)}/turno</span></div>
+    return `<div class="rel"><div class="lbl"><span>${t.e || '🏢'} ${esc(minhaEmpresaTrab.nome)}</span><span class="price">${fmtMt(minhaEmpresaTrab.salario)}/turno</span></div>
       <small style="display:block;color:var(--muted);font-size:12px;margin-top:4px">Patrão/patroa: ${esc(minhaEmpresaTrab.donoNome || '?')} · 📍 ${esc(bairro(minhaEmpresaTrab.bairro)?.nome || '')}. Se a caixa estiver vazia, não te pagam!</small>
       <div class="grelha"><button id="bTrabEmp" class="${minhaEmpresaTrab.bairro === J.bairro ? '' : ''}" ${minhaEmpresaTrab.bairro !== J.bairro ? 'disabled' : ''}><span class="e">💪</span><span>Trabalhar${minhaEmpresaTrab.bairro !== J.bairro ? `<small style="display:block;font-weight:600;color:var(--dim);font-size:11px">Vai a ${esc(bairro(minhaEmpresaTrab.bairro)?.nome || '')}</small>` : ''}</span></button>
       <button id="bSairEmp" class="perigo"><span class="e">👋</span><span>Despedir-me</span></button></div></div>`;
   }
-  if (J.pensao > 0) return `<div class="rel"><div class="lbl"><span>🏖️ Reformado/a</span><span class="price">${fmtKz(J.pensao)}/dia</span></div></div>`;
+  if (J.pensao > 0) return `<div class="rel"><div class="lbl"><span>🏖️ Reformado/a</span><span class="price">${fmtMt(J.pensao)}/dia</span></div></div>`;
   return '';
 }
 async function carregarTrabEmp() {
@@ -104,7 +104,7 @@ function blocoMelhorias(e, todas = []) {
   return `<div class="chips" style="margin-top:8px">${e.gerente ? '<span class="chip">👔 Gerente</span>' : ''}${e.gerador ? '<span class="chip">🔌 Gerador</span>' : ''}${e.seguranca ? '<span class="chip">💂 Segurança</span>' : ''}${e.cao ? '<span class="chip">🐕 Cão</span>' : ''}${e.cameras ? '<span class="chip">📹 Câmaras</span>' : ''}<span class="chip">${PRECO_EMP[e.preco || 'justo'][0]}</span>${camp ? `<span class="chip">📣 ${tr(camp[1])} · ${tr('até')} <span data-sem-traducao>${e.marketing_ate.slice(8, 10)}/${e.marketing_ate.slice(5, 7)}</span></span>` : ''}</div>
     <div class="grelha">
       <button data-m="${e.gerente ? 'sem_gerente' : 'gerente'}"><span class="e">👔</span><span>${e.gerente ? 'Despedir o gerente' : 'Contratar gerente'}<small style="display:block;font-weight:600;color:var(--dim);font-size:11px">${e.gerente ? '' : tr('15% das vendas da semana')}</small></span></button>
-      ${e.gerador ? '' : `<button data-m="gerador"><span class="e">🔌</span><span>Comprar gerador<small style="display:block;font-weight:600;color:var(--dim);font-size:11px" data-sem-traducao>${fmtKz(custoGerador(e))}</small></span></button>`}
+      ${e.gerador ? '' : `<button data-m="gerador"><span class="e">🔌</span><span>Comprar gerador<small style="display:block;font-weight:600;color:var(--dim);font-size:11px" data-sem-traducao>${fmtMt(custoGerador(e))}</small></span></button>`}
       <button data-m="preco"><span class="e">🏷️</span><span>Mudar os preços</span></button>
       ${camp ? '' : `<button data-m="marketing"><span class="e">📣</span><span>Fazer publicidade</span></button>`}
     </div>
@@ -112,13 +112,13 @@ function blocoMelhorias(e, todas = []) {
     <small style="display:block;color:var(--muted);font-size:12px">Os ladrões só aparecem a quem já tem 50 milhões de Kz ou mais.</small>
     <div class="grelha">
       <button data-m="${e.seguranca ? 'sem_seguranca' : 'seguranca'}"><span class="e">💂</span><span>${e.seguranca ? 'Dispensar o segurança' : 'Contratar segurança'}<small style="display:block;font-weight:600;color:var(--dim);font-size:11px">${e.seguranca ? '' : tr('3% das vendas da semana')}</small></span></button>
-      ${e.cao ? '' : `<button data-m="cao"><span class="e">🐕</span><span>Cão de guarda<small style="display:block;font-weight:600;color:var(--dim);font-size:11px" data-sem-traducao>${fmtKz(30000)}</small></span></button>`}
-      ${e.cameras ? '' : `<button data-m="cameras"><span class="e">📹</span><span>Câmaras<small style="display:block;font-weight:600;color:var(--dim);font-size:11px" data-sem-traducao>${fmtKz(custoCameras(e))}</small></span></button>`}
+      ${e.cao ? '' : `<button data-m="cao"><span class="e">🐕</span><span>Cão de guarda<small style="display:block;font-weight:600;color:var(--dim);font-size:11px" data-sem-traducao>${fmtMt(30000)}</small></span></button>`}
+      ${e.cameras ? '' : `<button data-m="cameras"><span class="e">📹</span><span>Câmaras<small style="display:block;font-weight:600;color:var(--dim);font-size:11px" data-sem-traducao>${fmtMt(custoCameras(e))}</small></span></button>`}
     </div>
     ${e.matriz ? '' : (() => { const fil = todas.filter(x => x.matriz === e.id), aqui = [e, ...fil].some(x => x.bairro === J.bairro);
       return `<div class="sub2" style="margin-top:12px">Filiais <span data-sem-traducao>${fil.length}/4</span></div><div id="filPronto"></div>
       ${fil.length ? `<small style="display:block;color:var(--muted);font-size:12px" data-sem-traducao>${fil.map(x => esc(bairro(x.bairro)?.nome || x.bairro)).join(' · ')}</small>` : ''}
-      ${fil.length < 4 ? `<div class="grelha"><button data-m="filial" ${aqui ? 'disabled' : ''}><span class="e">🏪</span><span>${aqui ? tr('Vai a outro bairro para abrir uma filial') : `${tr('Abrir filial em')} ${esc(bairro(J.bairro)?.nome || '')}`}<small style="display:block;font-weight:600;color:var(--dim);font-size:11px" data-sem-traducao>${fmtKz((TIPOS_EMP[e.tipo]?.custo || 0) + 25000)}</small></span></button></div>` : ''}`; })()}`;
+      ${fil.length < 4 ? `<div class="grelha"><button data-m="filial" ${aqui ? 'disabled' : ''}><span class="e">🏪</span><span>${aqui ? tr('Vai a outro bairro para abrir uma filial') : `${tr('Abrir filial em')} ${esc(bairro(J.bairro)?.nome || '')}`}<small style="display:block;font-weight:600;color:var(--dim);font-size:11px" data-sem-traducao>${fmtMt((TIPOS_EMP[e.tipo]?.custo || 0) + 25000)}</small></span></button></div>` : ''}`; })()}`;
 }
 // 9 nov (dono: «Let's do 1»): antes de levantar, mostra o IRT — o que é capital teu (sem imposto), o lucro, o imposto e o que recebes
 // cartões de dicas com setas (‹ ›) e deslizar — um ponto de cada vez
@@ -137,7 +137,7 @@ function ligarDicas(raiz) {
 }
 function levantarComIRT(e, fazer) {
   const el = sheet(`<h3>${tr('Levantar de')} ${esc(e.nome)}</h3>
-    <p class="m">${tr('A caixa tem')} <b data-sem-traducao>${fmtKz(e.caixa)}</b>. ${tr('Deixa sempre algum para pagar salários!')}</p>
+    <p class="m">${tr('A caixa tem')} <b data-sem-traducao>${fmtMt(e.caixa)}</b>. ${tr('Deixa sempre algum para pagar salários!')}</p>
     <label>${tr('Valor (Kz)')}</label><input class="inp" id="iValor" type="number" min="100" step="100" value="${Math.max(0, Math.floor(e.caixa / 2))}">
     <div class="irt-prev" id="irtPrev"><small>${tr('A calcular o IRT…')}</small></div>
     <button class="btn full" id="sim">${tr('Levantar')}</button>`);
@@ -149,13 +149,13 @@ function levantarComIRT(e, fazer) {
     const { data, error } = await sb.rpc('irt_simular', { p_empresa: e.id, p_valor: v });
     if (k !== n || !box.isConnected) return;
     if (error || !data) { box.innerHTML = `<small>${tr('O lucro que levantas paga IRT; o dinheiro que tu puseste na caixa volta sem imposto.')}</small>`; return; }
-    btn.textContent = `${tr('Levantar')} · ${tr('recebes')} ${fmtKz(data.recebes)}`;
-    box.innerHTML = linha(tr('Levantas'), fmtKz(data.valor))
-      + (data.capital > 0 ? linha(tr('O teu capital (sem imposto)'), fmtKz(data.capital)) : '')
-      + linha(tr('Lucro'), fmtKz(data.lucro))
-      + linha(`🧾 IRT${data.lucro > 0 ? ` · ${data.taxa}%` : ''}`, data.imposto ? '−' + fmtKz(data.imposto) : fmtKz(0), data.imposto ? 'var(--red)' : '')
-      + `<div class="irt-tot">${linha(`<b>${tr('Recebes na carteira')}</b>`, `<b>${fmtKz(data.recebes)}</b>`, 'var(--green)')}</div>`
-      + `<small>${data.lucro > 0 ? tr('O IRT é por escalões da semana (segunda a domingo) e no lucro das empresas nunca passa de 30%. Esta semana já tiveste {0} de rendimentos; o próximo kwanza de lucro paga {1}%.').replace('{0}', fmtKz(data.semana_bruto)).replace('{1}', data.marginal) : tr('Estás a levantar só o capital que puseste: não paga IRT.')}</small>`;
+    btn.textContent = `${tr('Levantar')} · ${tr('recebes')} ${fmtMt(data.recebes)}`;
+    box.innerHTML = linha(tr('Levantas'), fmtMt(data.valor))
+      + (data.capital > 0 ? linha(tr('O teu capital (sem imposto)'), fmtMt(data.capital)) : '')
+      + linha(tr('Lucro'), fmtMt(data.lucro))
+      + linha(`🧾 IRT${data.lucro > 0 ? ` · ${data.taxa}%` : ''}`, data.imposto ? '−' + fmtMt(data.imposto) : fmtMt(0), data.imposto ? 'var(--red)' : '')
+      + `<div class="irt-tot">${linha(`<b>${tr('Recebes na carteira')}</b>`, `<b>${fmtMt(data.recebes)}</b>`, 'var(--green)')}</div>`
+      + `<small>${data.lucro > 0 ? tr('O IRT é por escalões da semana (segunda a domingo) e no lucro das empresas nunca passa de 30%. Esta semana já tiveste {0} de rendimentos; o próximo kwanza de lucro paga {1}%.').replace('{0}', fmtMt(data.semana_bruto)).replace('{1}', data.marginal) : tr('Estás a levantar só o capital que puseste: não paga IRT.')}</small>`;
   };
   inp.addEventListener('input', () => { clearTimeout(t); t = setTimeout(calcular, 350); });
   btn.onclick = () => { const v = parseInt(inp.value, 10); if (!v) return toast('Escreve um valor.', 'mau'); fazer(v); };
@@ -169,19 +169,19 @@ function ligarMelhorias(e, el, depois) {
     const m = b.dataset.m;
     if (m === 'seguranca') return confirmar(`Contratar um segurança para ${esc(e.nome)}?`, 'Fica com 3% das vendas da semana. Os assaltos ficam muito mais raros (−70%).', 'Contratar', () => fazer('seguranca'));
     if (m === 'sem_seguranca') return confirmar('Dispensar o segurança?', 'Os assaltos voltam a ser mais prováveis.', 'Dispensar', () => fazer('sem_seguranca'));
-    if (m === 'cao') return confirmar(`Comprar um cão de guarda para ${esc(e.nome)}?`, `Custa ${fmtKz(30000)}, uma vez. Os ladrões pensam duas vezes (−40%).`, 'Comprar', () => fazer('cao'));
-    if (m === 'cameras') return confirmar(`Pôr câmaras em ${esc(e.nome)}?`, `Custa ${fmtKz(custoCameras(e))}, uma vez. Menos assaltos (−30%) e, se houver um, a polícia recupera metade.`, 'Comprar', () => fazer('cameras'));
-    if (m === 'filial') return confirmar(`Abrir uma filial de ${esc(e.nome)} em ${esc(bairro(J.bairro)?.nome || '')}?`, `Custa ${fmtKz((TIPOS_EMP[e.tipo]?.custo || 0) + 25000)} (investimento + licença). Começa como quiosque e tem as suas próprias vendas e contas.`, 'Abrir', async () => { if (await acao('empresa_filial', { p_id: e.id })) { fecharSheets(); depois(); } });
+    if (m === 'cao') return confirmar(`Comprar um cão de guarda para ${esc(e.nome)}?`, `Custa ${fmtMt(30000)}, uma vez. Os ladrões pensam duas vezes (−40%).`, 'Comprar', () => fazer('cao'));
+    if (m === 'cameras') return confirmar(`Pôr câmaras em ${esc(e.nome)}?`, `Custa ${fmtMt(custoCameras(e))}, uma vez. Menos assaltos (−30%) e, se houver um, a polícia recupera metade.`, 'Comprar', () => fazer('cameras'));
+    if (m === 'filial') return confirmar(`Abrir uma filial de ${esc(e.nome)} em ${esc(bairro(J.bairro)?.nome || '')}?`, `Custa ${fmtMt((TIPOS_EMP[e.tipo]?.custo || 0) + 25000)} (investimento + licença). Começa como quiosque e tem as suas próprias vendas e contas.`, 'Abrir', async () => { if (await acao('empresa_filial', { p_id: e.id })) { fecharSheets(); depois(); } });
     if (m === 'gerente') return confirmar(`Contratar um gerente para ${esc(e.nome)}?`, 'Fica com 15% das vendas da semana (sai nas contas de sábado). Com gerente, a empresa vende tudo mesmo nos dias em que não jogas.', 'Contratar', () => fazer('gerente'));
     if (m === 'sem_gerente') return confirmar('Despedir o gerente?', 'Nos dias em que não jogas, a empresa só vende metade.', 'Despedir', () => fazer('sem_gerente'));
-    if (m === 'gerador') return confirmar(`Comprar um gerador para ${esc(e.nome)}?`, `Custa ${fmtKz(custoGerador(e))}. Nos cortes de luz continua a vender (sem gerador perde 40%). O combustível (2% das vendas da semana) sai nas contas de sábado.`, 'Comprar', () => fazer('gerador'));
+    if (m === 'gerador') return confirmar(`Comprar um gerador para ${esc(e.nome)}?`, `Custa ${fmtMt(custoGerador(e))}. Nos cortes de luz continua a vender (sem gerador perde 40%). O combustível (2% das vendas da semana) sai nas contas de sábado.`, 'Comprar', () => fazer('gerador'));
     if (m === 'preco') {
       const s2 = sheet(`<h3>🏷️ Preços de <span data-sem-traducao>${esc(e.nome)}</span></h3><p class="m">Conta a partir do fecho das 18:00.</p><div class="list">${Object.entries(PRECO_EMP).map(([k, [t, d]]) => `<button class="row ${(e.preco || 'justo') === k ? 'mine' : ''}" data-p="${k}" style="text-align:left"><div class="t"><b>${t}</b><small>${d}</small></div></button>`).join('')}</div>`);
       s2.querySelectorAll('[data-p]').forEach(x => x.onclick = () => fazer('preco', x.dataset.p));
       return;
     }
     if (m === 'marketing') {
-      const s2 = sheet(`<h3>📣 Publicidade para <span data-sem-traducao>${esc(e.nome)}</span></h3><p class="m">Mais clientes nas próximas noites. Uma campanha de cada vez.</p><div class="list">${Object.entries(CAMPANHAS).map(([k, [ic, n, bon, noites]]) => `<button class="row" data-c="${k}" style="text-align:left"><span class="e">${ic}</span><div class="t"><b>${n}</b><small><span data-sem-traducao>+${Math.round(bon * 100)}%</span> ${tr('nas vendas')} · <span data-sem-traducao>${noites}</span> ${tr(noites === 1 ? 'noite' : 'noites')}</small></div><span class="price" data-sem-traducao>${fmtKz(custoCampanha(e, k))}</span></button>`).join('')}</div>`);
+      const s2 = sheet(`<h3>📣 Publicidade para <span data-sem-traducao>${esc(e.nome)}</span></h3><p class="m">Mais clientes nas próximas noites. Uma campanha de cada vez.</p><div class="list">${Object.entries(CAMPANHAS).map(([k, [ic, n, bon, noites]]) => `<button class="row" data-c="${k}" style="text-align:left"><span class="e">${ic}</span><div class="t"><b>${n}</b><small><span data-sem-traducao>+${Math.round(bon * 100)}%</span> ${tr('nas vendas')} · <span data-sem-traducao>${noites}</span> ${tr(noites === 1 ? 'noite' : 'noites')}</small></div><span class="price" data-sem-traducao>${fmtMt(custoCampanha(e, k))}</span></button>`).join('')}</div>`);
       s2.querySelectorAll('[data-c]').forEach(x => x.onclick = () => fazer('marketing', x.dataset.c));
     }
   });
@@ -191,10 +191,10 @@ async function mostrarContasEmp(e, el) {
   const { data: c, error } = await sb.rpc('empresa_contas', { p_id: e.id });
   if (error || !c) return;
   const graca = new Date(c.contas_desde) > new Date();
-  el.innerHTML = `<div class="lbl" style="margin-top:8px"><span>🧾 Contas de sábado (até agora)</span><span class="price" data-sem-traducao>${fmtKz(c.total || 0)}</span></div>
-    <small style="display:block;color:var(--muted);font-size:12px"><span>renda</span> <span data-sem-traducao>${fmtKz(c.renda || 0)}</span> · <span>ajudantes</span> <span data-sem-traducao>${fmtKz(c.salarios || 0)}</span> · <span>stock</span> <span data-sem-traducao>${fmtKz(c.stock || 0)}</span> · <span>impostos</span> <span data-sem-traducao>${fmtKz(c.imposto || 0)}</span></small>
+  el.innerHTML = `<div class="lbl" style="margin-top:8px"><span>🧾 Contas de sábado (até agora)</span><span class="price" data-sem-traducao>${fmtMt(c.total || 0)}</span></div>
+    <small style="display:block;color:var(--muted);font-size:12px"><span>renda</span> <span data-sem-traducao>${fmtMt(c.renda || 0)}</span> · <span>ajudantes</span> <span data-sem-traducao>${fmtMt(c.salarios || 0)}</span> · <span>stock</span> <span data-sem-traducao>${fmtMt(c.stock || 0)}</span> · <span>impostos</span> <span data-sem-traducao>${fmtMt(c.imposto || 0)}</span></small>
     <small style="display:block;color:var(--muted);font-size:12px">${graca ? 'Primeira semana: ainda não pagas contas.' : 'Saem da caixa no sábado às 18:10. Deixa dinheiro na caixa!'}</small>
-    <small style="display:block;color:var(--dim);font-size:12px"><span>Máximo de vendas por dia (todas as tuas empresas)</span>: <span data-sem-traducao>${fmtKz(c.teto || 0)}</span></small>`;
+    <small style="display:block;color:var(--dim);font-size:12px"><span>Máximo de vendas por dia (todas as tuas empresas)</span>: <span data-sem-traducao>${fmtMt(c.teto || 0)}</span></small>`;
 }
 // 6 nov (dono: «people are making businesses and the businesses just don't show up»): o servidor devolve no máximo 1.000 linhas
 // por pedido; com 1.378 empresas, as mais novas (por id) nunca chegavam. Agora lê-se tudo, 1.000 de cada vez.
@@ -256,11 +256,11 @@ async function renderEmpresas(body) {
       return `<div class="rel" data-e="${e.id}"><div class="lbl"><span>${t.e} ${esc(e.nome)}${e.matriz ? ` <small style="color:var(--dim)">· ${tr('filial')}</small>` : ''}</span><span style="color:var(--dim);font-weight:600">${TAM_EMP[e.tamanho] || TAM_EMP.quiosque} · 📍 ${esc(bairro(e.bairro)?.nome || '')}</span></div>
         ${espera ? `<p class="m" style="margin:6px 0 0">📄 À espera da licença…</p>` : ''}
         ${tycoonTem(e.tipo) ? `<button type="button" class="btn full ty-entrar" data-g="tycoon"><span>🎮 ${tr(TY_ENTRAR[e.tipo] || 'Entrar e gerir')}</span><small>${tr('Serve os clientes tu mesmo/a: a caixa e a barra das filiais enchem mais depressa.')}</small></button>` : ''}
-        <div class="lbl" style="margin-top:8px"><span>💼 Caixa</span><span class="price" style="color:${e.caixa < 0 ? 'var(--red)' : 'var(--gold)'}">${fmtKz(e.caixa)}</span></div>
-        ${e.ultimo_dia ? `<small style="display:block;color:var(--muted);font-size:12px"><span>Último fecho (18:00)</span>: <span data-sem-traducao>${fmtKz(e.ultimas_vendas || 0)}</span> · <span>${esc(e.ultima_nota || '')}</span></small>` : `<small style="display:block;color:var(--muted);font-size:12px">As primeiras vendas entram hoje às 18:00.</small>`}
+        <div class="lbl" style="margin-top:8px"><span>💼 Caixa</span><span class="price" style="color:${e.caixa < 0 ? 'var(--red)' : 'var(--gold)'}">${fmtMt(e.caixa)}</span></div>
+        ${e.ultimo_dia ? `<small style="display:block;color:var(--muted);font-size:12px"><span>Último fecho (18:00)</span>: <span data-sem-traducao>${fmtMt(e.ultimas_vendas || 0)}</span> · <span>${esc(e.ultima_nota || '')}</span></small>` : `<small style="display:block;color:var(--muted);font-size:12px">As primeiras vendas entram hoje às 18:00.</small>`}
         <div class="contasEmp" data-contas="${e.id}"></div>
-        <div class="chips" style="margin-top:8px"><span class="chip">👥 Equipa completa: tu + ${e.staff} ajudante${e.staff === 1 ? '' : 's'}${reais.length ? ` + ${reais.length} jogador${reais.length === 1 ? '' : 'es'}` : ''}</span><span class="chip">⭐ Fama ${e.reputacao}</span>${e.sonegar ? `<span class="chip">🤫 A fugir aos impostos</span>` : ''}${e.vaga_salario ? `<span class="chip">📢 Vaga: ${fmtKz(e.vaga_salario)}/turno</span>` : ''}</div>
-        ${reais.length ? `<div class="list" style="margin-top:8px">${reais.map(f => `<div class="row"><span class="e">🧑</span><div class="t"><b>${esc(nomes[f.jogador_id] || '?')}</b><small>${fmtKz(f.salario)}/turno · ${f.turnos} turnos</small></div><button class="btn sm ghost" data-desp="${f.jogador_id}">Despedir</button></div>`).join('')}</div>` : ''}
+        <div class="chips" style="margin-top:8px"><span class="chip">👥 Equipa completa: tu + ${e.staff} ajudante${e.staff === 1 ? '' : 's'}${reais.length ? ` + ${reais.length} jogador${reais.length === 1 ? '' : 'es'}` : ''}</span><span class="chip">⭐ Fama ${e.reputacao}</span>${e.sonegar ? `<span class="chip">🤫 A fugir aos impostos</span>` : ''}${e.vaga_salario ? `<span class="chip">📢 Vaga: ${fmtMt(e.vaga_salario)}/turno</span>` : ''}</div>
+        ${reais.length ? `<div class="list" style="margin-top:8px">${reais.map(f => `<div class="row"><span class="e">🧑</span><div class="t"><b>${esc(nomes[f.jogador_id] || '?')}</b><small>${fmtMt(f.salario)}/turno · ${f.turnos} turnos</small></div><button class="btn sm ghost" data-desp="${f.jogador_id}">Despedir</button></div>`).join('')}</div>` : ''}
         <div class="sub2" style="margin-top:12px">Melhorias</div>${blocoMelhorias(e, minhas)}
         <div class="sub2" style="margin-top:12px">Gerir</div>
         <div class="grelha">
@@ -269,14 +269,14 @@ async function renderEmpresas(body) {
           <button data-g="levantar"><span class="e">💵</span><span>Levantar lucro</span></button>
           <button data-g="vaga"><span class="e">📢</span><span>${e.vaga_salario ? 'Mudar o salário da vaga' : 'Abrir vaga a jogadores'}</span></button>
           ${e.vaga_salario ? `<button data-g="fecharvaga"><span class="e">✋</span><span>Fechar a vaga</span></button>` : ''}
-          ${e.tamanho !== 'plaza' ? `<button data-g="expandir"><span class="e">📈</span><span>${e.tamanho === 'loja' ? 'Crescer para plaza' : 'Crescer para loja'} · ${fmtKz(Math.floor((t.custo || 0) * (e.tamanho === 'loja' ? 5 : 2) * 1.6))}</span></button>` : ''}
+          ${e.tamanho !== 'plaza' ? `<button data-g="expandir"><span class="e">📈</span><span>${e.tamanho === 'loja' ? 'Crescer para plaza' : 'Crescer para loja'} · ${fmtMt(Math.floor((t.custo || 0) * (e.tamanho === 'loja' ? 5 : 2) * 1.6))}</span></button>` : ''}
           ${e.sonegar === undefined ? '' : e.sonegar ? `<button data-g="impostos"><span class="e">🧾</span><span>Voltar a pagar impostos</span></button>` : `<button data-g="impostos" class="perigo"><span class="e">🤫</span><span>Fugir aos impostos</span></button>`}
           <button data-g="fechar" class="perigo"><span class="e">🔒</span><span>Fechar o negócio</span></button>
         </div></div>`;
     }).join('')}
     ${`<div class="sub2">Abrir um negócio em ${esc(bairro(J.bairro)?.nome || '')}</div>${extra ? `<p class="m">🪙 <span>Já tens 3 negócios: este custa também</span> <b data-sem-traducao>${OURO_EMP_EXTRA}</b> <span>Ouro.</span> <span data-sem-traducao>(${J.ouro || 0} 🪙)</span></p>` : ''}
     <form id="fEmp"><label>Tipo</label><select class="inp" id="eTipo">${Object.entries(TIPOS_EMP).map(([k, t]) => { const falta = t.pede && !minhas.some(m => m.tipo === t.pede && !m.falida);
-      return `<option value="${k}" ${falta ? 'disabled' : ''}>${t.e} ${t.nome} · ${fmtKz(t.custo)}${falta ? ` · ${tr('precisa de')} ${tr(TIPOS_EMP[t.pede].nome)}` : ''}</option>`; }).join('')}</select>
+      return `<option value="${k}" ${falta ? 'disabled' : ''}>${t.e} ${t.nome} · ${fmtMt(t.custo)}${falta ? ` · ${tr('precisa de')} ${tr(TIPOS_EMP[t.pede].nome)}` : ''}</option>`; }).join('')}</select>
       <label>Nome</label><input class="inp" id="eNome" maxlength="40" required placeholder="ex: Cantina da Mãe Rosa">
       <label class="maior"><input type="checkbox" id="eGasosa"> Gasosa de 40.000 Kz: licença na hora (25% de risco de multa)</label>
       <small style="display:block;color:var(--dim);font-size:12px;margin-top:6px">+25.000 Kz de licença (demora 2 horas). Ajudantes incluídos.</small>
@@ -287,7 +287,7 @@ async function renderEmpresas(body) {
     <div class="list" id="empOutras">${outras.length ? '' : '<div class="empty">Ainda ninguém abriu um negócio. Sê o primeiro!</div>'}</div>`;
   // 6 nov (jogadores: «coloca só uma aba de pesquisa nas empresas por favor»): 981 negócios numa lista → pesquisa + filtros + 40 de cada vez
   const linhaOutra = e => { const t = TIPOS_EMP[e.tipo] || {}; const cheio = nStaff(e.id) >= e.nivel * 2 - 1;
-      return `<div class="row"><span class="e">${t.e}</span><div class="t"><b>${esc(e.nome)}</b><small>${t.nome} de ${esc(nomes[e.dono] || '?')} · 📍 ${esc(bairro(e.bairro)?.nome || '')}</small>${e.vaga_salario && !cheio ? `<small>📢 Contrata: ${fmtKz(e.vaga_salario)} por turno${(t.req || [0, 0])[0] || (t.req || [0, 0])[1] ? ` · ${esc(tr('pede estudo {0} e reputação {1}').replace('{0}', t.req[0]).replace('{1}', t.req[1]))}` : ''}</small>` : ''}</div>
+      return `<div class="row"><span class="e">${t.e}</span><div class="t"><b>${esc(e.nome)}</b><small>${t.nome} de ${esc(nomes[e.dono] || '?')} · 📍 ${esc(bairro(e.bairro)?.nome || '')}</small>${e.vaga_salario && !cheio ? `<small>📢 Contrata: ${fmtMt(e.vaga_salario)} por turno${(t.req || [0, 0])[0] || (t.req || [0, 0])[1] ? ` · ${esc(tr('pede estudo {0} e reputação {1}').replace('{0}', t.req[0]).replace('{1}', t.req[1]))}` : ''}</small>` : ''}</div>
         ${e.vaga_salario && !cheio && J.empresa_id !== e.id ? `<button class="btn sm ${J.estudo >= (t.req || [0, 0])[0] && J.reputacao >= (t.req || [0, 0])[1] ? '' : 'ghost'}" data-cand="${e.id}">Candidatar</button>` : J.empresa_id === e.id ? '<span class="price">Trabalhas aqui</span>' : ''}</div>`;
   };
   const semAcento = x => String(x || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
@@ -323,11 +323,11 @@ async function renderEmpresas(body) {
     for (const c of data || []) {
       const el = body.querySelector(`[data-e="${c.empresa}"]`); if (!el || el.querySelector('.credito-emp')) continue;
       const falta = c.devido - c.pago, pc = Math.round(c.pago * 100 / c.devido);
-      (el.querySelector('.lbl') || el).insertAdjacentHTML('afterend', `<div class="credito-emp"><div class="lbl"><span>🏦 ${tr('Crédito do banco')}</span><span class="price" data-sem-traducao>${fmtKz(c.pago)} / ${fmtKz(c.devido)}</span></div>
+      (el.querySelector('.lbl') || el).insertAdjacentHTML('afterend', `<div class="credito-emp"><div class="lbl"><span>🏦 ${tr('Crédito do banco')}</span><span class="price" data-sem-traducao>${fmtMt(c.pago)} / ${fmtMt(c.devido)}</span></div>
         <div class="barra"><i style="width:${pc}%"></i></div>
-        <small>${tr('{0}% do que o negócio fatura vai para o banco até pagares tudo. Falta {1}.').replace('{0}', Math.round(c.pct * 100)).replace('{1}', fmtKz(falta))}</small>
+        <small>${tr('{0}% do que o negócio fatura vai para o banco até pagares tudo. Falta {1}.').replace('{0}', Math.round(c.pct * 100)).replace('{1}', fmtMt(falta))}</small>
         <button class="btn ghost sm" data-credpagar>${tr('Pagar o crédito')}</button></div>`);
-      el.querySelector('[data-credpagar]').onclick = () => pedirValor(tr('Pagar o crédito'), tr('Sai da tua carteira. Falta {0}.').replace('{0}', fmtKz(falta)), Math.min(falta, Math.max(100, J.kumbu || 0)),
+      el.querySelector('[data-credpagar]').onclick = () => pedirValor(tr('Pagar o crédito'), tr('Sai da tua carteira. Falta {0}.').replace('{0}', fmtMt(falta)), Math.min(falta, Math.max(100, J.kumbu || 0)),
         async v => { if (await acao('credito_pagar', { p_valor: v })) { fecharSheets(); depois(); } });
     }
   });
@@ -340,7 +340,7 @@ async function renderEmpresas(body) {
     g('levantar')?.addEventListener('click', () => levantarComIRT(e, v => gerir('levantar', v)));
     g('vaga')?.addEventListener('click', () => pedirValor('Salário por turno para jogadores', 'Cada turno de um jogador fatura para a caixa e tu pagas-lhe isto. Entre 1.000 e 100.000 Kz.', e.vaga_salario || Math.min(30000, Math.max(3000, Math.round((TIPOS_EMP[e.tipo]?.receita || 35000) * 0.12 / 100) * 100)), v => gerir('vaga', v)));
     g('fecharvaga')?.addEventListener('click', () => gerir('vaga', null));
-    g('expandir')?.addEventListener('click', () => confirmar(`${e.tamanho === 'loja' ? 'Passar a plaza' : 'Passar a loja'}: ${esc(e.nome)}?`, `Custa ${fmtKz(Math.floor((TIPOS_EMP[e.tipo]?.custo || 0) * (e.tamanho === 'loja' ? 5 : 2) * 1.6))}. Mais clientes todos os dias, mas a renda e os ajudantes também sobem.`, 'Crescer', () => gerir('expandir')));
+    g('expandir')?.addEventListener('click', () => confirmar(`${e.tamanho === 'loja' ? 'Passar a plaza' : 'Passar a loja'}: ${esc(e.nome)}?`, `Custa ${fmtMt(Math.floor((TIPOS_EMP[e.tipo]?.custo || 0) * (e.tamanho === 'loja' ? 5 : 2) * 1.6))}. Mais clientes todos os dias, mas a renda e os ajudantes também sobem.`, 'Crescer', () => gerir('expandir')));
     mostrarContasEmp(e, el.querySelector(`[data-contas="${e.id}"]`));
     ligarMelhorias(e, el, depois);
     g('impostos')?.addEventListener('click', () => e.sonegar ? acao('fugir_impostos', { p_id: e.id, p_fugir: false }).then(r => r && depois())
@@ -360,14 +360,14 @@ async function renderEmpresas(body) {
     if (falta > 0) {
       const ouroF = Math.ceil(falta / 100), pct = (t.custo < 200000 ? 25 : t.custo < 400000 ? 30 : 35) + (gas ? 10 : 0);
       const abrirOuro = () => (J.ouro || 0) < ouroF && typeof sugerirOuro === 'function' ? sugerirOuro(ouroF)
-        : confirmar(tr('Pagar com Ouro?'), tr('Faltam-te {0}. Pagas com {1} Ouro e o negócio é todo teu, sem dívida.').replace('{0}', fmtKz(falta)).replace('{1}', typeof milhar === 'function' ? milhar(ouroF) : ouroF), tr('Pagar com Ouro e abrir'),
+        : confirmar(tr('Pagar com Ouro?'), tr('Faltam-te {0}. Pagas com {1} Ouro e o negócio é todo teu, sem dívida.').replace('{0}', fmtMt(falta)).replace('{1}', typeof milhar === 'function' ? milhar(ouroF) : ouroF), tr('Pagar com Ouro e abrir'),
           async () => { if (await acao('criar_empresa_ouro', { p_tipo: tipo, p_nome: nome, p_gasosa: gas })) { empAcabada = { tipo, nome: nome.trim() }; if (typeof empSec !== 'undefined') empSec = null; depois(); } });
       if (empPagarOuro || !podeCred) { empPagarOuro = false; return abrirOuro(); }
       return escolherPagamento(falta, ouroF, pct, gas).then(c => c === 'ouro' ? abrirOuro() : c === 'credito' ? confirmar(tr('Pedir crédito ao banco?'), tr('Faltam-te {0}. O banco empresta e pagas {1} no total (mais 15%, sem juros por dia). Até acabar, {2}% de tudo o que o negócio faturar vai para o banco; o resto é teu.')
-        .replace('{0}', fmtKz(falta)).replace('{1}', fmtKz(Math.ceil(falta * 1.15))).replace('{2}', pct), tr('Pedir crédito e abrir'),
+        .replace('{0}', fmtMt(falta)).replace('{1}', fmtMt(Math.ceil(falta * 1.15))).replace('{2}', pct), tr('Pedir crédito e abrir'),
         async () => { if (await acao('criar_empresa_credito', { p_tipo: tipo, p_nome: nome, p_gasosa: gas })) { empAcabada = { tipo, nome: nome.trim() }; if (typeof empSec !== 'undefined') empSec = null; depois(); } }) : null);
     }
-    confirmar(`Abrir ${esc(nome)}?`, `${t.e} ${t.nome} em ${esc(bairro(J.bairro)?.nome || '')}: ${fmtKz(t.custo + 25000 + (gas ? 40000 : 0))} no total${gas ? ', com gasosa' : ''}${extra ? ` + ${OURO_EMP_EXTRA} Ouro` : ''}.`, 'Abrir',
+    confirmar(`Abrir ${esc(nome)}?`, `${t.e} ${t.nome} em ${esc(bairro(J.bairro)?.nome || '')}: ${fmtMt(t.custo + 25000 + (gas ? 40000 : 0))} no total${gas ? ', com gasosa' : ''}${extra ? ` + ${OURO_EMP_EXTRA} Ouro` : ''}.`, 'Abrir',
       async () => { if (await acao('criar_empresa', { p_tipo: tipo, p_nome: nome, p_gasosa: gas })) { empAcabada = { tipo, nome: nome.trim() }; if (typeof empSec !== 'undefined') empSec = null; depois(); } });
   });
   if (typeof ui2 === 'function' && ui2()) ui2Empresas(body, minhas, outras.length);   // 8 nov: redesenho (teste)
@@ -447,9 +447,9 @@ async function prontidaoFilial(e, el, depois) {
 function escolherPagamento(falta, ouro, pct, gas) {
   return new Promise(res => {
     const v = document.createElement('div'); v.className = 'pergunta';
-    v.innerHTML = `<div class="pergCaixa"><p><b>${esc(tr('Faltam-te {0}. Como queres pagar?').replace('{0}', fmtKz(falta)))}</b></p>
+    v.innerHTML = `<div class="pergCaixa"><p><b>${esc(tr('Faltam-te {0}. Como queres pagar?').replace('{0}', fmtMt(falta)))}</b></p>
       <div class="pg-opcoes">
-        <button class="btn full" data-pg="credito">🏦 ${esc(tr('Crédito do banco'))}<small>${esc(tr('{0}% do que o negócio faturar vai para o banco até pagares {1}').replace('{0}', pct).replace('{1}', fmtKz(Math.ceil(falta * 1.15))))}</small></button>
+        <button class="btn full" data-pg="credito">🏦 ${esc(tr('Crédito do banco'))}<small>${esc(tr('{0}% do que o negócio faturar vai para o banco até pagares {1}').replace('{0}', pct).replace('{1}', fmtMt(Math.ceil(falta * 1.15))))}</small></button>
         <button class="btn full" data-pg="ouro">🪙 ${esc(tr('{0} Ouro').replace('{0}', typeof milhar === 'function' ? milhar(ouro) : ouro))}<small>${esc(tr('sem dívida: o lucro é todo teu'))}</small></button>
         <button class="btn ghost full" data-pg="nao">${esc(tr('Cancelar'))}</button></div></div>`;
     const fim = r => { v.remove(); res(r); };

@@ -73,7 +73,7 @@ async function provHTML() {
     const minha = e.provincia === P.vivo || e.provincia === P.nasci;
     if (!minha) continue;
     h += `<div class="rel" style="margin-top:8px"><b>🗳️ ${esc(tr('Eleições para governador/a de {0}').replace('{0}', pr.nome))}</b>
-      <div class="m" style="margin:2px 0 6px">${esc(tr('Fecha {0}').replace('{0}', fechaTxt(e.fecha_em)))} · ${esc(tr('Salário: {0} por dia').replace('{0}', fmtKz(pr.salario)))}</div>
+      <div class="m" style="margin:2px 0 6px">${esc(tr('Fecha {0}').replace('{0}', fechaTxt(e.fecha_em)))} · ${esc(tr('Salário: {0} por dia').replace('{0}', fmtMt(pr.salario)))}</div>
       <div class="provCands">${(e.candidatos || []).map((k, i) => `<div class="provCand ${k.id === uid ? 'mine' : ''}">
           <canvas id="pc_${e.id}_${i}" width="110" height="140"></canvas>
           <div class="pcT"><b>${esc(k.nome)}</b><q>${esc(k.mensagem)}</q>
@@ -83,7 +83,7 @@ async function provHTML() {
           <small>${esc(partidoDe(e.npc.nome) || '')}</small>${e.posso_votar && !e.votei ? `<button class="btn sm ghost" data-pvotar="${e.id}:">${esc(tr('Votar'))}</button>` : ''}</div></div>
       </div>
       <p class="m" style="margin-top:6px">${e.votei ? '☑️ ' + esc(tr('Já votaste.')) : e.posso_votar ? esc(tr('Votas onde nasceste e onde vives. Um voto por pessoa.')) : esc(tr('Só maiores de 18 anos votam.'))}</p>
-      ${!P.candidato_em && !P.proibido && !c ? `<button class="btn sm" data-pcand="${e.provincia}">✋ ${esc(tr('Candidatar-me ({0})').replace('{0}', fmtKz(50000)))}</button>` : ''}
+      ${!P.candidato_em && !P.proibido && !c ? `<button class="btn sm" data-pcand="${e.provincia}">✋ ${esc(tr('Candidatar-me ({0})').replace('{0}', fmtMt(50000)))}</button>` : ''}
     </div>`;
   }
   h += `<div class="list" style="margin-top:8px">${P.provincias.map(pr => `<div class="row"><span class="e">${pr.id === P.vivo ? '🏠' : '🏛️'}</span><div class="t"><b>${esc(pr.nome)}</b>
@@ -94,7 +94,7 @@ async function provHTML() {
 function provPainelHTML() {
   const c = PROV.cargo, pr = PROV.provincias.find(x => x.id === c.provincia), gov = c.cargo === 'governador';
   let h = `<div class="rel" style="margin-top:8px;border-color:var(--gold)"><b>🏛️ ${esc(tr(PROV_CARGOS[c.cargo]))} · ${esc(pr.nome)}</b>
-    <div class="chips"><span class="chip">💼 ${fmtKz(c.salario)}/${esc(tr('dia'))}</span><span class="chip">💰 ${esc(tr('Orçamento'))} ${fmtKz(pr.orcamento)}</span><span class="chip">📅 ${esc(tr('até {0}').replace('{0}', new Date(c.ate).toLocaleDateString(provLoc())))}</span></div>
+    <div class="chips"><span class="chip">💼 ${fmtMt(c.salario)}/${esc(tr('dia'))}</span><span class="chip">💰 ${esc(tr('Orçamento'))} ${fmtMt(pr.orcamento)}</span><span class="chip">📅 ${esc(tr('até {0}').replace('{0}', new Date(c.ate).toLocaleDateString(provLoc())))}</span></div>
     <p class="m">🚘 ${esc(tr('Carro oficial e motorista pagos pelo Estado enquanto tiveres o cargo.'))}</p>`;
   if (gov) {
     h += `<div class="sub2" style="margin-top:6px">📜 ${esc(tr('Medida da província'))}</div>
@@ -103,7 +103,7 @@ function provPainelHTML() {
       <div class="list" id="pmLista"></div>
       <div class="sub2">👥 ${esc(tr('A tua equipa'))}</div><div class="list">${['vice', 'saude', 'transportes'].map(k => {
         const q = (PROV.equipa || []).find(x => x.cargo === k);
-        return `<div class="row"><span class="e">${k === 'vice' ? '🎖️' : k === 'saude' ? '🏥' : '🚌'}</span><div class="t"><b>${esc(tr(PROV_CARGOS[k]))}</b><small>${q ? `${esc(q.nome)} · ${fmtKz(q.salario)}/${esc(tr('dia'))}` : esc(tr('Vago'))}</small></div><button class="btn sm ghost" data-pnomear="${k}">${esc(tr(q ? 'Mudar' : 'Nomear'))}</button></div>`;
+        return `<div class="row"><span class="e">${k === 'vice' ? '🎖️' : k === 'saude' ? '🏥' : '🚌'}</span><div class="t"><b>${esc(tr(PROV_CARGOS[k]))}</b><small>${q ? `${esc(q.nome)} · ${fmtMt(q.salario)}/${esc(tr('dia'))}` : esc(tr('Vago'))}</small></div><button class="btn sm ghost" data-pnomear="${k}">${esc(tr(q ? 'Mudar' : 'Nomear'))}</button></div>`;
       }).join('')}</div>`;
   }
   h += `<div class="list" style="margin-top:8px"><div class="row"><span class="e">🤫</span><div class="t"><b>${esc(tr('Desviar do orçamento'))}</b><small>${esc(tr(gov ? 'Risco de ser apanhado/a: 15%. Apanhado/a = perdes TUDO, o cargo e nunca mais concorres.' : 'Risco de ser apanhado/a: 30%. Apanhado/a = perdes TUDO, o cargo e nunca mais concorres.'))}</small></div>
@@ -128,7 +128,7 @@ async function ligarProv(body, depois) {
   body.querySelectorAll('[data-pnomear]').forEach(b => b.onclick = () => pedirNomeacao(b.dataset.pnomear, depois));
   body.querySelector('[data-pdesviar]')?.addEventListener('click', () => {
     const pr = P.provincias.find(x => x.id === P.cargo.provincia), max = Math.floor(pr.orcamento * 0.1);
-    pedirValor('🤫 ' + tr('Desviar do orçamento'), tr('Máximo {0} (10% do orçamento). Se te apanharem perdes tudo.').replace('{0}', fmtKz(max)), Math.min(max, 100000), async v => {
+    pedirValor('🤫 ' + tr('Desviar do orçamento'), tr('Máximo {0} (10% do orçamento). Se te apanharem perdes tudo.').replace('{0}', fmtMt(max)), Math.min(max, 100000), async v => {
       const r = await acao('prov_desviar', { p_valor: v }); fecharSheetsTel();
       if (r?.apanhado) toast(tr('🚨 Apanhado/a! Perdeste tudo e o cargo.'), 'mau', 8000);
       await carregarProv(true); depois();
@@ -146,7 +146,7 @@ async function ligarMedidas(body, depois) {
   const mostrar = () => {
     const q = sem(busca.value.trim());
     const vis = (q ? ordem.filter(m => sem(m.nome + ' ' + m.descricao + ' ' + tr(m.nome) + ' ' + tr(m.descricao)).includes(q)) : ordem).slice(0, 6);
-    lista.innerHTML = vis.length ? vis.map(m => `<div class="row"><span class="e">${m.emoji}</span><div class="t"><b>${esc(tr(m.nome))}</b><small>${esc(tr(m.descricao))}${m.custo ? ` · ${esc(tr('custa {0}/dia').replace('{0}', fmtKz(m.custo)))}` : ''}</small></div><button class="btn sm" data-pmed="${esc(m.id)}">${esc(tr('Escolher'))}</button></div>`).join('')
+    lista.innerHTML = vis.length ? vis.map(m => `<div class="row"><span class="e">${m.emoji}</span><div class="t"><b>${esc(tr(m.nome))}</b><small>${esc(tr(m.descricao))}${m.custo ? ` · ${esc(tr('custa {0}/dia').replace('{0}', fmtMt(m.custo)))}` : ''}</small></div><button class="btn sm" data-pmed="${esc(m.id)}">${esc(tr('Escolher'))}</button></div>`).join('')
       : `<div class="empty">${esc(tr('Nenhuma medida com esse nome.'))}</div>`;
     lista.querySelectorAll('[data-pmed]').forEach(b => b.onclick = async () => {
       const m = PROV_MEDIDAS.find(x => x.id === b.dataset.pmed);
@@ -168,7 +168,7 @@ function janelaProv(html, aoAbrir) {
 }
 function pedirMensagemCampanha(prov, depois) {
   janelaProv(`<p><b>✋ ${esc(tr('Candidatura a governador/a de {0}').replace('{0}', provNome(prov)))}</b></p>
-    <p class="m">${esc(tr('Escreve a mensagem que todos os eleitores vão ver (10 a 200 letras). Custa {0}.').replace('{0}', fmtKz(50000)))}</p>
+    <p class="m">${esc(tr('Escreve a mensagem que todos os eleitores vão ver (10 a 200 letras). Custa {0}.').replace('{0}', fmtMt(50000)))}</p>
     <textarea class="inp" id="pcMsg" maxlength="200" rows="4" style="width:100%;box-sizing:border-box"></textarea><small class="m" id="pcN">0/200</small>
     <div class="pergBot"><button class="btn ghost" data-x>${esc(tr('Cancelar'))}</button><button class="btn" data-ok>${esc(tr('Candidatar'))}</button></div>`, v => {
     const t = v.querySelector('#pcMsg'); t.focus();
@@ -181,7 +181,7 @@ function pedirMensagemCampanha(prov, depois) {
 }
 function pedirNomeacao(cargo, depois) {
   janelaProv(`<p><b>${esc(tr('Nomear'))}: ${esc(tr(PROV_CARGOS[cargo]))}</b></p>
-    <p class="m">${esc(tr('Nome exato do jogador. Salário mínimo {0} por dia (podes dar mais). Deixa o nome vazio para deixar o cargo vago.').replace('{0}', fmtKz(150000)))}</p>
+    <p class="m">${esc(tr('Nome exato do jogador. Salário mínimo {0} por dia (podes dar mais). Deixa o nome vazio para deixar o cargo vago.').replace('{0}', fmtMt(150000)))}</p>
     <input class="inp" id="pnNome" placeholder="${esc(tr('Nome do jogador'))}" style="width:100%;box-sizing:border-box;margin-bottom:6px">
     <input class="inp" id="pnSal" type="number" min="150000" max="500000" step="10000" value="150000" style="width:100%;box-sizing:border-box">
     <div class="pergBot"><button class="btn ghost" data-x>${esc(tr('Cancelar'))}</button><button class="btn" data-ok>${esc(tr('Nomear'))}</button></div>`, v => {

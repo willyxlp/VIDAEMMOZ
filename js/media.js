@@ -116,8 +116,8 @@ async function renderMuxEu(c, body) {
       <div class="stats"><div><b>${fmtN(fas)}</b><small>fãs</small></div><div><b>${seg || 0}</b><small>seguidores</small></div><div><b>${fmtN(total)}</b><small>gostos</small></div></div></div>
     <div class="sub2">💰 Ganhar com o Muxima</div>
     <div class="list">
-      <div class="row ${fas >= 200 ? '' : 'lock'}"><span class="e">💸</span><div class="t"><b>Receita diária</b><small>${fas >= 200 ? `3 Kz por fã (${fmtKz(Math.min(200000, fas * 3))} hoje). Precisas de ter publicado nos últimos 2 dias.` : `A partir de 200 fãs (faltam ${200 - fas})`}</small></div><button class="btn sm" data-inf="receita" ${fas >= 200 && J.influencer_dia !== hoje ? '' : 'disabled'}>${J.influencer_dia === hoje ? 'Recebido' : 'Receber'}</button></div>
-      <div class="row ${fas >= 1000 ? '' : 'lock'}"><span class="e">🤝</span><div class="t"><b>Post patrocinado</b><small>${fas >= 1000 ? `Uma marca paga-te ${fmtKz(Math.min(500000, fas * 5))} por um post (1 por dia).` : `A partir de 1.000 fãs (faltam ${fmtN(1000 - fas)})`}</small></div><button class="btn sm" data-inf="patrocinio" ${fas >= 1000 && J.patrocinio_dia !== hoje ? '' : 'disabled'}>${J.patrocinio_dia === hoje ? 'Feito' : 'Aceitar'}</button></div>
+      <div class="row ${fas >= 200 ? '' : 'lock'}"><span class="e">💸</span><div class="t"><b>Receita diária</b><small>${fas >= 200 ? `3 Kz por fã (${fmtMt(Math.min(200000, fas * 3))} hoje). Precisas de ter publicado nos últimos 2 dias.` : `A partir de 200 fãs (faltam ${200 - fas})`}</small></div><button class="btn sm" data-inf="receita" ${fas >= 200 && J.influencer_dia !== hoje ? '' : 'disabled'}>${J.influencer_dia === hoje ? 'Recebido' : 'Receber'}</button></div>
+      <div class="row ${fas >= 1000 ? '' : 'lock'}"><span class="e">🤝</span><div class="t"><b>Post patrocinado</b><small>${fas >= 1000 ? `Uma marca paga-te ${fmtMt(Math.min(500000, fas * 5))} por um post (1 por dia).` : `A partir de 1.000 fãs (faltam ${fmtN(1000 - fas)})`}</small></div><button class="btn sm" data-inf="patrocinio" ${fas >= 1000 && J.patrocinio_dia !== hoje ? '' : 'disabled'}>${J.patrocinio_dia === hoje ? 'Feito' : 'Aceitar'}</button></div>
     </div>
     <p class="m" style="margin-top:8px">Ganhas fãs a publicar (com foto é melhor), quando gostam, comentam ou te seguem. De vez em quando um post fica viral 🔥.</p>
     <div class="sub2">Os meus posts</div>${(posts || []).length ? posts.map(postHTML).join('') : '<div class="empty">Ainda não publicaste nada.</div>'}`;
@@ -128,7 +128,7 @@ async function renderMuxEu(c, body) {
 /* ---------- 📰 Jornal de Luanda ---------- */
 // LL3 · coroas da semana (segunda a domingo, hora de Luanda)
 const COROAS = [
-  ['rico', '👑', 'O/A mais rico/a', v => fmtKz(v)],
+  ['rico', '👑', 'O/A mais rico/a', v => fmtMt(v)],
   ['popular', '⭐', 'O/A mais popular', v => `${fmtN(v)} gostos`],
   ['cozinheiro', '🍲', 'Melhor cozinheiro/a', v => `${fmtN(v)} pratos`],
   ['condutor', '🚗', 'Melhor condutor/a', v => `${fmtN(v)} viagens ao volante`],
@@ -141,7 +141,7 @@ function coroasHTML(js) {
   const cartoes = passadas.map(({ t, e, nome, fmt, c }, i) => `<div class="coroa-c ${c.id === uid ? 'eu' : ''}">
       ${t === 'crew' || !c.aparencia ? `<div class="sem-av">${e}</div>` : `<canvas id="cor${i}" width="160" height="200"></canvas>`}
       <small class="tit">${e} ${nome}</small><b>${esc(c.nome)}</b><small>${fmt(c.valor)}</small></div>`).join('');
-  const agora = COROAS.map(([t, e, nome, fmt]) => { const l = (js.agora || {})[t] || []; return l.length ? `<div class="nota"><span>${e}</span><div><b>${nome}</b><small>${l.map((p, i) => `${i + 1}. ${esc(p.nome)} — ${t === 'rico' ? fmtKz(p.valor) : fmtN(p.valor)}`).join(' · ')}</small></div></div>` : ''; }).join('');
+  const agora = COROAS.map(([t, e, nome, fmt]) => { const l = (js.agora || {})[t] || []; return l.length ? `<div class="nota"><span>${e}</span><div><b>${nome}</b><small>${l.map((p, i) => `${i + 1}. ${esc(p.nome)} — ${t === 'rico' ? fmtMt(p.valor) : fmtN(p.valor)}`).join(' · ')}</small></div></div>` : ''; }).join('');
   return `<div class="sub2">👑 Coroas da semana passada</div>
     ${cartoes ? `<div class="coroas">${cartoes}</div>` : '<div class="empty">Ainda ninguém foi coroado/a. As coroas saem à segunda-feira.</div>'}
     <div class="sub2">🏁 Esta semana, até agora</div><p class="m">Fecha domingo à meia-noite. Quem ganhar leva a coroa e +5 de reputação.</p>

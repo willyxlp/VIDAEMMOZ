@@ -19,7 +19,7 @@ const BB_IC = {
   escudo: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#34c77b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"></path></svg>',
 };
 const bbN = n => String(Math.round(Number(n) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-const bbKz = n => bbN(n) + ' Kz';
+const bbKz = n => bbN(n) + ' MT';
 const bbOdd = n => Number(n).toFixed(2);
 const bbTotal = b => Math.min(1000, Math.round(b.reduce((a, x) => a * x.odd, 1) * 100) / 100);   // igual ao servidor (2 casas)
 const bbIni = s => String(s || '').split(/\s+/).filter(w => /^[A-Za-zÀ-ÿ0-9º]/.test(w)).slice(0, 2).map(w => w[0]).join('').toUpperCase();

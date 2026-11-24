@@ -101,7 +101,7 @@ function telHome() {
   const t = tempoAqui();
   ecra.innerHTML = `<div class="widget">
       <div class="hora">${horaTexto()}</div><div class="data">${esc(dataTexto())}</div>
-      <div class="wl"><span>${t ? TEMPO[t][0] + ' ' : ''}${esc(bairro(J.bairro)?.nome || '')}${protecaoDias() ? ' · 🛡️' : ''}</span><span class="wkz">${saldoKz()}</span></div>
+      <div class="wl"><span>${t ? TEMPO[t][0] + ' ' : ''}${esc(bairro(J.bairro)?.nome || '')}${protecaoDias() ? ' · 🛡️' : ''}</span><span class="wkz">${saldoMt()}</span></div>
       <div class="wl" style="margin-top:6px"><span id="wJogamHoje" class="online">${textoJogamHoje()}</span></div>
     </div>
     <label class="busca"><span aria-hidden="true">${icone('procurar', 18)}</span><input id="telBusca" type="search" autocomplete="off" enterkeyhint="search" placeholder="Procurar (ex.: convidar para casa)"></label>

@@ -46,7 +46,7 @@ function diarioHTML() {
       <small class="m">${tr('Próximo marco')}: ${prox} ${tr('dias')} · ${tr('Melhor')}: ${dia.melhor} · 🧊 ${dia.gelos}/2</small>
     </div>
     <div class="list" style="margin-top:10px">
-      <div class="row ${dia.bau ? '' : 'mine'}"><span class="e">🎁</span><div class="t"><b>Baú do dia</b><small>${dia.bau ? `${tr('Hoje')}: +${fmtKz(dia.premio.kz)}${dia.premio.ouro ? ` · 🏆 +${dia.premio.ouro} Ouro` : ''}` : `${tr('Aberto. Volta daqui a')} ${faltaAmanha()}`}</small></div>${dia.bau ? '<button class="btn sm" id="bBau">Abrir</button>' : '<span class="price">✅</span>'}</div>
+      <div class="row ${dia.bau ? '' : 'mine'}"><span class="e">🎁</span><div class="t"><b>Baú do dia</b><small>${dia.bau ? `${tr('Hoje')}: +${fmtMt(dia.premio.kz)}${dia.premio.ouro ? ` · 🏆 +${dia.premio.ouro} Ouro` : ''}` : `${tr('Aberto. Volta daqui a')} ${faltaAmanha()}`}</small></div>${dia.bau ? '<button class="btn sm" id="bBau">Abrir</button>' : '<span class="price">✅</span>'}</div>
     </div>
     <div class="roda-caixa">${rodaSVG(dia.premios_roda)}
       <button class="btn ${dia.roda ? '' : 'ghost'}" id="bRoda" ${dia.roda ? '' : 'disabled'}>${dia.roda ? '🎡 Rodar (grátis)' : `${tr('Volta daqui a')} ${faltaAmanha()}`}</button></div>
@@ -155,7 +155,7 @@ function desenharObjetivos(body) {
       const marcos = obj.marcos || [], feitos = marcos.filter(m => m.feito).length;
       h += `<div class="rel" style="margin-top:0;text-align:center"><div style="font-size:44px">${a.e}</div><h3 style="margin:2px 0">${esc(a.nome)}</h3><p class="m" style="margin:0">${esc(a.descricao)}</p>
           <div class="meter" style="margin-top:12px"><u style="left:0;width:${feitos / 4 * 100}%;background:var(--gold)"></u></div><small class="m">${feitos} de 4 marcos</small></div>
-        <div class="list" style="margin-top:10px">${marcos.map(m => `<div class="row ${m.recolhido ? 'mine' : m.feito ? '' : 'lock'}"><span class="e">${m.recolhido ? '✅' : m.feito ? '🎁' : ['①', '②', '③', '④'][m.i - 1]}</span><div class="t"><b>${esc(m.texto)}</b><small>${m.recolhido ? 'Cumprido' : 'Prémio: ' + fmtKz(m.premio)}</small></div>${m.feito && !m.recolhido ? `<button class="btn sm" data-rec="marco" data-i="${m.i}">Recolher</button>` : ''}</div>`).join('')}</div>
+        <div class="list" style="margin-top:10px">${marcos.map(m => `<div class="row ${m.recolhido ? 'mine' : m.feito ? '' : 'lock'}"><span class="e">${m.recolhido ? '✅' : m.feito ? '🎁' : ['①', '②', '③', '④'][m.i - 1]}</span><div class="t"><b>${esc(m.texto)}</b><small>${m.recolhido ? 'Cumprido' : 'Prémio: ' + fmtMt(m.premio)}</small></div>${m.feito && !m.recolhido ? `<button class="btn sm" data-rec="marco" data-i="${m.i}">Recolher</button>` : ''}</div>`).join('')}</div>
         <button class="btn ghost full" id="bMudarAmb" style="margin-top:12px">Mudar de ambição</button>`;
     }
   }
@@ -164,7 +164,7 @@ function desenharObjetivos(body) {
 
   if (objAba === 'conquistas') {
     const cs = obj.conquistas || [], tem = cs.filter(c => c.tem).length;
-    h += `<p class="m">${tem} de ${cs.length} conquistas.</p><div class="conq">${cs.map(c => `<div class="cq ${c.tem ? 'tem' : ''}"><div class="ce">${c.tem ? c.e : '🔒'}</div><b>${esc(c.nome)}</b><small>${esc(c.descricao)}</small>${!c.tem && c.alvo > 1 ? `<div class="meter" style="margin:4px 0 2px"><u style="left:0;width:${Math.min(100, Math.round(c.atual / c.alvo * 100))}%;background:var(--gold)"></u></div><small data-sem-traducao>${c.alvo >= 1000 ? fmtKz(c.atual).replace(' Kz', '') : c.atual} / ${c.alvo >= 1000 ? fmtKz(c.alvo).replace(' Kz', '') : c.alvo}</small>` : ''}${c.tem && !c.recolhida ? `<button class="btn sm" data-rec="conquista" data-id="${c.id}">🎁 ${fmtKz(c.premio)}</button>` : c.tem ? '<small style="color:var(--green)">✓</small>' : c.premio ? `<small>🎁 ${fmtKz(c.premio)}</small>` : ''}</div>`).join('')}</div>`;
+    h += `<p class="m">${tem} de ${cs.length} conquistas.</p><div class="conq">${cs.map(c => `<div class="cq ${c.tem ? 'tem' : ''}"><div class="ce">${c.tem ? c.e : '🔒'}</div><b>${esc(c.nome)}</b><small>${esc(c.descricao)}</small>${!c.tem && c.alvo > 1 ? `<div class="meter" style="margin:4px 0 2px"><u style="left:0;width:${Math.min(100, Math.round(c.atual / c.alvo * 100))}%;background:var(--gold)"></u></div><small data-sem-traducao>${c.alvo >= 1000 ? fmtMt(c.atual).replace(' MT', '') : c.atual} / ${c.alvo >= 1000 ? fmtMt(c.alvo).replace(' MT', '') : c.alvo}</small>` : ''}${c.tem && !c.recolhida ? `<button class="btn sm" data-rec="conquista" data-id="${c.id}">🎁 ${fmtMt(c.premio)}</button>` : c.tem ? '<small style="color:var(--green)">✓</small>' : c.premio ? `<small>🎁 ${fmtMt(c.premio)}</small>` : ''}</div>`).join('')}</div>`;
   }
 
   body.innerHTML = h;

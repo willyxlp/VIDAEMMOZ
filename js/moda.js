@@ -76,7 +76,7 @@ function desenharLojaModa(v, st) {
   const TABS = st.modo === 'casa' ? [['roupa', '👗 ' + tr('Roupa')], ['acess', '💍 ' + tr('Acessórios')]] : [['esta', tr('Esta semana')], ['passada', tr('Semana passada')]];
   const abas = `<div class="lm-abas">${TABS.map(([k, t]) => `<button class="${st.tab === k ? 'on' : ''}" data-aba="${k}">${esc(t)}</button>`).join('')}<span>${pecas.length ? `${Math.floor(st.i / N) + 1}/${Math.ceil(pecas.length / N)}` : ''}</span></div>`;
   const acessOn = a => (st.ap.acess || []).includes(a);
-  const preco = p => p.preco_ouro ? `🪙 ${p.preco_ouro} ${tr('Ouro')}` : fmtKz(p.preco);
+  const preco = p => p.preco_ouro ? `🪙 ${p.preco_ouro} ${tr('Ouro')}` : fmtMt(p.preco);
   const cartao = p => `<button class="lm-peca ${st.sel === p.id ? 'on' : ''}" data-p="${esc(p.id)}">
       <span class="lm-cores">${p.visual ? `<i style="background:${esc(p.visual.camisa)}"></i><i style="background:${esc(p.visual.calca)}"></i>` : '<i style="background:#888"></i>'}</span>
       <b>${p.acess ? esc(p.emoji + ' ' + tr(p.nome)) : esc(nomePeca(p))}</b>

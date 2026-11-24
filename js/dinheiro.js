@@ -15,28 +15,28 @@ async function renderBanco(body) {
   if (typeof ui2 === 'function' && ui2()) return ui2Banco(body, cr, irt, atraso, prazo);   // 8 nov: redesenho (teste)
   body.innerHTML = `
     <div class="rel" style="margin-top:0">
-      <div class="lbl"><span>👛 Carteira</span><span class="price">${saldoKz()}</span></div>
-      <div class="lbl" style="margin-top:8px"><span>🐷 Poupança · 0,5%/dia até 1.000.000 Kz</span><span class="price" style="color:var(--green)">${fmtKz(J.poupanca)}</span></div>
-      <div class="lbl" style="margin-top:8px"><span>💳 Dívida · 1,5%/dia</span><span class="price" style="color:${J.divida ? 'var(--red)' : 'var(--dim)'}">${fmtKz(J.divida)}</span></div>
+      <div class="lbl"><span>👛 Carteira</span><span class="price">${saldoMt()}</span></div>
+      <div class="lbl" style="margin-top:8px"><span>🐷 Poupança · 0,5%/dia até 1.000.000 MT</span><span class="price" style="color:var(--green)">${fmtMt(J.poupanca)}</span></div>
+      <div class="lbl" style="margin-top:8px"><span>💳 Dívida · 1,5%/dia</span><span class="price" style="color:${J.divida ? 'var(--red)' : 'var(--dim)'}">${fmtMt(J.divida)}</span></div>
       ${J.divida ? `<small style="display:block;margin-top:6px;color:${atraso ? '#ff9b9b' : 'var(--muted)'};font-size:12px">${atraso ? '📞 Em atraso! Os cobradores levam 30% da carteira por dia e, ao fim de 7 dias, penhoram um imóvel.' : `Prazo: ${prazo} dia${prazo === 1 ? '' : 's'}.`}</small>` : ''}
-      ${irt ? `<div class="lbl" style="margin-top:8px"><span>🧾 IRT desta semana · ${irt.taxa}%</span><span class="price" style="color:var(--dim)">${fmtKz(irt.imposto)}</span></div>
-      <small style="display:block;margin-top:4px;color:var(--muted);font-size:12px"><span>Salário da semana: ${fmtKz(irt.bruto)}</span> · <span>${irt.proximo ? `Próximo escalão a partir de ${fmtKz(irt.proximo)}` : 'Escalão máximo'}</span></small>` : ''}
-      ${cr ? `<div class="lbl" style="margin-top:12px;font-weight:600;color:var(--muted)"><span>📊 Património</span><span>${fmtKz(cr.patrimonio)}</span></div>` : ''}
+      ${irt ? `<div class="lbl" style="margin-top:8px"><span>🧾 IRT desta semana · ${irt.taxa}%</span><span class="price" style="color:var(--dim)">${fmtMt(irt.imposto)}</span></div>
+      <small style="display:block;margin-top:4px;color:var(--muted);font-size:12px"><span>Salário da semana: ${fmtMt(irt.bruto)}</span> · <span>${irt.proximo ? `Próximo escalão a partir de ${fmtMt(irt.proximo)}` : 'Escalão máximo'}</span></small>` : ''}
+      ${cr ? `<div class="lbl" style="margin-top:12px;font-weight:600;color:var(--muted)"><span>📊 Património</span><span>${fmtMt(cr.patrimonio)}</span></div>` : ''}
     </div>
-    <label>Valor (Kz)</label><input class="inp" id="iBanco" type="number" min="100" step="100" placeholder="ex: 10000">
+    <label>Valor (MT)</label><input class="inp" id="iBanco" type="number" min="100" step="100" placeholder="ex: 10000">
     <div class="grelha">
       <button data-b="depositar"><span class="e">🐷</span><span>Pôr na poupança</span></button>
       <button data-b="levantar"><span class="e">🏧</span><span>Levantar</span></button>
       ${J.divida ? `<button data-b="pagar"><span class="e">💳</span><span>Pagar dívida</span></button>` : ''}
       <button data-b="emprestar" ${J.bairro !== 'mutamba' ? 'disabled' : ''}><span class="e">🏦</span><span>Pedir empréstimo${J.bairro !== 'mutamba' ? '<small style="display:block;font-weight:600;color:var(--dim);font-size:11px">Só ao balcão, na Baixa</small>' : ''}</span></button>
     </div>
-    <p class="m" style="margin-top:12px">💡 Podes pedir até <b>${cr ? fmtKz(Math.max(0, cr.limite - J.divida)) : '…'}</b>. O limite sobe com a reputação, o estudo, o salário e os imóveis que tens. Comissão de 5% e 7 dias para pagar.</p>
-    <p class="m">🧾 IRT: o salário paga imposto por escalões da semana (segunda a domingo): até 70.000 Kz não paga, depois 10%, 17% acima de 300.000 e 25% acima de 1.500.000. Retido em cada turno.</p>`;
+    <p class="m" style="margin-top:12px">💡 Podes pedir até <b>${cr ? fmtMt(Math.max(0, cr.limite - J.divida)) : '…'}</b>. O limite sobe com a reputação, o estudo, o salário e os imóveis que tens. Comissão de 5% e 7 dias para pagar.</p>
+    <p class="m">🧾 IRT: o salário paga imposto por escalões da semana (segunda a domingo): até 70.000 MT não paga, depois 10%, 17% acima de 300.000 e 25% acima de 1.500.000. Retido em cada turno.</p>`;
   body.querySelectorAll('[data-b]').forEach(b => b.onclick = async () => {
     const v = parseInt(body.querySelector('#iBanco').value, 10);
-    if (!v || v < 100) return toast('Escreve um valor (mínimo 100 Kz).', 'mau');
+    if (!v || v < 100) return toast('Escreve um valor (mínimo 100 MT).', 'mau');
     const op = b.dataset.b;
-    if (op === 'emprestar') return confirmar(`Pedir ${fmtKz(v)} emprestado?`, `Vais dever ${fmtKz(Math.ceil(v * 1.05))} e a dívida cresce 1,5% por dia. Tens 7 dias. Se não pagares, vêm os cobradores — e depois a penhora.`, 'Pedir empréstimo',
+    if (op === 'emprestar') return confirmar(`Pedir ${fmtMt(v)} emprestado?`, `Vais dever ${fmtMt(Math.ceil(v * 1.05))} e a dívida cresce 1,5% por dia. Tens 7 dias. Se não pagares, vêm os cobradores — e depois a penhora.`, 'Pedir empréstimo',
       async () => { if (await acao('banco', { p_acao: op, p_valor: v })) abrirTelemovel('banco'); });
     if (await acao('banco', { p_acao: op, p_valor: v })) abrirTelemovel('banco');
   });
@@ -59,10 +59,10 @@ async function renderImoveis(body) {
   const total = meus.reduce((s, p) => s + precoCasa(p.c), 0);
   const rendas = meus.filter(p => p.inquilino).reduce((s, p) => s + p.renda, 0);
   body.innerHTML = `<p class="m">Comprar uma casa custa 60 dias de renda — e depois nunca mais pagas renda. As casas que não usas podes arrendar a outros jogadores ou vender.</p>
-    ${meus.length ? `<div class="chips"><span class="chip">🏘️ ${meus.length} imóve${meus.length === 1 ? 'l' : 'is'} · ${fmtKz(total)}</span>${rendas ? `<span class="chip">💵 Recebes ${fmtKz(rendas)}/dia</span>` : ''}</div>` : ''}
+    ${meus.length ? `<div class="chips"><span class="chip">🏘️ ${meus.length} imóve${meus.length === 1 ? 'l' : 'is'} · ${fmtMt(total)}</span>${rendas ? `<span class="chip">💵 Recebes ${fmtMt(rendas)}/dia</span>` : ''}</div>` : ''}
     ${meus.length ? meus.map(p => {
       const moro = J.propriedade === p.id;
-      const estado = moro ? '🏠 Moras aqui' : p.inquilino ? `🔑 Arrendada a ${esc(p.inqNome || '?')} · ${fmtKz(p.renda)}/dia` : p.a_venda ? `🪧 À venda por ${fmtKz(p.preco_venda)}` : p.renda ? `🪧 Para arrendar a ${fmtKz(p.renda)}/dia` : '🚪 Vazia';
+      const estado = moro ? '🏠 Moras aqui' : p.inquilino ? `🔑 Arrendada a ${esc(p.inqNome || '?')} · ${fmtMt(p.renda)}/dia` : p.a_venda ? `🪧 À venda por ${fmtMt(p.preco_venda)}` : p.renda ? `🪧 Para arrendar a ${fmtMt(p.renda)}/dia` : '🚪 Vazia';
       return `<div class="rel" data-p="${p.id}"><div class="lbl"><span>${p.c.emoji} ${esc(p.c.nome)}</span><span style="color:var(--dim);font-weight:600">📍 ${esc(bairro(p.bairro)?.nome || '')}</span></div>
         <p class="m" style="margin:6px 0 0">${estado}</p>
         <div class="grelha">
@@ -71,7 +71,7 @@ async function renderImoveis(body) {
           ${!moro && !p.inquilino && !p.a_venda ? `<button data-x="arrendar"><span class="e">🪧</span><span>${p.renda ? 'Mudar a renda' : 'Arrendar a jogadores'}</span></button>` : ''}
           ${p.renda && !p.inquilino ? `<button data-x="retirar"><span class="e">✋</span><span>Tirar do mercado</span></button>` : ''}
           ${!p.a_venda ? `<button data-x="anunciar"><span class="e">💰</span><span>Pôr à venda</span></button>` : `<button data-x="retirar"><span class="e">✋</span><span>Tirar de venda</span></button>`}
-          <button data-x="vender" class="perigo"><span class="e">🏢</span><span>Vender à imobiliária · ${fmtKz(Math.floor(precoCasa(p.c) * 0.85))}</span></button>
+          <button data-x="vender" class="perigo"><span class="e">🏢</span><span>Vender à imobiliária · ${fmtMt(Math.floor(precoCasa(p.c) * 0.85))}</span></button>
         </div></div>`;
     }).join('') : '<div class="empty">Ainda não tens imóveis. Vai a um prédio ou quintal e carrega em "Comprar".</div>'}`;
   for (const p of meus) {
@@ -80,18 +80,18 @@ async function renderImoveis(body) {
     const depois = () => abrirTelemovel('imoveis');
     x('entrar')?.addEventListener('click', () => entrarImovel(p));
     x('morar')?.addEventListener('click', async () => { if (await acao('mudar_para', { p_prop: p.id })) { await carregarMinhaMobilia(); depois(); } });
-    x('arrendar')?.addEventListener('click', () => pedirValor(`Renda por dia · ${esc(p.c.nome)}`, `Entre ${fmtKz(p.c.renda / 2)} e ${fmtKz(p.c.renda * 3)}. A imobiliária cobra ${fmtKz(p.c.renda)}.`, p.renda || p.c.renda,
+    x('arrendar')?.addEventListener('click', () => pedirValor(`Renda por dia · ${esc(p.c.nome)}`, `Entre ${fmtMt(p.c.renda / 2)} e ${fmtMt(p.c.renda * 3)}. A imobiliária cobra ${fmtMt(p.c.renda)}.`, p.renda || p.c.renda,
       async v => { if (await acao('anunciar_imovel', { p_prop: p.id, p_renda: v, p_preco: null })) depois(); }));
-    x('anunciar')?.addEventListener('click', () => pedirValor(`Vender ${esc(p.c.nome)} a outro jogador`, `Entre ${fmtKz(precoCasa(p.c) / 2)} e ${fmtKz(precoCasa(p.c) * 5)}. Novo custa ${fmtKz(precoCasa(p.c))}.${p.inquilino ? ' O inquilino fica com o novo dono.' : ''}`, precoCasa(p.c),
+    x('anunciar')?.addEventListener('click', () => pedirValor(`Vender ${esc(p.c.nome)} a outro jogador`, `Entre ${fmtMt(precoCasa(p.c) / 2)} e ${fmtMt(precoCasa(p.c) * 5)}. Novo custa ${fmtMt(precoCasa(p.c))}.${p.inquilino ? ' O inquilino fica com o novo dono.' : ''}`, precoCasa(p.c),
       async v => { if (await acao('anunciar_imovel', { p_prop: p.id, p_renda: p.inquilino ? p.renda : null, p_preco: v })) depois(); }));
     x('retirar')?.addEventListener('click', async () => { if (await acao('anunciar_imovel', { p_prop: p.id, p_renda: p.inquilino ? p.renda : null, p_preco: null })) depois(); });
-    x('vender')?.addEventListener('click', () => confirmar(`Vender ${esc(p.c.nome)} à imobiliária?`, `Recebes já ${fmtKz(Math.floor(precoCasa(p.c) * 0.85))}.${p.inquilino ? ' O inquilino vai ter de sair.' : ''}${J.propriedade === p.id ? ' Ficas sem casa.' : ''}`, 'Vender',
+    x('vender')?.addEventListener('click', () => confirmar(`Vender ${esc(p.c.nome)} à imobiliária?`, `Recebes já ${fmtMt(Math.floor(precoCasa(p.c) * 0.85))}.${p.inquilino ? ' O inquilino vai ter de sair.' : ''}${J.propriedade === p.id ? ' Ficas sem casa.' : ''}`, 'Vender',
       async () => { if (await acao('vender_imovel', { p_prop: p.id })) { await carregarMinhaMobilia(); depois(); } }));
   }
   if (typeof ui2Como === 'function') ui2Como(body, 'Como funcionam a compra e o arrendamento');
 }
 function pedirValor(titulo, texto, inicial, fn) {
-  const el = sheet(`<h3>${titulo}</h3><p class="m">${texto}</p><label>Valor (Kz)</label><input class="inp" id="iValor" type="number" min="100" step="100" value="${inicial}"><button class="btn full" id="sim">Confirmar</button>`);
+  const el = sheet(`<h3>${titulo}</h3><p class="m">${texto}</p><label>Valor (MT)</label><input class="inp" id="iValor" type="number" min="100" step="100" value="${inicial}"><button class="btn full" id="sim">Confirmar</button>`);
   el.querySelector('#sim').onclick = () => { const v = parseInt(el.querySelector('#iValor').value, 10); if (!v) return toast('Escreve um valor.', 'mau'); fn(v); };
 }
 
@@ -107,11 +107,11 @@ async function imoveisNoLugar(div, casaId, depois) {
   const livres = (ps || []).filter(p => (p.renda && !p.inquilino) || p.a_venda);
   // #1/#2: as tuas casas aqui onde não moras (vazias ou arrendadas) — podes sempre entrar
   const outras = (minhas || []).filter(p => p.id !== J.propriedade);
-  div.innerHTML = (outras.length ? `<div class="sec"><h4>As tuas casas aqui</h4></div><div class="list">${outras.map(p => `<div class="row mine"><span class="e">🔑</span><div class="t"><b>A tua casa · ${esc(c.nome)}</b><small>${p.inquilino ? `Arrendada a ${esc(p.inqNome || '?')} · ${fmtKz(p.renda)}/dia` : 'Não moras aqui'}</small></div><button class="btn sm" data-ent-imovel="${p.id}">Entrar</button>${p.inquilino ? '' : `<button class="btn sm ghost" data-morar-imovel="${p.id}">Morar aqui</button>`}</div>`).join('')}</div>` : '') + `<div class="sec"><h4>Comprar</h4><span>Sem renda para sempre</span></div>
-    ${jaTenho ? `<div class="list"><div class="row mine"><span class="e">🔑</span><div class="t"><b>${(minhas || []).length ? 'Já és dono/a de uma casa aqui' : 'Já arrendas uma casa aqui'}</b><small>${(minhas || []).length ? 'Vê e gere os teus imóveis em 📱 → Imóveis.' : 'Vives aqui de renda. Para seres dono/a, compra uma casa à venda.'}</small></div></div></div>` : c.preco_ouro ? `<div class="list"><div class="row"><span class="e">👑</span><div class="t"><b>${tr('Casa VIP · só com Ouro')}</b><small>${c.largura}×${c.fundo} · ${tr('conforto')} ${'★'.repeat(c.conforto)} · ${tr('2 andares')}</small></div><button class="btn sm" data-comprar-ouro-casa>🪙 ${c.preco_ouro.toLocaleString('pt-PT')}</button></div></div>` : `<div class="list"><div class="row"><span class="e">🔑</span><div class="t"><b>Comprar à imobiliária</b><small>${fmtKz(precoK)}${notaK} · ou pede um empréstimo no banco</small></div><button class="btn sm" data-comprar>Comprar</button></div></div>`}
+  div.innerHTML = (outras.length ? `<div class="sec"><h4>As tuas casas aqui</h4></div><div class="list">${outras.map(p => `<div class="row mine"><span class="e">🔑</span><div class="t"><b>A tua casa · ${esc(c.nome)}</b><small>${p.inquilino ? `Arrendada a ${esc(p.inqNome || '?')} · ${fmtMt(p.renda)}/dia` : 'Não moras aqui'}</small></div><button class="btn sm" data-ent-imovel="${p.id}">Entrar</button>${p.inquilino ? '' : `<button class="btn sm ghost" data-morar-imovel="${p.id}">Morar aqui</button>`}</div>`).join('')}</div>` : '') + `<div class="sec"><h4>Comprar</h4><span>Sem renda para sempre</span></div>
+    ${jaTenho ? `<div class="list"><div class="row mine"><span class="e">🔑</span><div class="t"><b>${(minhas || []).length ? 'Já és dono/a de uma casa aqui' : 'Já arrendas uma casa aqui'}</b><small>${(minhas || []).length ? 'Vê e gere os teus imóveis em 📱 → Imóveis.' : 'Vives aqui de renda. Para seres dono/a, compra uma casa à venda.'}</small></div></div></div>` : c.preco_ouro ? `<div class="list"><div class="row"><span class="e">👑</span><div class="t"><b>${tr('Casa VIP · só com Ouro')}</b><small>${c.largura}×${c.fundo} · ${tr('conforto')} ${'★'.repeat(c.conforto)} · ${tr('2 andares')}</small></div><button class="btn sm" data-comprar-ouro-casa>🪙 ${c.preco_ouro.toLocaleString('pt-PT')}</button></div></div>` : `<div class="list"><div class="row"><span class="e">🔑</span><div class="t"><b>Comprar à imobiliária</b><small>${fmtMt(precoK)}${notaK} · ou pede um empréstimo no banco</small></div><button class="btn sm" data-comprar>Comprar</button></div></div>`}
     ${livres.length ? `<div class="sec"><h4>Casas de jogadores</h4></div><div class="list">${livres.map(p => `
-      ${p.renda && !p.inquilino ? `<div class="row"><span class="e">🏠</span><div class="t"><b>Arrendar a ${esc(p.donoNome || '?')}</b><small>${fmtKz(p.renda)}/dia (imobiliária: ${fmtKz(c.renda)})</small></div><button class="btn sm" data-arr="${p.id}">Arrendar</button></div>` : ''}
-      ${p.a_venda ? `<div class="row"><span class="e">🪧</span><div class="t"><b>À venda por ${esc(p.donoNome || '?')}</b><small>${p.inquilino ? `Com inquilino (${esc(p.inqNome || '?')}) a pagar ${fmtKz(p.renda)}/dia` : 'Vazia'}</small></div><button class="btn sm" data-comp="${p.id}">${fmtKz(p.preco_venda)}</button></div>` : ''}`).join('')}</div>` : ''}`;
+      ${p.renda && !p.inquilino ? `<div class="row"><span class="e">🏠</span><div class="t"><b>Arrendar a ${esc(p.donoNome || '?')}</b><small>${fmtMt(p.renda)}/dia (imobiliária: ${fmtMt(c.renda)})</small></div><button class="btn sm" data-arr="${p.id}">Arrendar</button></div>` : ''}
+      ${p.a_venda ? `<div class="row"><span class="e">🪧</span><div class="t"><b>À venda por ${esc(p.donoNome || '?')}</b><small>${p.inquilino ? `Com inquilino (${esc(p.inqNome || '?')}) a pagar ${fmtMt(p.renda)}/dia` : 'Vazia'}</small></div><button class="btn sm" data-comp="${p.id}">${fmtMt(p.preco_venda)}</button></div>` : ''}`).join('')}</div>` : ''}`;
   if (div.querySelector('[data-comprar-ouro-casa]')) div.querySelector('[data-comprar-ouro-casa]').onclick = () => {
     if ((J.ouro || 0) < c.preco_ouro) return typeof sugerirOuro === 'function' ? sugerirOuro(c.preco_ouro) : toast(tr('Precisas de {0} Ouro. Tens {1}.').replace('{0}', c.preco_ouro).replace('{1}', J.ouro || 0), 'mau');
     const el = sheet(`<h3>👑 ${esc(tr(c.nome))}</h3><p class="m">${esc(tr(c.descricao))}</p><p class="m">${tr('Custa {0} Ouro. Não pagas renda; podes arrendá-la a outros jogadores. As casas VIP não se vendem.').replace('{0}', c.preco_ouro.toLocaleString('pt-PT'))}</p>
@@ -120,7 +120,7 @@ async function imoveisNoLugar(div, casaId, depois) {
     el.querySelector('#cMorarO').onclick = () => vai(true); el.querySelector('#cInvestO').onclick = () => vai(false);
   };
   if (div.querySelector('[data-comprar]')) div.querySelector('[data-comprar]').onclick = () => {
-    const el = sheet(`<h3>Comprar ${esc(c.nome)} 🔑</h3><p class="m">Custa ${fmtKz(precoK)}${pk ? ` (${tr('preço de kota')}: +${pk}% — ${tr('quem tem mais património paga mais')})` : ''}. Depois não pagas renda — e se não morares lá, podes arrendá-la a outros jogadores.</p>
+    const el = sheet(`<h3>Comprar ${esc(c.nome)} 🔑</h3><p class="m">Custa ${fmtMt(precoK)}${pk ? ` (${tr('preço de kota')}: +${pk}% — ${tr('quem tem mais património paga mais')})` : ''}. Depois não pagas renda — e se não morares lá, podes arrendá-la a outros jogadores.</p>
       <button class="btn full" id="cMorar">Comprar e morar lá</button><button class="btn full ghost" id="cInvest" style="margin-top:8px">Comprar para investir</button>`);
     const vai = async morar => { if (await acao('comprar_casa', { p_casa: casaId, p_morar: morar })) { fecharSheets(); await carregarMinhaMobilia(); } };
     el.querySelector('#cMorar').onclick = () => vai(true); el.querySelector('#cInvest').onclick = () => vai(false);
@@ -160,9 +160,9 @@ async function renderRanking(body) {
   const pod = data.slice(0, 3), ordem = [1, 0, 2].filter(i => pod[i]);
   const podio = pod.length ? `<div class="podio">${ordem.map(i => { const p = pod[i]; return `<div class="pod p${i + 1} ${p.id === uid ? 'eu' : ''}">
       ${i === 0 ? '<div class="coroa">👑</div>' : ''}<canvas id="pod${i}" width="160" height="200"></canvas>
-      <b>${esc(p.nome)}</b><small>${fmtKz(p.patrimonio)}</small><div class="degrau"><span>${i + 1}</span></div></div>`; }).join('')}</div>` : '';
+      <b>${esc(p.nome)}</b><small>${fmtMt(p.patrimonio)}</small><div class="degrau"><span>${i + 1}</span></div></div>`; }).join('')}</div>` : '';
   if (jogamHoje == null && typeof carregarJogamHoje === 'function') carregarJogamHoje();
-  body.innerHTML = `${podio}<p class="m">${typeof textoJogamHoje === 'function' && jogamHoje != null ? `<span class="online">${textoJogamHoje()}</span><br>` : ''}Património = carteira + poupança + imóveis − dívidas. O ícone mostra onde cada um nasceu.</p><div class="list">${data.map((p, i) => i < 3 ? '' : `<div class="row ${p.id === uid ? 'mine' : ''}"><span class="e" style="font-family:'Bricolage Grotesque';font-weight:800;color:${i ? 'var(--dim)' : 'var(--gold)'}">${i + 1}</span><div class="t"><b>${CL[p.classe] || ''} ${esc(p.nome)}</b><small>${p.emprego ? esc(emprego(p.emprego)?.nome || '') : 'Desempregado'} · ${esc(bairro(p.bairro)?.nome || '')}${p.imoveis ? ` · 🏘️ ${p.imoveis}` : ''}</small></div><span class="price">${fmtKz(p.patrimonio)}</span></div>`).join('')}</div>`;
+  body.innerHTML = `${podio}<p class="m">${typeof textoJogamHoje === 'function' && jogamHoje != null ? `<span class="online">${textoJogamHoje()}</span><br>` : ''}Património = carteira + poupança + imóveis − dívidas. O ícone mostra onde cada um nasceu.</p><div class="list">${data.map((p, i) => i < 3 ? '' : `<div class="row ${p.id === uid ? 'mine' : ''}"><span class="e" style="font-family:'Bricolage Grotesque';font-weight:800;color:${i ? 'var(--dim)' : 'var(--gold)'}">${i + 1}</span><div class="t"><b>${CL[p.classe] || ''} ${esc(p.nome)}</b><small>${p.emprego ? esc(emprego(p.emprego)?.nome || '') : 'Desempregado'} · ${esc(bairro(p.bairro)?.nome || '')}${p.imoveis ? ` · 🏘️ ${p.imoveis}` : ''}</small></div><span class="price">${fmtMt(p.patrimonio)}</span></div>`).join('')}</div>`;
   pod.forEach((p, i) => registarPreview('pod' + i, apVisivel(p.aparencia || {}, p.idade)));
   if (pod.length && !previewAnim) animarPreview();
   return true;
@@ -176,11 +176,11 @@ async function renderKumbu(body, extra) {
   const nm = await nomesDe(ids);   // 8 nov (I4): nomes guardados no telemóvel
   const nomes = [...new Set([...recentes, ...ids.map(i => nm[i]).filter(Boolean)])].slice(0, 10);
   if (typeof ui2 === 'function' && ui2()) return ui2Kumbu(body, extra, nomes, recentes);   // 8 nov: redesenho (teste)
-  body.innerHTML = `<div class="rel" style="margin-top:0;text-align:center"><small class="m">O teu saldo</small><div style="font-family:'Bricolage Grotesque';font-size:30px;font-weight:800;color:var(--gold)">${saldoKz()}</div></div>
+  body.innerHTML = `<div class="rel" style="margin-top:0;text-align:center"><small class="m">O teu saldo</small><div style="font-family:'Bricolage Grotesque';font-size:30px;font-weight:800;color:var(--gold)">${saldoMt()}</div></div>
     <form id="fEnviar" style="margin-top:12px"><label>Para quem?</label><input class="inp" id="iDest" required maxlength="16" value="${esc(extra || '')}" placeholder="Nome do jogador" autocomplete="off">
       ${nomes.length ? `<div class="chips">${nomes.map(n => `<button type="button" class="chip" data-n="${esc(n)}">👤 ${esc(n)}</button>`).join('')}</div>` : ''}
       <label style="margin-top:10px">Quanto?</label><input class="inp" id="iVal" type="number" min="1" step="1" required placeholder="0">
-      <div class="chips">${[500, 1000, 5000, 10000, 50000].map(v => `<button type="button" class="chip" data-v="${v}">${fmtKz(v)}</button>`).join('')}</div>
+      <div class="chips">${[500, 1000, 5000, 10000, 50000].map(v => `<button type="button" class="chip" data-v="${v}">${fmtMt(v)}</button>`).join('')}</div>
       <button class="btn full" type="submit" style="margin-top:12px">Enviar 💸</button></form>
     <p class="m" style="margin-top:10px">Chega na hora, sem taxas. Qualquer pessoa pode enviar e receber.</p>`;
   body.querySelectorAll('[data-n]').forEach(b => b.onclick = () => { body.querySelector('#iDest').value = b.dataset.n; });

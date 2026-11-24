@@ -80,7 +80,7 @@ function abrirTycoon(e) {
     try {
       const { data, error } = await sb.rpc('tycoon_receber', { p_empresa: +e.id, p_notas: n });
       if (error) porEnviar += n;
-      else if (data) { const k = $t('#tyKz'); k.classList.remove('hide'); k.textContent = `🏪 ${tr('Para a empresa hoje')}: ${fmtKz(data.hoje)} / ${fmtKz(data.max)}`; }
+      else if (data) { const k = $t('#tyKz'); k.classList.remove('hide'); k.textContent = `🏪 ${tr('Para a empresa hoje')}: ${fmtMt(data.hoje)} / ${fmtMt(data.max)}`; }
     } catch { porEnviar += n; }
     aEnviar = false;
   };
