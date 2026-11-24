@@ -133,7 +133,7 @@ function corridaHTML() {
 
 
 /* ---------- 🪙 Ouro: a moeda premium ---------- */
-// dono 5 nov: «all the ouro payments should be in euros too» — escolher € ou $ (fica lembrado; por omissão € em países do euro e em Angola/Portugal)
+// dono 5 nov: «all the ouro payments should be in euros too» — escolher € ou $ (fica lembrado; por omissão € em países do euro e em Moçambique/Portugal)
 function moedaOuro() {
   let m = null; try { m = localStorage.getItem('vel_moeda_ouro'); } catch { }
   if (m === 'eur' || m === 'usd') return m;

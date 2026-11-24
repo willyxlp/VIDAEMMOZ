@@ -77,7 +77,7 @@ function viagemPrimeiraPessoa(meio, destino, opts = {}) {   // opts.com: aparên
     <button id="vfSaltar" class="btn sm ghost" style="position:absolute;right:14px;bottom:calc(env(safe-area-inset-bottom) + 16px);display:none">${tr('Saltar')} ⏭</button>
     <style>@keyframes vfGira{to{transform:rotate(360deg)}}</style>`;
   document.body.appendChild(v);
-  v.querySelector('#vfTxt').textContent = `${MEIOS[meio] ? MEIOS[meio](1).e : ''} ${tr('A caminho de')} ${tr(destino)}`;   // 0t: o nome do bairro também se traduz («Luanda Island»)
+  v.querySelector('#vfTxt').textContent = `${MEIOS[meio] ? MEIOS[meio](1).e : ''} ${tr('A caminho de')} ${tr(destino)}`;   // 0t: o nome do bairro também se traduz («Costa do Sol»)
   const cv = v.querySelector('canvas'), ctx = cv.getContext('2d'), carga = v.querySelector('#vfCarga'), dica = v.querySelector('#vfDica');
   const ad = anuncioViagem(), ad2 = anuncioViagem(), r = rng((Date.now() & 0xffff) + 7);
   const passageiros = Array.from({ length: 8 }, () => aparenciaAleatoria(r));
