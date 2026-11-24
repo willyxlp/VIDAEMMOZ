@@ -12,19 +12,19 @@ let larDono = null; // dono da casa onde moro, quando não é minha
 
 /* ---------- vida a dois: casa partilhada e conta do casal ---------- */
 const LOCAIS = {
-  praia: { e: '🏖️', nome: 'Tarde na praia da Ilha', bairro: 'ilha', preco: 0 },
-  marginal: { e: '🌅', nome: 'Passeio na Marginal ao pôr do sol', bairro: 'mutamba', preco: 0 },
-  kizomba: { e: '💃', nome: 'Noite de kizomba', bairro: 'maianga', preco: 6000 },
-  cinema: { e: '🎬', nome: 'Cinema no Belas Shopping', bairro: 'talatona', preco: 8000 },
-  restaurante: { e: '🍽️', nome: 'Jantar à beira-mar na Ilha', bairro: 'ilha', preco: 20000 },
+  praia: { e: '🏖️', nome: 'Tarde na Costa do Sol', bairro: 'costa_do_sol', preco: 0 },
+  marginal: { e: '🌅', nome: 'Passeio na Baixa ao pôr do sol', bairro: 'baixa', preco: 0 },
+  kizomba: { e: '💃', nome: 'Noite de marrabenta', bairro: 'maxaquene', preco: 6000 },
+  cinema: { e: '🎬', nome: 'Cinema no Maputo Shopping', bairro: 'bairro_central', preco: 8000 },
+  restaurante: { e: '🍽️', nome: 'Jantar à beira-mar na Costa do Sol', bairro: 'costa_do_sol', preco: 20000 },
 };
 // FILA 0dm-3 (dono, 5 nov): «Sair juntos» com amigos — a lista vai crescer (igual no servidor: _local_saida)
 const SAIDAS = {
-  s_karaoke: { e: '🎤', nome: 'Karaoke no Bar do Largo', bairro: 'maianga', preco: 3000 },
-  s_futebol: { e: '⚽', nome: 'Futebolada no Campo do Cazenga', bairro: 'cazenga', preco: 0 },
-  s_relaxar: { e: '😎', nome: 'Relaxar no Bar da Praia', bairro: 'ilha', preco: 2000 },
-  s_shopping: { e: '🛍️', nome: 'Passeio no Talatona Shopping', bairro: 'talatona', preco: 0 },
-  s_cinema: { e: '🎬', nome: 'Cinema no Talatona Shopping', bairro: 'talatona', preco: 8000 },
+  s_karaoke: { e: '🎤', nome: 'Karaoke no Bar da Baixa', bairro: 'baixa', preco: 3000 },
+  s_futebol: { e: '⚽', nome: 'Futebolada no Campo do Maxaquene', bairro: 'maxaquene', preco: 0 },
+  s_relaxar: { e: '😎', nome: 'Relaxar na Costa do Sol', bairro: 'costa_do_sol', preco: 2000 },
+  s_shopping: { e: '🛍️', nome: 'Passeio no Shoprite Maputo', bairro: 'bairro_central', preco: 0 },
+  s_cinema: { e: '🎬', nome: 'Cinema no Maputo Shopping', bairro: 'bairro_central', preco: 8000 },
 };
 const localSaida = id => LOCAIS[id] || SAIDAS[id];
 // Colunas de outros jogadores que o servidor deixa ler (migração 20261022001500_seguranca.sql). Os teus dados vêm do RPC estado().
@@ -76,7 +76,7 @@ function blocoCasal() {
     <p class="m" style="margin:6px 0 0">${juntos ? '🏠 Moram juntos.' : casal.casa || J.casa ? '🏠 Ainda não moram juntos.' : '🏠 Nenhum de vocês tem casa — arrendem uma e mudem-se juntos.'}</p>
     ${podeMudar ? `<button class="btn sm" id="bMorar" style="margin-top:8px">🏠 Mudar para a casa de ${esc(casal.nome)}</button>` : ''}
     <div class="lbl" style="margin-top:12px"><span>🏦 Conta do casal</span><span class="price">${fmtMt(casal.cofre)}</span></div>
-    <div style="display:flex;gap:6px;margin-top:8px"><input class="inp" id="iCofre" type="number" min="100" step="100" placeholder="Valor (Kz)" style="flex:1;padding:8px 10px">
+    <div style="display:flex;gap:6px;margin-top:8px"><input class="inp" id="iCofre" type="number" min="100" step="100" placeholder="Valor (MT)" style="flex:1;padding:8px 10px">
     <button class="btn sm" id="bPor">Pôr</button><button class="btn sm ghost" id="bTirar">Tirar</button></div>
     <small style="display:block;color:var(--dim);font-size:11.5px;margin-top:6px">Os dois podem pôr e tirar. Se se divorciarem, a conta é dividida ao meio.</small>
   </div>`;
@@ -103,7 +103,7 @@ function ligarCasal(body) {
    O resultado já vem do servidor (responder_pedido / encontro_por_ver); aqui é a viagem e a cena. */
 const SITIO_ENCONTRO = {
   praia: { lugar: 'Bar da Praia', dentro: false, falas: ['Que água tão azul! 🌊', 'Anda, vamos molhar os pés 😄', 'Isto é que é vida 🌴'] },
-  marginal: { lugar: 'Fortaleza de São Miguel', dentro: false, falas: ['Olha o pôr do sol na baía 🌅', 'Luanda é linda daqui', 'Que brisa boa 😌'] },
+  marginal: { lugar: 'Costa do Sol', dentro: false, falas: ['Olha o pôr do sol na baía 🌅', 'Maputo é linda daqui', 'Que brisa boa 😌'] },
   kizomba: { lugar: 'Bar do Largo', dentro: true, falas: ['Dança comigo? 💃', 'Tu danças bem! 😄', 'Mais uma música! 🎶'] },
   cinema: { lugar: 'Talatona Shopping', dentro: true, falas: ['Pipocas ou gelado? 🍿', 'Esse filme é bom?', 'Senta-te aqui ao pé de mim 😊'] },
   restaurante: { lugar: 'Restaurante Coconuts', dentro: true, falas: ['Que vista linda 🌊', 'O peixe está divinal 🐟', 'Brindamos? 🥂'] },
@@ -204,8 +204,8 @@ async function esperarEncontro(e) {
 /* ---------- 0ck (dono, 3 nov): desafios de jet ski e kart ----------
    Quem aceita escolhe logo o transporte, faz a viagem e o jogo abre; quem desafiou recebe «X aceitou» e faz o mesmo.
    O resultado de cada um vem da corrida verificada no servidor (desafio_resultado). */
-const DESAFIO_LUGAR = { jetski: { dest: 'ilha', ok: ['ilha', 'mussulo'], nome: 'Jet ski', e: '🌊', onde: 'O jet ski é na Ilha de Luanda. Como vais até lá?' },
-  kart: { dest: 'maianga', ok: ['maianga'], nome: 'Kart', e: '🏎️', onde: 'O kartódromo é na Maianga. Como vais até lá?' } };
+const DESAFIO_LUGAR = { jetski: { dest: 'costa_do_sol', ok: ['costa_do_sol', 'catembe'], nome: 'Jet ski', e: '🌊', onde: 'O jet ski é na Costa do Sol. Como vais até lá?' },
+  kart: { dest: 'bairro_central', ok: ['bairro_central', 'sommerschield'], nome: 'Kart', e: '🏎️', onde: 'O kartódromo é no Bairro Central. Como vais até lá?' } };
 // 0cz (4): quem desafiou escolhe o transporte e leva o outro (desafio_transporte); juntos = mostra o par na viagem
 async function irAoDesafio(d, juntos = false) {
   const L = DESAFIO_LUGAR[d.jogo]; if (!L) return;
@@ -214,7 +214,7 @@ async function irAoDesafio(d, juntos = false) {
   fecharSheets();
   const jogar = () => d.jogo === 'jetski' ? jogarJetski(false, d) : jogarKart(d);
   if (L.ok.includes(J.bairro)) return jogar();
-  const r = rotaPara(L.dest), agua = ['mussulo', 'cabinda'].includes(J.bairro), meus = [];
+  const r = rotaPara(L.dest), agua = ['catembe'].includes(J.bairro), meus = [];
   if (temAviaoProprio()) meus.push(opcaoViagem(L.dest, 'privado', 'O teu avião'));
   if (!agua && temCarro()) meus.push(opcaoViagem(L.dest, 'carro', 'O teu carro'));
   if (!agua && temMota() && provDe(L.dest) === provDe(J.bairro)) meus.push(opcaoViagem(L.dest, 'mota', 'A tua mota'));
@@ -498,7 +498,7 @@ async function tocarPessoa(p, el) {
     <div class="sub2">Conviver</div>
     <div class="grelha">
       ${botao('conversar', '💬', 'Conversar')}${botao('elogiar', '🌟', 'Elogiar')}${botao('piada', '😂', 'Contar piada')}
-      ${(data.maior !== false) === (J.maior !== false) ? botao('sair', '🎉', 'Sair juntos') : ''}${botao('presente', '🎁', 'Presente · 2.000 Kz')}${botao('ola', '👋', 'Cumprimentar')}${botao('kumbu', '💸', 'Enviar kumbu')}
+      ${(data.maior !== false) === (J.maior !== false) ? botao('sair', '🎉', 'Sair juntos') : ''}${botao('presente', '🎁', 'Presente · 2.000 MT')}${botao('ola', '👋', 'Cumprimentar')}${botao('kumbu', '💸', 'Enviar kumbu')}
       ${c && c.bairro === J.bairro && cena.tipo === 'bairro' ? botao('visitar', '🏠', 'Visitar a casa') : ''}
       ${J.casa && (n >= 40 || r?.familia || rom === 'namoro' || rom === 'casados') ? botao('convidarCasa', '🏡', 'Convidar para a minha casa') : ''}
     </div>
@@ -509,7 +509,7 @@ async function tocarPessoa(p, el) {
     <div class="grelha">
       ${botao('namoriscar', '😍', 'Namoriscar', 'romance')}${botao('encontro', '🌹', 'Convidar para sair', 'romance')}
       ${!['namoro', 'casados'].includes(rom) ? botao('namoro', '💌', 'Pedir em namoro', 'romance') : ''}
-      ${rom === 'namoro' && !r?.fase ? botao('noivado', '💍', 'Pedir em noivado · anel 45.000 Kz', 'romance') : ''}
+      ${rom === 'namoro' && !r?.fase ? botao('noivado', '💍', 'Pedir em noivado · anel 45.000 MT', 'romance') : ''}
       ${rom === 'namoro' && r?.fase !== 'pausa' ? botao('casamento', '💍', 'Pedir em casamento', 'romance') : ''}
       ${['namoro', 'casados'].includes(rom) ? (r?.fase === 'pausa' ? botao('voltar', '💞', 'Voltar a estar juntos', 'romance') : botao('pausa', '⏸️', 'Dar um tempo')) : ''}
       ${['paquera', 'namoro', 'casados'].includes(rom) ? botao('distancia', '✈️', r?.distancia ? 'Já não é à distância' : 'Relação à distância') + botao('secreta', '🤫', r?.secreta ? 'Deixar de esconder' : 'Manter em segredo') : ''}
@@ -552,16 +552,16 @@ async function tocarPessoa(p, el) {
   de('kumbu')?.addEventListener('click', () => abrirTelemovel('kumbu', p.nome));
   de('maior')?.addEventListener('click', pedirMaioridade);
   de('namoro')?.addEventListener('click', async () => { if (await acao('pedir', { p_alvo: p.id, p_tipo: 'namoro' })) refaz(); });
-  de('casamento')?.addEventListener('click', () => confirmar(`Pedir ${esc(p.nome)} em casamento? 💍`, 'Se aceitar, pagas o alambamento de 100.000 Kz à família.', 'Pedir em casamento',
+  de('casamento')?.addEventListener('click', () => confirmar(`Pedir ${esc(p.nome)} em casamento? 💍`, 'Se aceitar, pagas o alambamento de 100.000 MT à família.', 'Pedir em casamento',
     async () => { if (await acao('pedir', { p_alvo: p.id, p_tipo: 'casamento' })) fecharSheets(); }));
-  de('noivado')?.addEventListener('click', () => confirmar(`Pedir ${esc(p.nome)} em noivado? 💍`, 'Se aceitar, pagas o anel: 45.000 Kz. Depois podem marcar o casamento.', 'Pedir em noivado',
+  de('noivado')?.addEventListener('click', () => confirmar(`Pedir ${esc(p.nome)} em noivado? 💍`, 'Se aceitar, pagas o anel: 45.000 MT. Depois podem marcar o casamento.', 'Pedir em noivado',
     async () => { if (await acao('pedir', { p_alvo: p.id, p_tipo: 'noivado' })) fecharSheets(); }));
   for (const ac of ['pausa', 'voltar', 'distancia', 'secreta']) de(ac)?.addEventListener('click', async () => {
     if (ac === 'pausa' && !await perguntar(`Dar um tempo com ${p.nome}? Podem voltar quando quiserem.`, 'Dar um tempo')) return;
     if (await acao('mudar_relacao', { p_alvo: p.id, p_acao: ac })) refaz();
   });
   de('terminar')?.addEventListener('click', () => confirmar(rom === 'casados' ? `Divorciar de ${esc(p.nome)}?` : `Acabar com ${esc(p.nome)}?`,
-    rom === 'casados' ? 'O advogado custa até 25.000 Kz e toda a gente vai saber.' : 'Não há volta atrás (mas podem voltar a namoriscar).', rom === 'casados' ? 'Divorciar' : 'Acabar',
+    rom === 'casados' ? 'O advogado custa até 25.000 MT e toda a gente vai saber.' : 'Não há volta atrás (mas podem voltar a namoriscar).', rom === 'casados' ? 'Divorciar' : 'Acabar',
     async () => { if (await acao('terminar', { p_alvo: p.id })) { fecharSheets(); await depoisDoFim(); } }));
   // #6 assaltar um jogador real (mesmas regras do assalto no beco: risco, polícia, cadastro, vítima protegida)
   // 6 nov (dono): registo criminal no perfil
@@ -570,14 +570,14 @@ async function tocarPessoa(p, el) {
   // 6 nov (dono): «when you tap on someone you should be able to sue and it should ask you to input a reason»
   de('processar')?.addEventListener('click', () => {
     const el2 = sheet(`<h3>⚖️ ${esc(tr('Processar'))} ${esc(p.nome)}</h3>
-      <p class="m">${esc(tr('Escreve o motivo e quanto pedes. O advogado custa 50.000 Kz. O juiz decide com as provas que existem (roubos contra ti, registo criminal). Sem provas, quase sempre perdes e pagas 25.000 Kz à outra pessoa.'))}</p>
+      <p class="m">${esc(tr('Escreve o motivo e quanto pedes. O advogado custa 50.000 MT. O juiz decide com as provas que existem (roubos contra ti, registo criminal). Sem provas, quase sempre perdes e pagas 25.000 MT à outra pessoa.'))}</p>
       <textarea id="procMotivo" maxlength="200" rows="3" placeholder="${esc(tr('Motivo (escreve o teu)'))}" style="width:100%;box-sizing:border-box;border-radius:10px;padding:10px;font:inherit"></textarea>
-      <input class="inp" id="procValor" type="number" inputmode="numeric" min="1000" step="1000" placeholder="${esc(tr('Quanto pedes (Kz)'))}" style="width:100%;box-sizing:border-box;margin-top:8px">
-      <button class="btn full" id="procIr" style="margin-top:10px">⚖️ ${esc(tr('Ir a tribunal'))} · 50.000 Kz</button>`);
+      <input class="inp" id="procValor" type="number" inputmode="numeric" min="1000" step="1000" placeholder="${esc(tr('Quanto pedes (MT)'))}" style="width:100%;box-sizing:border-box;margin-top:8px">
+      <button class="btn full" id="procIr" style="margin-top:10px">⚖️ ${esc(tr('Ir a tribunal'))} · 50.000 MT</button>`);
     el2.querySelector('#procIr').onclick = async () => {
       const motivo = el2.querySelector('#procMotivo').value.trim(), v = Math.floor(+el2.querySelector('#procValor').value || 0);
       if (motivo.length < 5) return toast(tr('Escreve o motivo do processo (5 a 200 letras).'), 'info');
-      if (v < 1000) return toast(tr('Pede entre 1.000 e 50.000.000 Kz.'), 'info');
+      if (v < 1000) return toast(tr('Pede entre 1.000 e 50.000.000 MT.'), 'info');
       if (await acao('processar', { p_reu: p.id, p_motivo: motivo, p_valor: v })) fecharSheets();
     };
   });
@@ -593,7 +593,7 @@ async function tocarPessoa(p, el) {
       risco.textContent = v >= 100 ? tr('Risco de seres apanhado/a: ~{0}%').replace('{0}', r) : ''; };
     inp.addEventListener('input', mostra);
     el.querySelector('#rouboIr').onclick = async () => {
-      const v = Math.floor(+inp.value || 0); if (v < 100) return toast(tr('Escreve quanto queres roubar (mínimo 100 Kz).'), 'info');
+      const v = Math.floor(+inp.value || 0); if (v < 100) return toast(tr('Escreve quanto queres roubar (mínimo 100 MT).'), 'info');
       if (await acao('roubar_jogador', { p_vitima: p.id, p_valor: v })) fecharSheets();
     };
   });
@@ -665,7 +665,7 @@ async function renderSocial(body) {
     <div class="sub2" data-ui2="p" ${pedidosPendentes.length ? '' : 'style="margin-top:0"'}>As tuas pessoas</div>
     ${lista.length ? `<div class="list" data-ui2="p">${lista.map(r => { const o = outro(r), [e, t] = rotuloRelacao(r, o, nomes[o]); return `<div class="row" data-o="${o}"><span class="e">${e}</span><div class="t"><b>${esc(nomes[o])}</b><small>${t}</small></div><span class="price" style="color:${r.nivel >= 0 ? 'var(--green)' : 'var(--red)'}">${r.nivel > 0 ? '+' : ''}${r.nivel}</span>${['namoro', 'casados', 'paquera'].includes(r.romance) ? `<button class="btn sm ghost" data-fim="${o}" data-nome="${esc(nomes[o])}" data-cas="${r.romance === 'casados' ? 1 : ''}">💔</button>` : ''}</div>`; }).join('')}</div>`
       : '<div class="empty" data-ui2="p">Ainda não conheces ninguém. Toca noutros jogadores na rua para conversar! 👋</div>'}
-    <div class="sub2" data-ui2="f">Fofocas de Luanda 👀</div>
+    <div class="sub2" data-ui2="f">Fofocas de Maputo 👀</div>
     <div class="feed" data-ui2="f">${fofocas.length ? fofocas.slice(0, 20).map(f => `<div class="ev">${esc(f.texto)}<time>${tempoRel(f.criado_em)}</time></div>`).join('') : '<div class="empty">Ninguém está a falar de ninguém… por enquanto.</div>'}</div>`;
   ligarProcurar(body);
   blocoSugar(body);
@@ -676,7 +676,7 @@ async function renderSocial(body) {
     if (r && !r.visita && !r.encontro) abrirTelemovel('social');
   });
   body.querySelectorAll('[data-fim]').forEach(b => b.onclick = () => confirmar(b.dataset.cas ? `Divorciar de ${b.dataset.nome}?` : `Acabar com ${b.dataset.nome}?`,
-    b.dataset.cas ? 'O advogado custa até 25.000 Kz e toda a gente vai saber.' : 'Não há volta atrás (mas podem voltar a namoriscar).', b.dataset.cas ? 'Divorciar' : 'Acabar',
+    b.dataset.cas ? 'O advogado custa até 25.000 MT e toda a gente vai saber.' : 'Não há volta atrás (mas podem voltar a namoriscar).', b.dataset.cas ? 'Divorciar' : 'Acabar',
     async () => { if (await acao('terminar', { p_alvo: b.dataset.fim })) { await depoisDoFim(); abrirTelemovel('social'); } }));
 }
 
@@ -830,7 +830,7 @@ const TIPOS_ALERTA = {
    👶 FILHOS E GERAÇÕES
    ============================================================ */
 const TALENTOS = { futebol: '⚽ Futebol', musica: '🎤 Música', matematica: '🧮 Matemática', arte: '🎨 Arte', danca: '💃 Dança' };
-const ESCOLAS = { publica: 'Pública · grátis', privada: 'Privada · 2.500 Kz/dia', internacional: 'Internacional · 10.000 Kz/dia' };
+const ESCOLAS = { publica: 'Pública · grátis', privada: 'Privada · 2.500 MT/dia', internacional: 'Internacional · 10.000 MT/dia' };
 // nome da escola de um filho: escola pública, um colégio (tabela colegios) ou as antigas privada/internacional
 const nomeEscola = id => id === 'publica' ? 'Escola pública' : D.colegios?.find(c => c.id === id)?.nome || (ESCOLAS[id] || id).split(' · ')[0];
 function faseFilho(i) { return i < 3 ? ['👶', 'Bebé'] : i < 6 ? ['🧒', 'Criança pequena'] : i < 13 ? ['🧒', 'Criança'] : i < 18 ? ['🧑', 'Adolescente'] : ['🧑‍🎓', 'Adulto/a']; }
@@ -889,7 +889,7 @@ function ligarFilho(el, f, depois) {
     const s2 = sheet(`<h3>🚪 ${esc(tr('Entregar {0}?').replace('{0}', f.nome))}</h3>
       <div class="row" style="border-color:var(--red)"><span class="e">⚠️</span><div class="t"><b>${esc(tr('Depois disto, durante 90 dias não podes ter nem adotar filhos.'))}</b><small>${esc(tr('Não dá para voltar atrás: {0} sai da tua família.').replace('{0}', f.nome))}</small></div></div>
       <div class="list" style="margin-top:10px">
-        <button class="row" data-modo="adocao" style="text-align:left"><span class="e">📄</span><div class="t"><b>${esc(tr('Entregar para adoção'))}</b><small>${esc(tr('Uma nova família cuida dele/a. Papéis: 5.000 Kz · reputação −3.'))}</small></div></button>
+        <button class="row" data-modo="adocao" style="text-align:left"><span class="e">📄</span><div class="t"><b>${esc(tr('Entregar para adoção'))}</b><small>${esc(tr('Uma nova família cuida dele/a. Papéis: 5.000 MT · reputação −3.'))}</small></div></button>
         <button class="row" data-modo="igreja" style="text-align:left"><span class="e">⛪</span><div class="t"><b>${esc(tr('Deixar na igreja'))}</b><small>${esc(tr('As freiras cuidam dele/a. De graça, mas o bairro fica a saber · reputação −10.'))}</small></div></button>
       </div><button class="btn full ghost" style="margin-top:10px" data-fechar>${esc(tr('Cancelar'))}</button>`);
     s2.querySelectorAll('[data-modo]').forEach(b => b.onclick = async () => {
@@ -1137,7 +1137,7 @@ function abrirRelacao(par) {
   const el = sheet(`<h3>${re} ${esc(par.nome)}</h3><p class="m" style="margin-top:0">${rt}</p>
     <div class="list">${ESCADA.map(([k, t], i) => `<div class="row" style="${i > at ? 'opacity:.5' : ''}"><span class="e">${i < at ? '✅' : i === at ? (r.fase === 'pausa' ? '⏸️' : '💛') : '·'}</span><div class="t"><b>${tr(t)}</b>${i === at && r.fase === 'pausa' ? `<small>${tr(r.romance === 'casados' ? 'Separados (ainda casados)' : 'Em pausa')}</small>` : ''}</div></div>`).join('')}</div>
     <div class="grelha" style="margin-top:12px">
-      ${r.romance === 'namoro' && !r.fase ? `<button data-r="noivado" class="romance"><span class="e">💍</span><span>${tr('Pedir em noivado · anel 45.000 Kz')}</span></button>` : ''}
+      ${r.romance === 'namoro' && !r.fase ? `<button data-r="noivado" class="romance"><span class="e">💍</span><span>${tr('Pedir em noivado · anel 45.000 MT')}</span></button>` : ''}
       ${r.romance === 'namoro' && r.fase !== 'pausa' ? `<button data-r="casamento" class="romance"><span class="e">💍</span><span>${tr('Pedir em casamento')}</span></button>` : ''}
       ${r.romance !== 'paquera' ? (r.fase === 'pausa' ? `<button data-r="voltar" class="romance"><span class="e">💞</span><span>${tr('Voltar a estar juntos')}</span></button>` : `<button data-r="pausa"><span class="e">⏸️</span><span>${tr('Dar um tempo')}</span></button>`) : ''}
       <button data-r="distancia"><span class="e">✈️</span><span>${tr(r.distancia ? 'Já não é à distância' : 'Relação à distância')}</span></button>
@@ -1147,7 +1147,7 @@ function abrirRelacao(par) {
   el.querySelectorAll('[data-r]').forEach(b => b.onclick = async () => {
     const ac = b.dataset.r;
     if (ac === 'noivado' || ac === 'casamento') {
-      if (!await perguntar(ac === 'noivado' ? `${tr('Pedir em noivado?')} ${tr('Se aceitar, pagas o anel: 45.000 Kz.')}` : `${tr('Pedir em casamento?')} ${tr('Se aceitar, pagas o alambamento de 100.000 Kz à família.')}`)) return;
+      if (!await perguntar(ac === 'noivado' ? `${tr('Pedir em noivado?')} ${tr('Se aceitar, pagas o anel: 45.000 MT.')}` : `${tr('Pedir em casamento?')} ${tr('Se aceitar, pagas o alambamento de 100.000 MT à família.')}`)) return;
       if (await acao('pedir', { p_alvo: par.id, p_tipo: ac })) abrirTelemovel('familia');
       return;
     }
@@ -1203,13 +1203,22 @@ async function renderFamilia(body) {
     ${pares.length ? pares.map(p => { const [e, t] = estadoRomance(p.r); return `<button class="row mine" data-par="${p.id}" style="text-align:left;width:100%;margin-bottom:8px"><span class="e">${e}</span><div class="t"><b data-sem-traducao>${esc(p.nome)}</b><small>${t}</small></div><span style="color:var(--dim)">›</span></button>`; }).join('')
       : `<div class="row"><span class="e">🙂</span><div class="t"><b>${tr('Solteiro/a')}</b><small>${tr('Toca em alguém no jogo → Convidar para sair.')}</small></div></div>`}
     ${aCaminho.map(f => cartaoGravidez(f, itens)).join('')}
+    <div class="sub2">👨‍👩‍👧 Os teus pais</div>
+    <div class="rel" style="margin-bottom:8px">
+      <div class="row"><span class="e">${J.classe === 'rica' ? '💎' : J.classe === 'media' ? '🏘️' : '🏚️'}</span>
+        <div class="t"><b data-sem-traducao>${esc(J.pais_nome || gerarPaisNome(uid))}</b>
+          <small>${J.classe === 'rica' ? 'Família da elite de Maputo · Sommerschield' : J.classe === 'media' ? 'Família da classe média · Maputo' : `Família do bairro · ${esc((D.bairros || []).find(b => b.id === J.bairro)?.nome || 'Maputo')}`}</small>
+        </div>
+      </div>
+      <div id="bPaisWrap"></div>
+    </div>
     <div class="sub2">${tr('Os teus filhos')}</div>
     ${pequenos.map(f => cartaoBebe(f, bebes[f.id], itens, pares)).join('')}
     ${outros.map(f => `<div data-id="${f.id}">${cartaoFilho(f, true)}</div>`).join('')}
     ${!meus.length ? `<div class="empty">${tr('Ainda não tens filhos.')}</div>` : ''}
     <div class="grelha">
       ${casal ? `<button id="bBebe" class="romance"><span class="e">👶</span><span>${tr('Ter um bebé com')} ${esc(casal.nome)}</span></button>` : ''}
-      <button id="bAdotar"><span class="e">🧸</span><span>${tr('Adotar')} · 30.000 Kz</span></button>
+      <button id="bAdotar"><span class="e">🧸</span><span>${tr('Adotar')} · 30.000 MT</span></button>
       <button id="bArvore"><span class="e">🌳</span><span>${tr('Árvore da família')}</span></button>
     </div>
     <div class="grelha" style="margin-top:8px">
@@ -1224,6 +1233,25 @@ async function renderFamilia(body) {
     ${irmaos.length ? `<div class="sub2">Irmãos</div><div class="list">${irmaos.map(f => `<div class="row"><span class="e">${faseFilho(idadeDe(f))[0]}</span><div class="t"><b>${esc(f.nome)}</b><small>${idadeDe(f)} ano${idadeDe(f) === 1 ? '' : 's'}</small></div></div>`).join('')}</div>` : ''}`;
   if (typeof ui2Familia === 'function') ui2Familia(body);   // 8 nov: redesenho (teste)
   const volta = () => abrirTelemovel('familia');
+  // botão pedir dinheiro aos pais no ecrã de família
+  const paisWrap = body.querySelector('#bPaisWrap');
+  if (paisWrap) {
+    const feito = J.pais_dia === new Date(Date.now() + 3600e3).toISOString().slice(0, 10);
+    paisWrap.innerHTML = `<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn sm ${feito ? 'ghost' : ''}" id="bPaisPedir" ${feito ? 'disabled' : ''}>💸 Pedir ajuda</button>
+      <button class="btn sm ghost" id="bPaisLigar">📞 Ligar</button>
+    </div>`;
+    body.querySelector('#bPaisPedir')?.addEventListener('click', async () => {
+      const r = await acao('pedir_dinheiro_pais');
+      if (r) volta();
+    });
+    body.querySelector('#bPaisLigar')?.addEventListener('click', async () => {
+      const hoje = J.familia_dia === new Date(Date.now() + 3600e3).toISOString().slice(0, 10);
+      if (hoje) return toast('Já ligaste hoje. Amanhã há mais.', 'info');
+      const r = await acao('ligar_familia');
+      if (r) volta();
+    });
+  }
   for (const f of outros) { const el = body.querySelector(`[data-id="${f.id}"]`); if (el) ligarFilho(el, f, volta); }
   for (const f of pequenos) {
     const el = body.querySelector(`[data-bebe="${f.id}"]`); if (!el) continue;
@@ -1239,7 +1267,7 @@ async function renderFamilia(body) {
   body.querySelectorAll('[data-prep]').forEach(b => b.onclick = () => abrirPrepararBebe(meus.find(f => f.id === +b.dataset.prep)));
   body.querySelectorAll('[data-par]').forEach(b => b.onclick = () => abrirRelacao(pares.find(p => p.id === b.dataset.par)));
   body.querySelector('#bArvore').onclick = () => abrirArvore(meus, pares);
-  body.querySelector('#bAdotar').onclick = () => pedirNome('Adotar uma criança 🧸', 'Vem uma criança de 0 a 10 anos de um lar em Luanda. Precisas de casa. Se fores casado/a, é filho/a dos dois.', 'Adotar (30.000 Kz)',
+  body.querySelector('#bAdotar').onclick = () => pedirNome('Adotar uma criança 🧸', 'Vem uma criança de 0 a 10 anos de um lar em Maputo. Precisas de casa. Se fores casado/a, é filho/a dos dois.', 'Adotar (30.000 MT)',
     async nome => { if (await acao('adotar', { p_nome: nome })) volta(); });
   body.querySelector('#bBebe')?.addEventListener('click', () => pedirNome(`Ter um bebé com ${esc(casal.nome)}? 👶`, `${esc(casal.nome)} tem de aceitar. O bebé nasce 5 dias depois.`, 'Enviar pedido',
     async nome => { if (await acao('pedir', { p_alvo: casal.id, p_tipo: 'filho', p_grau: nome })) volta(); }));

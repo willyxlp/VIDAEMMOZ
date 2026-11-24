@@ -507,6 +507,13 @@ const APELIDOS_MZ = ['Machava', 'Tembe', 'Mondlane', 'Sitoe', 'Cossa', 'Nhantumb
 const nomeAleat = (arr) => arr[Math.floor(Math.random() * arr.length)];
 const nomePaiMz = () => `${nomeAleat(NOMES_MZ_M)} ${nomeAleat(APELIDOS_MZ)}`;
 const nomeMaeMz = () => `${nomeAleat(NOMES_MZ_F)} ${nomeAleat(APELIDOS_MZ)}`;
+// gera nomes dos pais de forma determinística a partir do uid (mesmos nomes sempre)
+function gerarPaisNome(id) {
+  const seed = n => { let h = id * 2654435761 + n; h ^= h >>> 16; h = Math.imul(h, 0x45d9f3b); h ^= h >>> 16; return Math.abs(h); };
+  const pai = `${NOMES_MZ_M[seed(1) % NOMES_MZ_M.length]} ${APELIDOS_MZ[seed(2) % APELIDOS_MZ.length]}`;
+  const mae = `${NOMES_MZ_F[seed(3) % NOMES_MZ_F.length]} ${APELIDOS_MZ[seed(4) % APELIDOS_MZ.length]}`;
+  return `${pai} & ${mae}`;
+}
 function mostrarNascimento(n, depois) {
   const fim = CLASSES_N[n?.classe];
   if (!fim) { depois && depois(); return; }
@@ -851,6 +858,12 @@ async function entrarNoJogo(session) {
     _pre = { ...data }; delete _pre.jogador;
     setTimeout(() => { _pre = null; }, 60000);   // o que não foi usado no arranque deixa de valer
     J = data.jogador; carregar3D();
+    // guardar nomes dos pais se ainda não estiverem na BD
+    if (J && !J.pais_nome) {
+      const pNome = gerarPaisNome(uid);
+      J.pais_nome = pNome;
+      sb.from('jogadores').update({ pais_nome: pNome }).eq('id', uid).then(() => {}, () => {});
+    }
     if (_arrTudo !== true) sb.rpc('registar_dispositivo', { p_disp: idAparelho(), p_ua: navigator.userAgent }).then(() => { }, () => { });   // 9 nov: já vem no arranque_tudo
     const pend = ls.get('vel_ap_pendente'); if (pend) { ls.set('vel_ap_' + uid, pend); localStorage.removeItem('vel_ap_pendente'); }
     const pe = pre('eventos');

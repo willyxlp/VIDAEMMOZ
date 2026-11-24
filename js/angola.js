@@ -3,10 +3,10 @@
    ============================================================ */
 let climaHoje = null, climaAviso = null;
 const TEMPO = { sol: ['☀️', 'Sol'], nublado: ['⛅', 'Nublado'], chuva: ['🌧️', 'Chuva'], tempestade: ['⛈️', 'Tempestade'], cacimbo: ['🌫️', 'Cacimbo'] };
-const regiaoDe = id => (bairro(id)?.provincia || 'Luanda').toLowerCase();
+const regiaoDe = id => (bairro(id)?.provincia || 'maputo').toLowerCase();
 // FILA 0cz (11) (dono, 3 nov: «it's raining too much»): num dia de chuva, só chove umas horas (3 h; tempestade 4 h) — a hora muda
 // de dia para dia e de região para região; no resto do dia fica nublado. 0dc (3): a app do tempo mostra o mesmo (tempoEm/janelaChuva).
-// as horas em que chove hoje nessa região ([início, fim) em horas de Luanda), ou null se hoje não chove lá
+// as horas em que chove hoje nessa região ([início, fim) em horas de Maputo), ou null se hoje não chove lá
 function janelaChuva(regiao) {
   const t = climaHoje?.regioes?.[regiao]; if (t !== 'chuva' && t !== 'tempestade') return null;
   const k = [...(new Date(Date.now() + 3600e3).toISOString().slice(0, 10) + regiao)].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
@@ -15,7 +15,7 @@ function janelaChuva(regiao) {
 // o tempo de agora numa região (o mesmo que se vê no jogo: fora das horas de chuva fica nublado)
 function tempoEm(regiao) {
   const t = climaHoje?.regioes?.[regiao]; if (t !== 'chuva' && t !== 'tempestade') return t;
-  const [a, b] = janelaChuva(regiao), h = horaLuanda(); return h >= a && h < b ? t : 'nublado';
+  const [a, b] = janelaChuva(regiao), h = horaMaputo(); return h >= a && h < b ? t : 'nublado';
 }
 function tempoAqui() { return J ? tempoEm(regiaoDe(J.bairro)) : undefined; }
 function tempoEmoji() { const t = tempoAqui(); return t ? TEMPO[t]?.[0] + ' ' : ''; }
@@ -26,7 +26,7 @@ async function carregarClima() {
   if (error || !data) return;
   climaHoje = data; hud();
   const t = tempoAqui(), chave = regiaoDe(J.bairro) + t;
-  if (t === 'tempestade' && climaAviso !== chave) { climaAviso = chave; toast(`⛈️ Tempestade em ${bairro(J.bairro)?.provincia || 'Luanda'}: estradas alagadas, barcos parados e casas fracas podem inundar.`, 'mau', 6500); }
+  if (t === 'tempestade' && climaAviso !== chave) { climaAviso = chave; toast(`⛈️ Tempestade em ${bairro(J.bairro)?.provincia || 'Maputo'}: estradas alagadas, barcos parados e casas fracas podem inundar.`, 'mau', 6500); }
 }
 setInterval(() => { if (J && !document.hidden) carregarClima(); }, 10 * 60 * 1000);
 
@@ -74,7 +74,7 @@ async function renderLavras(body) {
   const col = J.colheita || {};
   const agora = Date.now();
   if (typeof ui2 === 'function' && ui2()) return ui2Lavras(body, data, noCampo, mult, chuvas, col);   // 8 nov: redesenho (teste)
-  body.innerHTML = `<p class="m">Planta no campo (Huambo ou Malanje), colhe quando estiver pronto e vende. ${chuvas ? '🌧️ É a época das chuvas: as colheitas rendem mais.' : '🌫️ É o cacimbo: sem chuva, <b>rega</b> as lavras ou a colheita sai fraca.'} Em Luanda pagam 70% mais pelos sacos.</p>
+  body.innerHTML = `<p class="m">Planta na machamba (Sofala ou Gaza), colhe quando estiver pronto e vende. ${chuvas ? '🌧️ É a época das chuvas: as colheitas rendem mais.' : '🌫️ É o cacimbo: sem chuva, <b>rega</b> as lavras ou a colheita sai fraca.'} Em Maputo pagam 70% mais pelos sacos.</p>
     <div class="sub2">As tuas lavras</div>
     ${data.length ? `<div class="list">${data.map(l => {
       const c = CULTURAS[l.cultura], pronta = new Date(l.pronta_em) <= agora, h = Math.max(0, Math.ceil((new Date(l.pronta_em) - agora) / 3600e3));
@@ -85,7 +85,7 @@ async function renderLavras(body) {
     ${noCampo ? `<div class="sub2">Plantar aqui em ${esc(bairro(J.bairro).nome)}</div>
       <div class="grelha">${Object.entries(CULTURAS).map(([k, c]) => `<button data-plantar="${k}"><span class="e">${c.e}</span><span>${c.nome}<small style="display:block;font-weight:600;color:var(--dim);font-size:11px">${fmtMt(c.semente)} · ${c.horas} h · ~${c.sacos} sacos</small></span></button>`).join('')}</div>`
       : `<p class="m" style="margin-top:10px">🚂 Para plantar, vai ao Huambo ou a Malanje (comboio desde Viana ou Benguela).</p>`}
-    <div class="sub2">Armazém · vender aqui (${mult === 1.7 ? 'preço de Luanda' : mult === 1 ? 'preço do campo' : 'preço da cidade'})</div>
+    <div class="sub2">Armazém · vender aqui (${mult === 1.7 ? 'preço de Maputo' : mult === 1 ? 'preço do campo' : 'preço da cidade'})</div>
     ${Object.entries(CULTURAS).some(([k]) => col[k] > 0) ? `<div class="list">${Object.entries(CULTURAS).filter(([k]) => col[k] > 0).map(([k, c]) => `<div class="row"><span class="e">${c.e}</span><div class="t"><b>${col[k]} sacos de ${c.nome.toLowerCase()}</b><small>≈ ${fmtMt(c.preco * mult)} por saco aqui</small></div><button class="btn sm" data-vender="${k}" data-n="${col[k]}">Vender tudo</button></div>`).join('')}</div>` : '<div class="empty">O armazém está vazio.</div>'}`;
   const depois = () => abrirTelemovel('lavras');
   body.querySelectorAll('[data-plantar]').forEach(b => b.onclick = async () => { if (await acao('plantar', { p_cultura: b.dataset.plantar })) depois(); });
