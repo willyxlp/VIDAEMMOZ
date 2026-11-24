@@ -61,7 +61,7 @@ const BAIRROS_MAPA = {
       { s: 4, nome: 'Casas de Bloco', emoji: '🏠', w: 4, d: 4, h: 26, cor: '#d8d0c0', telhado: 'zinco', acao: [{ t: 'casa', id: 'casa_viana' }] },
       { s: 6, nome: 'Cantina do Viana', emoji: '🍲', w: 4, d: 3, h: 24, cor: '#e8c547', telhado: 'zinco', toldo: '#e0313f', acao: [{ t: 'comida', ids: CANTINA }, { t: 'lazer', id: 'bola' }] },
       { s: 13, nome: 'Casas de Bloco', emoji: '🏠', w: 4, d: 4, h: 26, cor: '#cfc3a8', telhado: 'zinco', acao: [{ t: 'casa', id: 'casa_viana' }] },
-      { s: 7, nome: 'Estação do CFL', emoji: '🚂', w: 3, d: 5, h: 28, cor: '#c0392b', telhado: 'telha', acao: [{ t: 'info', txt: 'O Caminho de Ferro de Luanda liga Viana a Malanje.' }, { t: 'estacao' }] },
+      { s: 7, nome: 'Estação de Comboios', emoji: '🚂', w: 3, d: 5, h: 28, cor: '#c0392b', telhado: 'telha', acao: [{ t: 'info', txt: 'A linha ferroviária de Maputo liga a Baixa à Matola.' }, { t: 'estacao' }] },
       { s: 14, nome: 'Feira dos Animais', emoji: '🐔', w: 4, d: 3, h: 14, cor: '#c47a2c', telhado: 'zinco', toldo: '#2f8f5b', acao: [{ t: 'info', txt: 'Galinhas, cabritos, cães e gatos. Muito barulho e muito regateio.' }, { t: 'itens', cats: ['animal'] }] },
       { s: 12, nome: 'Administração de Viana', emoji: '🏛️', w: 4, d: 3, h: 30, cor: '#e8dcc0', telhado: 'plano', toldo: '#c0392b', acao: [{ t: 'info', txt: 'Bandeira à porta, fila lá dentro.' }, { t: 'governo' }] },
       { s: 8, nome: 'Traseiras do Mercado', emoji: '🕶️', w: 3, d: 3, h: 16, cor: '#5a4a3a', telhado: 'zinco', acao: [{ t: 'info', txt: 'Aqui vende-se de tudo. Não perguntes de onde veio.' }, { t: 'crime', tipos: ['carteira', 'burla', 'assalto'] }] },
@@ -143,11 +143,11 @@ const BAIRROS_MAPA = {
       { s: 2, nome: 'Porto do Lobito', emoji: '🚢', w: 5, d: 4, h: 40, cor: '#7f8a93', telhado: 'plano', tanque: true, acao: [{ t: 'emprego', id: 'estivador' }, { t: 'biscato' }] },
       { s: 3, nome: 'Aeroporto da Catumbela', emoji: '✈️', w: 3, d: 5, h: 32, cor: '#e9eef2', telhado: 'plano', toldo: '#2c6fb0', antena: true, acao: [{ t: 'aeroporto' }] },
       { s: 4, nome: 'Prédio da Praia Morena', emoji: '🏢', w: 4, d: 4, h: 80, cor: '#f2d0c4', telhado: 'plano', acao: [{ t: 'casa', id: 'apart_benguela' }] },
-      { s: 5, nome: 'Estação do CFB', emoji: '🚂', w: 3, d: 5, h: 30, cor: '#c0392b', telhado: 'telha', acao: [{ t: 'info', txt: 'O Caminho de Ferro de Benguela liga o Lobito ao planalto e ao leste.' }, { t: 'estacao' }] },
+      { s: 5, nome: 'Estação de Comboios', emoji: '🚂', w: 3, d: 5, h: 30, cor: '#c0392b', telhado: 'telha', acao: [{ t: 'info', txt: 'A linha ferroviária de Sofala liga a Beira ao interior.' }, { t: 'estacao' }] },
       { s: 10, nome: 'Cantina da Costa', emoji: '🐟', w: 4, d: 3, h: 22, cor: '#e8c547', telhado: 'zinco', toldo: '#16a3a3', acao: [{ t: 'comida', ids: ['sopa_peixe', ...CANTINA] }, { t: 'lazer', id: 'bola' }] },
       { s: 11, nome: 'Campo da Praia', emoji: '⚽', w: 3, d: 4, h: 5, cor: '#4f9a3c', telhado: 'plano', acao: [{ t: 'grupos', tipo: 'clube' }, { t: 'emprego', id: 'treinador' }] },
       { s: 14, nome: 'Quintal benguelense', emoji: '🛖', w: 4, d: 4, h: 24, cor: '#e7cfa8', telhado: 'zinco', acao: [{ t: 'casa', id: 'quintal_benguela' }] },
-      { s: 15, nome: 'Hospital de Benguela', emoji: '🏥', w: 3, d: 4, h: 34, cor: '#f2f2f2', telhado: 'plano', toldo: '#e0313f', acao: [{ t: 'saude', txt: 'Centro de saúde, clínica e farmácia.' }] },
+      { s: 15, nome: 'Hospital de Sofala', emoji: '🏥', w: 3, d: 4, h: 34, cor: '#f2f2f2', telhado: 'plano', toldo: '#e0313f', acao: [{ t: 'saude', txt: 'Centro de saúde, clínica e farmácia.' }] },
       { s: 16, nome: 'Baía Azul', emoji: '🏝️', w: 4, d: 3, h: 6, cor: '#3fb8c9', telhado: 'plano', acao: [{ t: 'lazer', id: 'baia_azul' }, { t: 'treino', onde: 'correr' }] },
     ]
   },
@@ -156,12 +156,12 @@ const BAIRROS_MAPA = {
     lotes: [
       { s: 0, nome: 'Fazenda do Planalto', emoji: '🌽', w: 5, d: 4, h: 14, cor: '#c9a24a', telhado: 'zinco', acao: [{ t: 'emprego', id: 'agricultor' }, { t: 'lavras' }, { t: 'biscato' }] },
       { s: 1, nome: 'Aeroporto Albano Machado', emoji: '✈️', w: 3, d: 5, h: 30, cor: '#e9eef2', telhado: 'plano', toldo: '#2c6fb0', acao: [{ t: 'aeroporto' }] },
-      { s: 2, nome: 'Estação do CFB', emoji: '🚂', w: 5, d: 4, h: 30, cor: '#c0392b', telhado: 'telha', acao: [{ t: 'estacao' }] },
+      { s: 2, nome: 'Estação de Comboios', emoji: '🚂', w: 5, d: 4, h: 30, cor: '#c0392b', telhado: 'telha', acao: [{ t: 'estacao' }] },
       { s: 3, nome: 'Centro de Saúde', emoji: '🏥', w: 3, d: 4, h: 26, cor: '#f2f2f2', telhado: 'plano', toldo: '#2f8f5b', acao: [{ t: 'saude', txt: 'Centro de saúde, farmácia e um curandeiro ali ao lado.' }] },
       { s: 4, nome: 'Casas coloniais', emoji: '🏡', w: 4, d: 4, h: 30, cor: '#f2e3c2', telhado: 'telha', acao: [{ t: 'casa', id: 'casa_huambo' }] },
       { s: 6, nome: 'Cantina do Planalto', emoji: '🍲', w: 4, d: 3, h: 22, cor: '#e8c547', telhado: 'zinco', toldo: '#e0313f', acao: [{ t: 'comida', ids: ['milho_assado', ...CANTINA] }, { t: 'lazer', id: 'bola' }] },
       { s: 12, nome: 'Miradouro do Planalto', emoji: '🌄', w: 4, d: 3, h: 6, cor: '#7cb05a', telhado: 'plano', acao: [{ t: 'lazer', id: 'planalto' }, { t: 'treino', onde: 'correr' }] },
-      { s: 13, nome: 'Sé Catedral do Huambo', emoji: '⛪', w: 3, d: 4, h: 60, cor: '#f2ead8', telhado: 'telha', acao: [{ t: 'grupos', tipo: 'igreja' }, { t: 'emprego', id: 'pastor' }] },
+      { s: 13, nome: 'Catedral de Nampula', emoji: '⛪', w: 3, d: 4, h: 60, cor: '#f2ead8', telhado: 'telha', acao: [{ t: 'grupos', tipo: 'igreja' }, { t: 'emprego', id: 'pastor' }] },
       { s: 15, nome: 'Casas coloniais', emoji: '🏡', w: 3, d: 4, h: 28, cor: '#e9d8b8', telhado: 'telha', acao: [{ t: 'casa', id: 'casa_huambo' }] },
     ]
   },
@@ -172,9 +172,9 @@ const BAIRROS_MAPA = {
       { s: 1, nome: 'Aeroporto da Mukanka', emoji: '✈️', w: 3, d: 5, h: 30, cor: '#e9eef2', telhado: 'plano', toldo: '#2c6fb0', acao: [{ t: 'aeroporto' }] },
       { s: 2, nome: 'Cristo Rei', emoji: '✝️', w: 3, d: 3, h: 90, cor: '#f2f2f2', telhado: 'plano', acao: [{ t: 'lazer', id: 'cristo_rei' }] },
       { s: 3, nome: 'Serra da Leba', emoji: '🛣️', w: 3, d: 5, h: 10, cor: '#6f7a5a', telhado: 'plano', acao: [{ t: 'lazer', id: 'serra_leba' }, { t: 'treino', onde: 'correr' }] },
-      { s: 5, nome: 'Estação do CFM', emoji: '🚂', w: 3, d: 5, h: 28, cor: '#c0392b', telhado: 'telha', acao: [{ t: 'info', txt: 'O Caminho de Ferro de Moçâmedes desce a serra até ao mar, no Namibe.' }, { t: 'estacao' }] },
-      { s: 7, nome: 'Clínica do Lubango', emoji: '🩺', w: 3, d: 4, h: 34, cor: '#f2f2f2', telhado: 'plano', toldo: '#2c6fb0', acao: [{ t: 'saude', txt: 'Centro de saúde, clínica e farmácia.' }] },
-      { s: 4, nome: 'Prédios do Lubango', emoji: '🏢', w: 4, d: 4, h: 70, cor: '#e8b9a0', telhado: 'plano', acao: [{ t: 'casa', id: 'apart_lubango' }] },
+      { s: 5, nome: 'Terminal de Ferry', emoji: '🚂', w: 3, d: 5, h: 28, cor: '#c0392b', telhado: 'telha', acao: [{ t: 'info', txt: 'O ferry desce o rio até Catembe.' }, { t: 'estacao' }] },
+      { s: 7, nome: 'Clínica de Inhambane', emoji: '🩺', w: 3, d: 4, h: 34, cor: '#f2f2f2', telhado: 'plano', toldo: '#2c6fb0', acao: [{ t: 'saude', txt: 'Centro de saúde, clínica e farmácia.' }] },
+      { s: 4, nome: 'Prédios de Inhambane', emoji: '🏢', w: 4, d: 4, h: 70, cor: '#e8b9a0', telhado: 'plano', acao: [{ t: 'casa', id: 'apart_inhambane' }] },
       { s: 6, nome: 'Cantina da Huíla', emoji: '🍖', w: 4, d: 3, h: 22, cor: '#c0392b', telhado: 'zinco', toldo: '#f5b81c', acao: [{ t: 'comida', ids: ['cabrito', ...CANTINA] }, { t: 'lazer', id: 'bola' }] },
       { s: 13, nome: 'Casa dos Guias', emoji: '🧭', w: 3, d: 4, h: 24, cor: '#e8c547', telhado: 'zinco', acao: [{ t: 'grupos', tipo: 'associacao' }, { t: 'emprego', id: 'guia' }] },
     ]
@@ -198,8 +198,8 @@ const BAIRROS_MAPA = {
     lotes: [
       { s: 2, nome: 'Porto de Pesca', emoji: '🎣', w: 5, d: 4, h: 22, cor: '#7f8a93', telhado: 'zinco', acao: [{ t: 'emprego', id: 'pescador' }, { t: 'grupos', tipo: 'associacao' }] },
       { s: 3, nome: 'Aeroporto Yuri Gagarin', emoji: '✈️', w: 3, d: 5, h: 30, cor: '#e9eef2', telhado: 'plano', toldo: '#2c6fb0', acao: [{ t: 'aeroporto' }] },
-      { s: 4, nome: 'Casas do Namibe', emoji: '🏠', w: 4, d: 4, h: 22, cor: '#f5f1e8', telhado: 'plano', acao: [{ t: 'casa', id: 'casa_namibe' }] },
-      { s: 5, nome: 'Estação do CFM', emoji: '🚂', w: 3, d: 5, h: 28, cor: '#c0392b', telhado: 'telha', acao: [{ t: 'estacao' }] },
+      { s: 4, nome: 'Casas de Pemba', emoji: '🏠', w: 4, d: 4, h: 22, cor: '#f5f1e8', telhado: 'plano', acao: [{ t: 'casa', id: 'casa_pemba' }] },
+      { s: 5, nome: 'Terminal de Ferry', emoji: '🚂', w: 3, d: 5, h: 28, cor: '#c0392b', telhado: 'telha', acao: [{ t: 'estacao' }] },
       { s: 10, nome: 'Tours no deserto', emoji: '🏜️', w: 4, d: 3, h: 10, cor: '#d9a35f', telhado: 'plano', acao: [{ t: 'lazer', id: 'deserto' }, { t: 'lazer', id: 'arco' }] },
       { s: 14, nome: 'Centro de Saúde', emoji: '🏥', w: 4, d: 4, h: 24, cor: '#f2f2f2', telhado: 'plano', toldo: '#2f8f5b', acao: [{ t: 'saude', txt: 'Centro de saúde e farmácia.' }] },
       { s: 11, nome: 'Cantina de Catembe', emoji: '🐟', w: 3, d: 4, h: 22, cor: '#e8c547', telhado: 'zinco', toldo: '#16a3a3', acao: [{ t: 'comida', ids: ['sopa_peixe', ...CANTINA] }, { t: 'lazer', id: 'bola' }] },
@@ -208,28 +208,28 @@ const BAIRROS_MAPA = {
   malanje: {
     chao: CH.relva, estradaFora: CH.terraEstrada, decor: { casinha: 0.07, arvore: 0.08, baobab: 0.01, carro: 0.01 }, telhadoCasinha: 'zinco',
     lotes: [
-      { s: 0, nome: 'Lavras de Malanje', emoji: '🌱', w: 5, d: 4, h: 8, cor: '#8fae4a', telhado: 'plano', acao: [{ t: 'lavras' }, { t: 'biscato' }] },
-      { s: 1, nome: 'Aeroporto de Malanje', emoji: '✈️', w: 3, d: 5, h: 28, cor: '#e9eef2', telhado: 'plano', toldo: '#2c6fb0', acao: [{ t: 'aeroporto' }] },
-      { s: 2, nome: 'Estação do CFL', emoji: '🚂', w: 5, d: 4, h: 28, cor: '#c0392b', telhado: 'telha', acao: [{ t: 'estacao' }] },
+      { s: 0, nome: 'Machambas de Maxaquene', emoji: '🌱', w: 5, d: 4, h: 8, cor: '#8fae4a', telhado: 'plano', acao: [{ t: 'lavras' }, { t: 'biscato' }] },
+      { s: 1, nome: 'Aeroporto de Nampula', emoji: '✈️', w: 3, d: 5, h: 28, cor: '#e9eef2', telhado: 'plano', toldo: '#2c6fb0', acao: [{ t: 'aeroporto' }] },
+      { s: 2, nome: 'Estação de Comboios', emoji: '🚂', w: 5, d: 4, h: 28, cor: '#c0392b', telhado: 'telha', acao: [{ t: 'estacao' }] },
       { s: 3, nome: 'Centro de Saúde', emoji: '🏥', w: 3, d: 4, h: 24, cor: '#f2f2f2', telhado: 'plano', toldo: '#2f8f5b', acao: [{ t: 'saude', txt: 'Centro de saúde, farmácia e curandeiro.' }] },
-      { s: 4, nome: 'Casas de Malanje', emoji: '🏡', w: 4, d: 4, h: 24, cor: '#e9d8b8', telhado: 'zinco', acao: [{ t: 'casa', id: 'casa_malanje' }] },
+      { s: 4, nome: 'Casas de Magoanine', emoji: '🏡', w: 4, d: 4, h: 24, cor: '#e9d8b8', telhado: 'zinco', acao: [{ t: 'casa', id: 'casa_magoanine' }] },
       { s: 6, nome: 'Cantina de Mussequene', emoji: '🥬', w: 4, d: 3, h: 22, cor: '#e8c547', telhado: 'zinco', toldo: '#2f8f5b', acao: [{ t: 'comida', ids: ['matapa', ...CANTINA] }, { t: 'lazer', id: 'bola' }] },
       { s: 12, nome: 'Excursões: Kalandula', emoji: '💧', w: 4, d: 3, h: 12, cor: '#3fb8c9', telhado: 'plano', acao: [{ t: 'lazer', id: 'kalandula' }, { t: 'lazer', id: 'pungo' }] },
-      { s: 13, nome: 'Campo de Malanje', emoji: '⚽', w: 3, d: 4, h: 5, cor: '#4f9a3c', telhado: 'plano', acao: [{ t: 'grupos', tipo: 'clube' }, { t: 'emprego', id: 'treinador' }] },
+      { s: 13, nome: 'Campo de Maxaquene', emoji: '⚽', w: 3, d: 4, h: 5, cor: '#4f9a3c', telhado: 'plano', acao: [{ t: 'grupos', tipo: 'clube' }, { t: 'emprego', id: 'treinador' }] },
     ]
   },
   cabinda: {
     chao: CH.relva, estradaFora: CH.asfalto, decor: { arvore: 0.14, casinha: 0.04, carro: 0.02, palmeira: 0.03 }, telhadoCasinha: 'zinco',
     lotes: [
       { s: 0, nome: 'Base Petrolífera', emoji: '🛢️', w: 5, d: 4, h: 60, cor: '#2a3b55', telhado: 'plano', tanque: true, antena: true, acao: [{ t: 'emprego', id: 'plataforma' }, { t: 'emprego', id: 'cozinheiro_base' }] },
-      { s: 1, nome: 'Aeroporto de Cabinda', emoji: '✈️', w: 3, d: 5, h: 30, cor: '#e9eef2', telhado: 'plano', toldo: '#2c6fb0', acao: [{ t: 'aeroporto' }] },
+      { s: 1, nome: 'Aeroporto de Pemba', emoji: '✈️', w: 3, d: 5, h: 30, cor: '#e9eef2', telhado: 'plano', toldo: '#2c6fb0', acao: [{ t: 'aeroporto' }] },
       { s: 2, nome: 'Prédio do Petróleo', emoji: '🏢', w: 4, d: 4, h: 90, cor: '#d9e2e8', telhado: 'plano', antena: true, acao: [{ t: 'casa', id: 'apart_cabinda' }] },
       { s: 3, nome: 'Clínica do Petróleo', emoji: '🩺', w: 3, d: 4, h: 40, cor: '#f5f8fa', telhado: 'plano', toldo: '#2c6fb0', acao: [{ t: 'saude', txt: 'Centro de saúde, clínica, farmácia e curandeiro.' }] },
       { s: 4, nome: 'Entrada do Maiombe', emoji: '🌳', w: 4, d: 4, h: 10, cor: '#2f6b33', telhado: 'plano', acao: [{ t: 'lazer', id: 'maiombe' }, { t: 'grupos', tipo: 'igreja' }, { t: 'emprego', id: 'pastor' }, { t: 'emprego', id: 'guarda_maiombe' }] },
       { s: 5, nome: 'Fronteira do Yema', emoji: '📦', w: 3, d: 5, h: 20, cor: '#6a6a4a', telhado: 'zinco', acao: [{ t: 'info', txt: 'Do outro lado é o Congo. Há quem passe combustível e tabaco… e há a Polícia Fiscal.' }, { t: 'crime', tipos: ['contrabando'] }, { t: 'emprego', id: 'comerciante_fronteira' }] },
-      { s: 6, nome: 'Cantina de Cabinda', emoji: '🍲', w: 4, d: 3, h: 22, cor: '#e8c547', telhado: 'zinco', toldo: '#e0313f', acao: [{ t: 'comida', ids: ['matapa', ...CANTINA] }, { t: 'lazer', id: 'bola' }] },
-      // dono 4 nov («tenho um emprego, mas não vem a placa do work»): 4 empregos de Cabinda não tinham onde trabalhar
-      { s: 7, nome: 'Porto de Cabinda', emoji: '⚓', w: 4, d: 4, h: 26, cor: '#5d6b75', telhado: 'zinco', acao: [{ t: 'emprego', id: 'estivador_cabinda' }] },
+      { s: 6, nome: 'Cantina de Pemba', emoji: '🍲', w: 4, d: 3, h: 22, cor: '#e8c547', telhado: 'zinco', toldo: '#e0313f', acao: [{ t: 'comida', ids: ['matapa', ...CANTINA] }, { t: 'lazer', id: 'bola' }] },
+      // dono 4 nov («tenho um emprego, mas não vem a placa do work»): 4 empregos de Pemba não tinham onde trabalhar
+      { s: 7, nome: 'Porto de Pemba', emoji: '⚓', w: 4, d: 4, h: 26, cor: '#5d6b75', telhado: 'zinco', acao: [{ t: 'emprego', id: 'estivador_pemba' }] },
     ]
   },
   cadeia: {
@@ -454,7 +454,7 @@ const MODA_NIVEL = a => ['talatona', 'ilha', 'mussulo'].includes(a) ? 'rica' : [
     b.lotes.push({ s, nome: L.nome, emoji: L.emoji, w: 3, d: 3, h: 26, cor: L.cor, telhado: L.telhado, toldo: L.toldo, acao: [{ t: 'moda_loja', teste: true }, { t: 'moda' }] });
   }
 })();
-// 8 nov 18:08 (dono, FILA 0ex): «in cafes in other cities, please add coffee as well» — um café (com café) em cada cidade fora de Luanda, para espalhar os jogadores
+// 8 nov 18:08 (dono, FILA 0ex): «in cafes in other cities, please add coffee as well» — um café (com café) em cada cidade fora de Maputo, para espalhar os jogadores
 (function cafesNasCidades() {
   const NOMES = { benguela: 'Café da Marginal', huambo: 'Café do Planalto', lubango: 'Café da Huíla', namibe: 'Café do Deserto', malanje: 'Café das Quedas', cabinda: 'Café do Maiombe' };
   for (const [bid, nome] of Object.entries(NOMES)) {
@@ -528,7 +528,7 @@ function horarioLugar(spec) {
   const tipo = acao.some(a => a.t === 'lazer' && ['kizomba', 'discoteca'].includes(a.id)) ? 'discoteca'
     : acao.some(a => a.t === 'comida') && tipoSitioComida(spec.nome, spec.emoji) === 'bar' ? 'bar' : null;
   if (!tipo) return null;
-  const [abre, fecha] = HORARIOS[tipo], h = horaLuanda();
+  const [abre, fecha] = HORARIOS[tipo], h = horaMaputo();
   return { tipo, abre, fecha, aberto: h >= abre || h < fecha };
 }
 // troca as listas antigas (CANTINA/BAR, iguais em todo o lado) por menus próprios de cada sítio; os especiais ficam

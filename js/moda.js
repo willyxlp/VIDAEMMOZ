@@ -1,7 +1,7 @@
 /* ============================================================
    Vida na Banda — LOJA DE MODA e GUARDA-ROUPA (FILA 0dn-4, dono 6 nov)
    «When you click Hang Out at Talatona Shopping, it should take you to… the actual drops in the clothes stores…
-   charge Kz for some things and Ouro for some things… vary the prices based on the size of the trend.
+   charge MT for some things and Ouro for some things… vary the prices based on the size of the trend.
    The whole wardrobe scene where you change clothes is what it should look like… try on… buy and they go to your
    wardrobe… the background changes to your home, while in the store the background is the store.»
    Sem deslizar para baixo: as peças passam para o lado (‹ ›), 3 de cada vez.

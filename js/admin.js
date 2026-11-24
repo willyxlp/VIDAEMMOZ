@@ -56,7 +56,7 @@ async function admInicio(body) {
       <div class="admNum"><span>${esc(tr('Jogaram hoje'))}</span><b data-sem-traducao>${admN(d.jogaram_hoje)}</b><small data-sem-traducao>${v.criados ? Math.round(100 * v.voltaram / v.criados) + '% ' + esc(tr('voltaram no dia seguinte')) : admN(d.jogaram_7d) + ' ' + esc(tr('em 7 dias'))}</small></div>
       <button type="button" class="admNum admDin" data-ir="dinheiro"><span>${esc(tr('Dinheiro real hoje'))}</span><b data-sem-traducao>${din.length ? din.join(' + ') : '0'}</b><small>${esc(tr('Ver quanto ganhamos'))} ›</small></button></div>`;
   const p = d.precisa || {}, itens = [
-    ['anuncios', 'rever', 'megafone', p.anuncios, 'anúncios para rever'], ['dinheiro', null, 'banco', p.pagamentos, 'pagamentos em Kz por confirmar'],
+    ['anuncios', 'rever', 'megafone', p.anuncios, 'anúncios para rever'], ['dinheiro', null, 'banco', p.pagamentos, 'pagamentos em MT por confirmar'],
     ['seguranca', null, 'aviso', p.alertas, 'alertas de abuso'], ['seguranca', null, 'aviso', p.denuncias, 'denúncias (24 h)']];
   const urg = itens.filter(x => x[3] > 0);
   body.querySelector('#admPrecisa').innerHTML = `<div class="sub2 admOuro">${esc(tr('Precisa de ti'))}</div>` + (urg.length
@@ -132,7 +132,7 @@ async function admConversao(el) {
         <div class="admNum"><span>${esc(tr('Pagaram'))}</span><b data-sem-traducao>${n(c.pagos)}</b><small data-sem-traducao>${pc(c.pagos, c.abertos)}</small></div>
         <div class="admNum"><span>${esc(tr('Desistiram'))}</span><b data-sem-traducao style="color:${desist > 0 ? 'var(--c-perigo)' : 'inherit'}">${n(desist)}</b><small data-sem-traducao>${pc(desist, c.abertos)}</small></div></div>
       ${(c.por_pacote || []).length ? `<details><summary><small>${esc(tr('Por pacote'))}</small></summary>${c.por_pacote.map(x => `<div class="admLinha"><small data-sem-traducao>${esc(x.pacote)}</small><small data-sem-traducao>${n(x.pagos)} / ${n(x.abertos)} · ${pc(x.pagos, x.abertos)}</small></div>`).join('')}</details>` : ''}
-      <small style="color:var(--muted)">${esc(tr('Os pagamentos abertos contam desde'))} <span data-sem-traducao>${c.desde ? esc(new Date(c.desde).toLocaleDateString(lingua === 'en' ? 'en-GB' : 'pt-PT', { day: 'numeric', month: 'short' })) : '—'}</span>. ${esc(tr('Dia 2 = o dia a seguir ao registo (hora de Luanda).'))}</small></div>`;
+      <small style="color:var(--muted)">${esc(tr('Os pagamentos abertos contam desde'))} <span data-sem-traducao>${c.desde ? esc(new Date(c.desde).toLocaleDateString(lingua === 'en' ? 'en-GB' : 'pt-PT', { day: 'numeric', month: 'short' })) : '—'}</span>. ${esc(tr('Dia 2 = o dia a seguir ao registo (hora de Maputo).'))}</small></div>`;
 }
 
 /* ---------- 📊 Jogo: online por hora (24 h), onde estão, jet ski (dono 6 nov) ---------- */
@@ -232,7 +232,7 @@ async function admJogador(body) {
       .map(([k, [e, t]]) => `<button type="button" data-ac="${k}" class="${k === 'banir' || k === 'tirar_kumbu' ? 'perigo' : ''}"><span class="e">${e}</span><span>${t}</span></button>`).join('')}</div>
     ${sec('Vida', `<div class="list">${linha('💼', esc(tr(emp)), j.cargo_nivel ? `${tr('Cargo')} ${j.cargo_nivel}` : '')}${linha('⏱️', `${tr('Turnos hoje')}: <span data-sem-traducao>${admN(j.turnos_hoje)}</span>`, `${tr('Ações hoje')}: <span data-sem-traducao>${admN(j.acoes_hoje)}</span>`)}
       ${linha('🍼', `${tr('Família')}: ${esc(tr({ musseque: 'Musseque', media: 'Classe média', rica: 'Rica', rica_cem: 'Rica (centenas de milhões)', rica_mil: 'Rica (milhares de milhões)' }[j.berco || j.classe] || j.classe || '—'))}`, `${tr('Estudo')} ${j.estudo} · ${tr('Reputação')} ${j.reputacao}`)}
-      ${linha('💳', `${tr('Dinheiro real gasto')}: <span data-sem-traducao>${real || '0'}</span>`, j.kz_banco ? `${tr('Pagamentos em Kz')}: <span data-sem-traducao>${fmtMt(j.kz_banco)}</span>` : '')}</div>`)}
+      ${linha('💳', `${tr('Dinheiro real gasto')}: <span data-sem-traducao>${real || '0'}</span>`, j.kz_banco ? `${tr('Pagamentos em MT')}: <span data-sem-traducao>${fmtMt(j.kz_banco)}</span>` : '')}</div>`)}
     ${(j.itens || []).length ? sec('Posses', `<div class="chips">${j.itens.map(i => `<span class="chip">${i.emoji} ${esc(tr(i.nome))}</span>`).join('')}</div>`) : ''}
     ${(j.empresas || []).length ? sec('Empresas', `<div class="list">${j.empresas.map(e => linha(TIPOS_EMP[e.tipo]?.e || '🏢', `<span data-sem-traducao>${esc(e.nome)}</span>${e.falida ? ' · 💥' : ''}`, `${tr(TAM_EMP?.[e.tamanho] || e.tamanho || '')} · ${tr('Caixa')} <span data-sem-traducao>${fmtMt(e.caixa)}</span>`)).join('')}</div>`) : ''}
     ${sec('Alertas', (j.alertas || []).length ? `<div class="list">${j.alertas.map(a => linha(a.estado === 'novo' ? '🚨' : '☑️', esc(TIPOS_ALERTA[a.tipo] || a.tipo), `${tr('Gravidade')} ${a.gravidade}/3 · ${a.vezes}× · ${admT(a.em)}`)).join('')}</div>` : '<div class="empty">Sem alertas.</div>')}
@@ -333,7 +333,7 @@ async function admBairros(lv) {
 /* ---------- 💷 Dinheiro ---------- */
 async function admDinheiro(body) {
   body.innerHTML = `${admTopo('💷 ' + tr('Quanto ganhamos'))}<div id="admPag"></div><div id="admConv"></div><div id="admRec"><div class="empty">A carregar…</div></div>
-    <div class="sub2">Pagamentos em Kz por confirmar</div><div id="pagList"><div class="empty">A carregar…</div></div>
+    <div class="sub2">Pagamentos em MT por confirmar</div><div id="pagList"><div class="empty">A carregar…</div></div>
     <div class="sub2">💷 Dinheiro dos anúncios</div><div id="finBox"><div class="empty">A carregar…</div></div>`;
   if (typeof renderFinancas === 'function') renderFinancas(body.querySelector('#finBox'));   // 0bz: Despesas · Preços · Projeções · Histórico
   admReceitas(body.querySelector('#admRec'));
@@ -370,7 +370,7 @@ async function admReceitas(el) {
         <i style="height:${Math.round(100 * x.anuncios / max)}%;background:#5aa7e0"></i><i style="height:${Math.round(100 * x.ouro / max)}%;background:#ffcb00"></i><small>${esc(dNome(x.dia))}</small></div>`).join('')}</div></div>` : ''}
     <div class="admCartao"><small>${esc(tr('De onde vem'))}</small><div class="admBarra"><i style="width:${pOuro}%;background:#ffcb00"></i><i style="width:${tot ? 100 - pOuro : 0}%;background:#5aa7e0"></i></div>
       <div class="admTres"><div><span style="color:#ffcb00">${esc(tr('Ouro'))}</span><b data-sem-traducao>${eur(r.ouro_eur_cent)}</b></div><div><span style="color:#5aa7e0">${esc(tr('Anúncios'))}</span><b data-sem-traducao>${eur(r.anuncios_eur_cent)}</b></div>
-        <div><span>${esc(tr('Kz (banco)'))}</span><b data-sem-traducao>${r.kz_ligado ? fmtMt(r.kz_total) : esc(tr('desligado'))}</b></div></div>
+        <div><span>${esc(tr('MT (banco)'))}</span><b data-sem-traducao>${r.kz_ligado ? fmtMt(r.kz_total) : esc(tr('desligado'))}</b></div></div>
       ${(r.por_moeda || []).length > 1 ? `<small>${(r.por_moeda || []).map(x => `<span data-sem-traducao>${admCent(x.cent, x.moeda)}</span> (${x.vezes}×)`).join(' + ')} · ${esc(tr('US$ contam a {0} €').replace('{0}', String(r.taxa_usd_eur).replace('.', ',')))}</small>` : ''}</div>
     ${(r.pacotes || []).length ? `<div class="admCartao"><small>${esc(tr('Pacotes de Ouro · receita'))}</small><div class="admPacotes">${r.pacotes.map(x => `<span data-sem-traducao>${admN(x.ouro)} ${esc(tr('Ouro'))}</span><i style="width:${Math.round(100 * x.eur_cent / pmax)}%"></i><b data-sem-traducao>${eurCurto(x.eur_cent)} · ${x.vezes}×</b>`).join('')}</div></div>` : ''}
     <div class="admNums admNums3"><div class="admNum"><span>${esc(tr('Pagaram'))}</span><b data-sem-traducao>${admN(r.pagantes)}</b><small>${esc(tr('jogadores'))}</small></div>

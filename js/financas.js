@@ -14,7 +14,7 @@ const finGbp = v => (v < 0 ? '−£' : '£') + finNum(Math.abs(v));
 const finEur = c => '€' + finNum((c || 0) / 100);
 function finOutras(gbp) {   // £ → ₦ · Kz · $ (com os câmbios gravados)
   const c = finDados?.cambios || {}, f = (m, s, d = 0) => c[m] ? s + finNum(gbp * c[m].por_gbp, d) : '';
-  return [f('NGN', '₦'), f('AOA', 'Kz ', 0), f('USD', '$', 2)].filter(Boolean).join(' · ');
+  return [f('NGN', '₦'), f('MZN', 'MT ', 0), f('USD', '$', 2)].filter(Boolean).join(' · ');
 }
 const finMesTxt = d => { try { return new Date(d + 'T12:00:00Z').toLocaleDateString('pt-PT', { month: 'long', year: 'numeric' }); } catch { return d; } };
 const finPct = v => v == null ? '—' : finNum(v * 100, 0) + ' %';
@@ -104,7 +104,7 @@ async function finPrecos(c, el) {
     c.innerHTML = `<p class="m"><span>Ainda sem proposta para</span> <span data-sem-traducao>${esc(finMesTxt(finDados.proximo))}</span> · <span>pré-visualização (não grava)</span></p>
       ${finAvisos(data)}${finTabelaPrecos(data, pub)}
       <button class="btn full" type="button" id="finPropor">Gravar como proposta</button>
-      ${pub.length ? '' : '<small class="m">Enquanto não publicares nenhuma tabela, os anunciantes continuam a ver os preços antigos (em Kz).</small>'}`;
+      ${pub.length ? '' : '<small class="m">Enquanto não publicares nenhuma tabela, os anunciantes continuam a ver os preços antigos (em MT).</small>'}`;
     c.querySelector('#finPropor').onclick = async () => {
       const { error: e2 } = await sb.rpc('admin_fin_propor', { p_mes: finDados.proximo });
       if (e2) return toast(limparErro(e2.message), 'mau'); toast('Proposta gravada. Revê e aprova.', 'bom'); renderFinancas(el);

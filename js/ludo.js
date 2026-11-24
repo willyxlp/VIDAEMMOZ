@@ -20,7 +20,7 @@ function ludoNovaMesa() {
     <p class="ludo-p">${esc(tr('Quantos jogadores?'))}</p>
     <div class="ludo-n">${[2, 3, 4].map(n => `<button class="btn ghost" data-n="${n}">${n}</button>`).join('')}</div>
     <label class="ludo-npc"><input type="checkbox" checked> <span>${esc(tr('O computador preenche os lugares vazios'))}</span></label>
-    <p class="ludo-p sm">${esc(tr('4 peças cada. Sai com 6; o 6 dá outra vez. Quem ganha leva +500 Kz (até 3 vitórias de mesa por dia).'))}</p>
+    <p class="ludo-p sm">${esc(tr('4 peças cada. Sai com 6; o 6 dá outra vez. Quem ganha leva +500 MT (até 3 vitórias de mesa por dia).'))}</p>
     <button class="btn ludo-criar">${esc(tr('Criar a mesa'))}</button>`);
   let n = 4;
   const marcar = () => m.querySelectorAll('[data-n]').forEach(b => b.classList.toggle('ghost', +b.dataset.n !== n));

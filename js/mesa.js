@@ -234,9 +234,9 @@ function jogoLudo() {
 /* ---------- na interface: secção «Jogos de mesa» nos bares, cafés e cantinas ---------- */
 function mesaHTML() {
   return `<div class="sec"><h4>🎲 ${tr('Jogos de mesa')}</h4><span>${tr('contra o computador')}</span></div><div class="list">
-    <div class="row"><span class="e">⚫</span><div class="t"><b>${tr('Damas')}</b><small>${tr('Contra o kota do bar. Ganhar: +500 Kz (até 3 por dia).')}</small></div><button class="btn sm" data-mesa="damas">${tr('Jogar')}</button></div>
-    <div class="row"><span class="e">🎲</span><div class="t"><b>${tr('Ludo rápido')}</b><small>${tr('Tu contra 3. Ganhar: +500 Kz (até 3 por dia).')}</small></div><button class="btn sm" data-mesa="ludo">${tr('Jogar')}</button></div>
-    <div class="row"><span class="e">👥</span><div class="t"><b>${tr('Ludo com amigos')}</b><small>${tr('2 a 4 jogadores; o computador preenche se quiserem. Ganhar: +500 Kz.')}</small></div><button class="btn sm" data-ludo-amigos>${tr('Jogar')}</button></div></div>`;
+    <div class="row"><span class="e">⚫</span><div class="t"><b>${tr('Damas')}</b><small>${tr('Contra o kota do bar. Ganhar: +500 MT (até 3 por dia).')}</small></div><button class="btn sm" data-mesa="damas">${tr('Jogar')}</button></div>
+    <div class="row"><span class="e">🎲</span><div class="t"><b>${tr('Ludo rápido')}</b><small>${tr('Tu contra 3. Ganhar: +500 MT (até 3 por dia).')}</small></div><button class="btn sm" data-mesa="ludo">${tr('Jogar')}</button></div>
+    <div class="row"><span class="e">👥</span><div class="t"><b>${tr('Ludo com amigos')}</b><small>${tr('2 a 4 jogadores; o computador preenche se quiserem. Ganhar: +500 MT.')}</small></div><button class="btn sm" data-ludo-amigos>${tr('Jogar')}</button></div></div>`;
 }
 function ligarMesa(el) {
   if (typeof ludoBotaoMesa === 'function') ludoBotaoMesa(el);

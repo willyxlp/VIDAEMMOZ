@@ -805,7 +805,7 @@ export function predio(T, sp) {
 }
 
 
-// ---------- natureza: árvores e palmeiras de Luanda (origem no centro do quadrado, no chão) ----------
+// ---------- natureza: árvores e palmeiras de Maputo (origem no centro do quadrado, no chão) ----------
 function semente(n) { let s = (n * 9301 + 49297) % 233280 || 7; return () => (s = (s * 16807) % 2147483647) / 2147483647; }
 // ruído suave (soma de senos) para as copas ficarem irregulares e "fofas"
 function ruido3(x, y, z, k) { return Math.sin(x * 3.1 * k + 1.7) * Math.sin(y * 2.7 * k + 0.4) * Math.sin(z * 3.3 * k + 2.1) + 0.5 * Math.sin(x * 7.3 * k + y * 5.1 * k + 0.9) * Math.sin(z * 6.7 * k + 1.3); }

@@ -1,7 +1,7 @@
 /* ============================================================
    Vida na Banda — 🎮 abrir o tycoon de um negócio (FILA 0ef). Só no site de teste por agora.
    O jogo (three.js) está em js/tycoon.js e só se descarrega quando entras.
-   As notas do tycoon são só do tycoon (nunca viram Kz). O progresso fica neste aparelho (localStorage).
+   As notas do tycoon são só do tycoon (nunca viram MT). O progresso fica neste aparelho (localStorage).
    ============================================================ */
 const TYCOON_TIPOS = ['cantina', 'discoteca', 'salao', 'loja'];   // 9 nov 21:00 (dono): lançamento — cantina, discoteca, salão e loja
 const TY_ABRIR = { cantina: ['🍲', 'A abrir a cantina…'], discoteca: ['🪩', 'A abrir a discoteca…'], salao: ['💇🏾‍♀️', 'A abrir o salão…'], loja: ['🛒', 'A abrir a loja…'] };
@@ -23,7 +23,7 @@ function abrirTycoon(e) {
   const chave = 'vel_tycoon_' + e.id;
   let estado = null; try { estado = JSON.parse(localStorage.getItem(chave) || 'null'); } catch { }
   const v = document.createElement('div'); v.id = 'tycoon';
-  v.innerHTML = `<div class="tyHud"><div class="tyCaixa" title="${esc(tr('Notas do negócio (só deste jogo, não são Kz)'))}"><span class="tyNota" aria-hidden="true"></span> <b id="tyNotas">0</b></div>
+  v.innerHTML = `<div class="tyHud"><div class="tyCaixa" title="${esc(tr('Notas do negócio (só deste jogo, não são MT)'))}"><span class="tyNota" aria-hidden="true"></span> <b id="tyNotas">0</b></div>
       <div class="tyNivel"><div class="tyNivL"><span>⭐ ${esc(tr('Nível'))} <b id="tyNiv">1</b></span><small id="tyFaltam"></small></div><i><em id="tyBarra"></em></i><small class="tyProx" id="tyProx"></small></div>
       <button class="tyBtn" id="tySom" type="button" aria-label="${esc(tr('Som'))}">🔊</button>
       <button class="tyFechar" type="button" aria-label="${esc(tr('Sair'))}">✕</button></div>
@@ -71,7 +71,7 @@ function abrirTycoon(e) {
   let tAviso = null;
   const aviso = txt => { const a = $t('#tyAviso'); a.textContent = txt; a.classList.add('on'); clearTimeout(tAviso); tAviso = setTimeout(() => a.classList.remove('on'), 2600); };
   tycoonAberto = { v, jogo: null };
-  // 7 nov (dono): o tycoon de uma empresa TUA dá Kz a sério à caixa (no máx. 1,5 × a venda normal do dia; o servidor controla)
+  // 7 nov (dono): o tycoon de uma empresa TUA dá MT a sério à caixa (no máx. 1,5 × a venda normal do dia; o servidor controla)
   const real = typeof e.id === 'number' || /^\d+$/.test(String(e.id));
   let porEnviar = 0, aEnviar = false;
   const enviar = async () => {

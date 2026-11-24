@@ -136,7 +136,7 @@ async function renderTempo(body) {
   if (!climaHoje) await carregarClima();
   if (typeof ui2 === 'function' && ui2()) return ui2Tempo(body);   // 8 nov: redesenho (teste)
   const r = climaHoje?.regioes || {};
-  const nomes = { luanda: 'Luanda', benguela: 'Benguela', huambo: 'Huambo', 'huíla': 'Lubango (Huíla)', namibe: 'Namibe', malanje: 'Malanje', cabinda: 'Cabinda' };
+  const nomes = { maputo: 'Maputo', sofala: 'Sofala', nampula: 'Nampula', zambezia: 'Zambézia', cabo_delgado: 'Cabo Delgado', niassa: 'Niassa', inhambane: 'Inhambane' };
   const aqui = tempoAqui();
   // 0g-C: à noite o sol não aparece (a hora é a mesma em todo o país)
   const noite = escuridao() > 0.24, ver = t => t === 'sol' && noite ? ['🌙', 'Céu limpo'] : t === 'nublado' && noite ? ['☁️', 'Nublado'] : TEMPO[t];

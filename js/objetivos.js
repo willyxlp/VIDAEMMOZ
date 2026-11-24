@@ -22,7 +22,7 @@ function atualizarPillDiario() {
   b.innerHTML = `🔥 ${dia.dias || 0} <span>${dia.bau ? '🎁' : '🎡'}</span>`; b.dataset.falta = dia.bau ? 'bau' : 'roda';
   b.setAttribute('aria-label', tr('Prémio do dia'));
 }
-// quanto falta para a meia-noite de Luanda (o baú e a roda voltam)
+// quanto falta para a meia-noite de Maputo (o baú e a roda voltam)
 function faltaAmanha() { const t = Date.now() + 3600e3, m = 864e5 - (t % 864e5); const h = Math.floor(m / 36e5), mi = Math.floor(m % 36e5 / 6e4); return `${h}h ${String(mi).padStart(2, '0')}m`; }
 // rótulo curto de cada fatia (o ícone já diz se é dinheiro, energia, humor, barriga ou Ouro)
 const curto = p => p.kz ? (p.kz >= 1000 ? (p.kz / 1000) + 'k' : String(p.kz)) : p.ouro ? '+' + p.ouro : '+' + (p.energia || p.humor || p.fome || 0);
@@ -143,7 +143,7 @@ function desenharObjetivos(body) {
     const t = obj.hoje, rec = t.recolhidas || [], todas = rec.length === t.lista.length;
     h += `<p class="m">Três tarefas novas todos os dias. Cada uma dá kumbu e bom humor; as três juntas dão um bónus.</p><div class="list">
       ${t.lista.map((x, i) => { const ok = x.feito >= x.n, r = rec.includes(i); return `<div class="row ${r ? 'mine' : ''}"><span class="e">${ok ? '✅' : x.e}</span><div class="t"><b>${esc(x.t)}</b><small>${r ? 'Prémio recolhido' : ok ? 'Feito! Recolhe o prémio' : x.n > 1 ? `${x.feito}/${x.n}` : 'Por fazer'}</small></div>${ok && !r ? `<button class="btn sm" data-rec="tarefa" data-i="${i}">🎁 Recolher</button>` : ''}</div>`; }).join('')}
-      <div class="row ${t.bonus ? 'mine' : todas ? '' : 'lock'}"><span class="e">🌟</span><div class="t"><b>Bónus do dia</b><small>${t.bonus ? 'Recolhido. Volta amanhã!' : 'Faz as três: 5.000 Kz e +1 reputação'}</small></div>${todas && !t.bonus ? '<button class="btn sm" data-rec="bonus">🎁 Recolher</button>' : ''}</div>
+      <div class="row ${t.bonus ? 'mine' : todas ? '' : 'lock'}"><span class="e">🌟</span><div class="t"><b>Bónus do dia</b><small>${t.bonus ? 'Recolhido. Volta amanhã!' : 'Faz as três: 5.000 MT e +1 reputação'}</small></div>${todas && !t.bonus ? '<button class="btn sm" data-rec="bonus">🎁 Recolher</button>' : ''}</div>
     </div>`;
   }
 

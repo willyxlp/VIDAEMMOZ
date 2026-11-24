@@ -3,7 +3,7 @@
    Cada viagem é uma cena three.js vista de dentro do veículo, com os MESMOS modelos do jogo (js/modelos3d.js):
    prédios e casas, as 5 árvores, carros no trânsito, e os passageiros são as personagens 3D sentadas.
    O mundo anda para trás (o veículo fica parado): tudo o que se repete é instanciado e reciclado ao longo de um anel.
-   Dia/noite com a hora de Luanda, chuva quando chove no bairro. Se o WebGL falhar, o viagem.js volta ao desenho 2D.
+   Dia/noite com a hora de Maputo, chuva quando chove no bairro. Se o WebGL falhar, o viagem.js volta ao desenho 2D.
    Interface: window.V3D.criar(o) → { canvas, quadro(t), parar(), foto() }   o = { meio, destino, ad, ad2, passageiros, noite, tempo, eu, carro, mota, musica }
    ============================================================ */
 import * as T from './vendor/three/three.min.js';
@@ -646,7 +646,7 @@ function carroProprio(c) {
   esfera(vol, 0.045, mat(0x3a3d42, { metalness: 0.5 }), 0, 0.01, 0, 1, 0.5, 1);
   // rádio com a música a tocar (texto a correr)
   const rc = document.createElement('canvas'); rc.width = 256; rc.height = 96; const rg = rc.getContext('2d'); const rt = new T.CanvasTexture(rc); rt.colorSpace = T.SRGBColorSpace;
-  const titulo = '📻 ' + (c.o.musica || TR('Rádio Luanda'));
+  const titulo = '📻 ' + (c.o.musica || TR('Rádio Maputo'));
   placa(i, 0.26, 0.1, new T.MeshBasicMaterial({ map: rt }), 0.1, yF - 0.31, F + 0.52);
   let ultR = -1;
   c.depois(t => { if (t - ultR < 0.15) return; ultR = t; rg.fillStyle = '#071214'; rg.fillRect(0, 0, 256, 96); rg.fillStyle = '#16d3d3'; rg.font = '700 26px Inter, sans-serif'; rg.textAlign = 'left';
@@ -698,7 +698,7 @@ function motaPropria(c, kupa) {
   abanarVeic(c, 2, 0.02);
 }
 
-/* ---- comboio: janela grande, a paisagem de Angola a passar; cartaz na parede ---- */
+/* ---- comboio: janela grande, a paisagem de Moçambique a passar; cartaz na parede ---- */
 function comboio(c) {
   c.vel = 12;
   const chao = new T.Mesh(new T.PlaneGeometry(900, 900), new T.MeshStandardMaterial({ map: texturaTerra('#9c8a52', true), roughness: 1 }));

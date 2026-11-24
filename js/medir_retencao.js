@@ -53,7 +53,7 @@ function mostrarRegresso() {
     if (Date.now() < em) return;
     if (typeof J === 'undefined' || !J?.criado_em || typeof uid === 'undefined' || !uid || !document.querySelector('#carregar.hide')) return;
     let feito = false; try { feito = !!localStorage.getItem('vel_regresso_' + uid); } catch { }
-    // a partir do 2.º dia de jogo (dia de Luanda)
+    // a partir do 2.º dia de jogo (dia de Maputo)
     const dia = d => new Date(d + 3600e3).toISOString().slice(0, 10);
     if (feito || dia(Date.parse(J.criado_em)) === dia(Date.now())) return clearInterval(t);
     if ((typeof tycoonAberto !== 'undefined' && tycoonAberto) || document.querySelector('.veil, .pergunta, .novidades, .cartao-guia, #telVeil')) return;

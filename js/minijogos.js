@@ -256,7 +256,7 @@ function jogoPassadeira() {
 
 /* ---------- 👶 Jogos com os filhos (0k-C, dono 27 out) ----------
    Bebé (0–2): «Cucu!» — a criança tapa a cara; toca quando ela destapa (3 vezes).
-   3–17: jogo da memória com coisas de Angola (mais cartas para os mais velhos).
+   3–17: jogo da memória com coisas de Moçambique (mais cartas para os mais velhos).
    Trabalhos de casa (6–17): contas rápidas conforme a idade. */
 function jogoCucu(nome) {
   return new Promise(res => {

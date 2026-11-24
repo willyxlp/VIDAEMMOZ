@@ -3,7 +3,7 @@
 // O objeto devolvido por rtCanal() imita o canal da Supabase (on / subscribe / track / untrack / send / presenceState),
 // por isso o resto do jogo quase não muda. Se o servidor falhar 2 vezes seguidas, o jogo volta sozinho à Supabase.
 // Ligar/desligar para todos: RT_PARTE (0–100 % dos jogadores). Testar à mão: ?rt=1 (liga só para ti) · ?rt=0 (desliga).
-const RT_URL_VIVO = '';   // servidor Angola desligado — Vida em Moz usa Supabase directamente
+const RT_URL_VIVO = '';   // servidor Angola/Moçambique desligado — Vida em Moz usa Supabase directamente
 const RT_PARTE = 0;   // % dos jogadores no servidor novo (todos na mesma sala têm de usar o mesmo: 0 ou 100)
 const rtLocal = /^(127\.0\.0\.1|localhost)$/.test(location.hostname);
 try { const q = new URLSearchParams(location.search).get('rt'); if (q === '1' || q === '0') localStorage.setItem('vel_rt', q); } catch { }

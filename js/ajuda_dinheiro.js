@@ -5,20 +5,20 @@
    · App 💰 «Ganhar dinheiro» no telemóvel (sempre a um toque): a escada emprego → estudo → 1.º negócio → crescer,
      com os números verdadeiros do jogo, botões para cada passo e o guia completo no site (partilhável no WhatsApp).
    · Cartão único no início (depois do tutorial) a apontar para o guia.
-   · «Estou sem dinheiro»: com menos de 23.000 Kz (carteira + banco), 1× por dia, as 3 melhores coisas a fazer agora,
+   · «Estou sem dinheiro»: com menos de 23.000 MT (carteira + banco), 1× por dia, as 3 melhores coisas a fazer agora,
      quanto paga cada uma, e abrir uma Cantina já: com Ouro (o que falta) ou com o crédito do banco.
    ============================================================ */
 const SEM_DINHEIRO_KZ = 23000;
 const GUIA_DINHEIRO = { pt: 'https://www.vidanabanda.com/guia/dinheiro.html', en: 'https://www.vidanabanda.com/guia/en/dinheiro.html', fr: 'https://www.vidanabanda.com/guia/fr/dinheiro.html' };
 const guiaDinheiroUrl = () => GUIA_DINHEIRO[typeof lingua !== 'undefined' && GUIA_DINHEIRO[lingua] ? lingua : 'pt'];
 const milhar = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, typeof lingua !== 'undefined' && lingua === 'en' ? ',' : '.');
-const hojeLuanda = () => new Date(Date.now() + 3600e3).toISOString().slice(0, 10);
+const hojeMaputo = () => new Date(Date.now() + 3600e3).toISOString().slice(0, 10);
 
 // o melhor emprego que já podes ter, e o melhor que o estudo abre a seguir
 function empregosParaMim() {
   const lista = (typeof D !== 'undefined' && D.empregos) || [];
   const est = J?.estudo || 0, rep = J?.reputacao || 0;
-  // longe de Luanda (Cabinda, Huambo…) só se já lá estás: para quem está sem dinheiro, um avião não é solução
+  // longe de Maputo (Pemba, Nampula…) só se já lá estás: para quem está sem dinheiro, um avião não é solução
   const aqui = e => !e.bairro || e.bairro === J?.bairro || !/^(cabinda|huambo|namibe|lubango|benguela)$/.test(e.bairro);
   const posso = lista.filter(e => aqui(e) && (e.estudo_min || 0) <= est && (e.reputacao_min || 0) <= rep).sort((a, b) => b.salario - a.salario);
   const proximo = lista.filter(e => aqui(e) && (e.estudo_min || 0) === est + 1 && (e.reputacao_min || 0) <= rep).sort((a, b) => b.salario - a.salario)[0]
@@ -65,7 +65,7 @@ function melhoresTres() {
   const { melhor, proximo } = empregosParaMim(), r = [];
   if (J.emprego) { const e = emprego(J.emprego); if (e) r.push(['💼', tr('Trabalha um turno como {0}').replace('{0}', tr(e.nome)), '+' + fmtMt(e.salario), 'vagas']); }
   else if (melhor) r.push(['💼', tr('Aceita o emprego de {0}').replace('{0}', tr(melhor.nome)), '+' + fmtMt(melhor.salario) + ' ' + tr('por turno'), 'vagas']);
-  if (J.pais_dia !== hojeLuanda()) r.push(['💸', tr('Pede dinheiro aos pais (1 vez por dia)'), tr('grátis'), 'pais']);
+  if (J.pais_dia !== hojeMaputo()) r.push(['💸', tr('Pede dinheiro aos pais (1 vez por dia)'), tr('grátis'), 'pais']);
   if (proximo && (J.kumbu || 0) >= custoModulo()) r.push(['🎓', tr('Estuda um módulo: abre {0}').replace('{0}', tr(proximo.nome)), fmtMt(proximo.salario) + ' ' + tr('por turno'), 'universidade']);
   if (r.length < 3 && melhor && J.emprego && melhor.id !== J.emprego && melhor.salario > (emprego(J.emprego)?.salario || 0))
     r.push(['⬆️', tr('Muda para {0}').replace('{0}', tr(melhor.nome)), '+' + fmtMt(melhor.salario) + ' ' + tr('por turno'), 'vagas']);
@@ -134,8 +134,8 @@ const _dinEntrou = Date.now(), _dinCartaoEm = _dinEntrou + (window.__DIN_JA ? 0 
     try { tut = !!localStorage.getItem('vel_tut_' + uid); cartao = !!localStorage.getItem('vel_cartao_guia_' + uid); nov = !!localStorage.getItem(typeof NOVIDADES_CHAVE !== 'undefined' ? NOVIDADES_CHAVE : 'x') || !!window.__SEM_NOV; dia = localStorage.getItem('vel_sem_din_' + uid); } catch { }
     if (!tut || !nov || (typeof tycoonAberto !== 'undefined' && tycoonAberto) || document.querySelector('.veil, .tel-modal, .pergunta, .novidades, #telVeil:not([hidden])')) return;
     if (!cartao) { mostrarCartaoGuia(); return; }
-    if (Date.now() >= _dinSemEm && dia !== hojeLuanda() && semDinheiroAgora()) {
-      try { localStorage.setItem('vel_sem_din_' + uid, hojeLuanda()); } catch { }
+    if (Date.now() >= _dinSemEm && dia !== hojeMaputo() && semDinheiroAgora()) {
+      try { localStorage.setItem('vel_sem_din_' + uid, hojeMaputo()); } catch { }
       clearInterval(t); mostrarSemDinheiro();
     }
   }, 3000);

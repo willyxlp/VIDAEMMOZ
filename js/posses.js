@@ -77,7 +77,7 @@ function renderLoja(body) {
     const online = p => Math.ceil(p * 115 / 10000) * 100 + 500;   // (contas inteiras, como o servidor)
     const guardados = minhaMobilia.filter(m => m.x == null).length, lim = 60 + (J.armazem_extra || 0), custoArm = 50000 * (1 + Math.floor((J.armazem_extra || 0) / 20));
     h += `<div class="row" style="margin-bottom:10px"><span class="e">📦</span><div class="t"><b>Armazém: ${guardados}/${lim} móveis</b><small>Precisas de mais espaço? +20 lugares.</small></div><button class="btn sm ghost" id="bArmazem">${fmtMt(custoArm)}</button></div>`;
-    h += `<p class="m">Móveis entregues no teu armazém (+15% e 500 Kz de entrega). Mais baratos nos Móveis do Mercado Central ou no Casa & Design (Sommerschield).</p>
+    h += `<p class="m">Móveis entregues no teu armazém (+15% e 500 MT de entrega). Mais baratos nos Móveis do Mercado Central ou no Casa & Design (Sommerschield).</p>
       ${J.casa ? `<div class="row mine" style="margin-bottom:10px"><span class="e">🔨</span><div class="t"><b>Como pôr na casa</b><small>Vai a casa (🏠 Casa), carrega em 🔨 Decorar, escolhe o móvel e toca no chão.${guardados ? ` Tens ${guardados} no armazém.` : ''}</small></div></div>` : ''}
       ${gruposMoveis(D.moveis.filter(m => m.preco > 0 && (!(typeof ui2 === 'function' && ui2()) || !lojaSala || catMovel(m.tipo) === lojaSala)).sort((a, z) => a.preco - z.preco), ms => `<div class="list">${ms.map(m => `<div class="row">${miniaturaHTML('movel', m.id)}<div class="t"><b>${esc(m.nome)} ${m.preco >= 90000 ? '💎' : ''}</b><small>${esc(m.efeito)} · na loja ${fmtMt(m.preco)}</small></div><button class="btn sm" data-a="comprar_online" data-v="${m.id}">${fmtMt(online(m.preco))}</button></div>`).join('')}</div>`)}`;
   } else {
@@ -305,18 +305,18 @@ function renderOuro(body) {
   const nomeCat = { moda: 'Visual', veiculo: 'Veículo', casa: 'Para a casa' };
   body.innerHTML = `
     <div class="ouroTopo"><div class="ouroSaldo">🪙 <b>${ouro.toLocaleString('pt-PT')}</b> <span>Ouro</span></div>
-      <p class="m">Extras exclusivos para te destacares em Luanda. O Ouro é teu para sempre (não se perde quando a personagem morre), não se envia a outros jogadores e não entra nos jogos de sorte.</p></div>
+      <p class="m">Extras exclusivos para te destacares em Maputo. O Ouro é teu para sempre (não se perde quando a personagem morre), não se envia a outros jogadores e não entra nos jogos de sorte.</p></div>
     <div class="sec"><h4>Comprar Ouro</h4><span class="abas" style="margin:0"><button data-moeda="eur" class="${moedaOuro() === 'eur' ? 'on' : ''}">€ EUR</button><button data-moeda="usd" class="${moedaOuro() === 'usd' ? 'on' : ''}">$ USD</button></span></div>
     <div class="pacotes">${(D.pacotes || []).map(p => `<div class="pacote ${p.destaque ? 'dest' : ''}">${p.destaque ? `<i class="selo">${esc(tr(p.destaque))}</i>` : ''}
       <div class="pq">🪙 ${(p.ouro + p.bonus).toLocaleString('pt-PT')}</div>${p.bonus ? `<small>${p.ouro} + ${p.bonus} ${tr('de bónus')}</small>` : '<small>&nbsp;</small>'}${maisOuroPct(p) > 0 ? `<small class="mais-ouro"${p.destaque ? ' style="color:var(--gold);font-weight:800"' : ''}>${tr('+{0}% de Ouro por €').replace('{0}', maisOuroPct(p))}</small>` : '<small>&nbsp;</small>'}
       ${precoOuro(p) ? `<button class="btn sm" data-comprar-ouro="${esc(p.id)}">${precoOuro(p)}</button>` : ''}${D.pagaKz ? `<button class="btn sm ghost" data-ouro-kz="${esc(p.id)}" style="margin-top:4px">${fmtMt(p.preco_kz)}</button>` : (p.preco_usd_centimos ? '' : `<button class="btn sm" disabled>${fmtMt(p.preco_kz)}</button>`)}</div>`).join('')}</div>
     <p class="m" style="margin-top:8px">${D.pagaKz ? 'Paga em euros ou dólares com cartão (Visa, Mastercard) numa página segura, ou em MT por e-Moza Express / transferência.' : 'Paga com cartão (Visa, Mastercard) numa página segura da Stripe. O e-Moza Express chega em breve.'}</p>
-    ${(D.pacotesMt || []).length ? `<div class="sec"><h4>💵 ${tr('Comprar Kz')}</h4><span>${tr('máx. 250.000 Kz por semana')}</span></div>
-    <p class="m aviso-kz">⚠️ ${tr('Quem compra Kz deixa de poder jogar a dinheiro (raspadinha, lotaria, apostas, casino) para sempre — nesta conta e nas do mesmo aparelho. Os Kz comprados não se enviam a outros jogadores.')}</p>
+    ${(D.pacotesMt || []).length ? `<div class="sec"><h4>💵 ${tr('Comprar MT')}</h4><span>${tr('máx. 250.000 MT por semana')}</span></div>
+    <p class="m aviso-kz">⚠️ ${tr('Quem compra MT deixa de poder jogar a dinheiro (raspadinha, lotaria, apostas, casino) para sempre — nesta conta e nas do mesmo aparelho. Os MT comprados não se enviam a outros jogadores.')}</p>
     <div class="pacotes">${D.pacotesMt.map(p => `<div class="pacote"><div class="pq">💵 ${fmtMt(p.kz)}</div><small>&nbsp;</small>${precoOuro(p) ? `<button class="btn sm" data-comprar-kz="${esc(p.id)}">${precoOuro(p)}</button>` : ''}</div>`).join('')}</div>` : ''}
-    <div class="sec"><h4>${tr('Pagar com Ouro')}</h4><span>1 🪙 = 100 Kz</span></div>
-    <div class="abas" style="margin-bottom:6px"><button data-pagar="kz" class="${pagarComOuro() ? '' : 'on'}">${tr('Pagar compras em Kz')}</button><button data-pagar="ouro" class="${pagarComOuro() ? 'on' : ''}">🪙 ${tr('Pagar compras em Ouro')}</button></div>
-    <p class="m">${tr('Lojas, stand, móveis e casas: escolhe se pagas em Kz ou em Ouro. Se te faltar Kz, também podes pagar com Ouro na hora.')}</p>
+    <div class="sec"><h4>${tr('Pagar com Ouro')}</h4><span>1 🪙 = 100 MT</span></div>
+    <div class="abas" style="margin-bottom:6px"><button data-pagar="kz" class="${pagarComOuro() ? '' : 'on'}">${tr('Pagar compras em MT')}</button><button data-pagar="ouro" class="${pagarComOuro() ? 'on' : ''}">🪙 ${tr('Pagar compras em Ouro')}</button></div>
+    <p class="m">${tr('Lojas, stand, móveis e casas: escolhe se pagas em MT ou em Ouro. Se te faltarem MT, também podes pagar com Ouro na hora.')}</p>
     <div class="sec"><h4>🛡️ ${tr('Proteção contra roubos')}</h4></div>
     ${protecaoHTML()}
     <div class="sec"><h4>✨ ${tr('Exclusivo Ouro')}</h4></div>
@@ -353,7 +353,7 @@ function renderOuro(body) {
     b.disabled = false;
     if (error) { toast(limparErro(error.message), 'mau'); return; }
     const linha = (t, v) => v ? `<div class="row"><div class="t"><small>${t}</small><b data-sem-traducao style="user-select:all">${esc(v)}</b></div></div>` : '';
-    sheet(`<h3>Pagar em Kz</h3>
+    sheet(`<h3>Pagar em MT</h3>
       <p class="m">Transfere <b>${fmtMt(r.valor_kz)}</b> e escreve o código no descritivo. Quando confirmarmos, recebes 🪙 ${r.ouro} Ouro (normalmente no mesmo dia).</p>
       <div class="list">${linha('Código (escreve no descritivo)', r.codigo)}${linha('Multicaixa Express', r.multicaixa)}${linha('IBAN', r.iban)}${linha('Titular', r.titular)}${linha('Banco', r.banco)}</div>
       ${r.contacto ? `<p class="m" style="margin-top:8px">Envia o comprovativo com o código para <b data-sem-traducao>${esc(r.contacto)}</b>.</p>` : ''}
