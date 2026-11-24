@@ -215,7 +215,7 @@ async function renderEmpresas(body) {
   let emps, fs, nomes, contagem = null, error = null;
   // (guardada 2 min no telemóvel: abrir o app outra vez não descarrega a lista de novo)
   const pub = (renderEmpresas._c && Date.now() - renderEmpresas._em < 120000) ? renderEmpresas._c
-    : await fetch('/api/empresas').then(r => r.ok ? r.json() : null, () => null).then(d => { if (d?.e) { renderEmpresas._c = d; renderEmpresas._em = Date.now(); } return d; });
+    : (location.hostname.endsWith('github.io') ? null : await fetch('/api/empresas').then(r => r.ok ? r.json() : null, () => null).then(d => { if (d?.e) { renderEmpresas._c = d; renderEmpresas._em = Date.now(); } return d; }));
   if (pub?.e) {
     const m = await sb.from('empresas').select('*').eq('dono', uid).eq('falida', false).order('id');
     if (m.error) error = m.error;

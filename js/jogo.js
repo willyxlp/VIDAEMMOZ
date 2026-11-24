@@ -1646,7 +1646,7 @@ function atualizarDepois() {
 }
 setInterval(() => {
   if (!_minhaVersao || _atualizarPendente) return;
-  fetch('/versao.json?t=' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.json() : null).then(v => { if (v?.v && v.v !== _minhaVersao) atualizarDepois(); }).catch(() => { });
+  fetch('versao.json?t=' + Date.now(), { cache: 'no-store' }).then(r => r.ok ? r.json() : null).then(v => { if (v?.v && v.v !== _minhaVersao) atualizarDepois(); }).catch(() => { });
 }, 5 * 60000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) setTimeout(pulsar, 1500); });
 function toqueAnuncio(id, tipo) { if (id) sb.rpc('registar_toque', { p_id: id, p_tipo: tipo }).then(() => { }, () => { }); }
@@ -1824,7 +1824,8 @@ function carregar3D() {
   carregar3D._a = true;
   import('./mundo3d.js').catch(e => { console.warn('3D não carregou', e); m3dPedido = false; m3dFalhou = 'O mundo 3D não carregou neste aparelho.'; });
 }
-const m3dAtivo = () => m3dPedido && !!window.M3D && !!cena && (cena.tipo === 'bairro' || cena.tipo === 'casa' || cena.tipo === 'interior') && !!eu;
+// interiores usam sempre o canvas 2D isométrico — o 3D não sabe desenhar móveis
+const m3dAtivo = () => m3dPedido && !!window.M3D && !!cena && (cena.tipo === 'bairro' || cena.tipo === 'casa') && !!eu;
 function desenhar3D(t) {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, CW, CH_);
   cv.style.background = 'transparent';
