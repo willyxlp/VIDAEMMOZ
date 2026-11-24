@@ -340,14 +340,14 @@ function ui2Jornal(body, noticias, coroas, virais) {
     h = voltar('Esta semana') + (agora || `<div class="empty">${esc(tr('Ainda ninguém pontuou esta semana.'))}</div>`) + `<p class="m">${esc(tr('Fecha domingo à meia-noite. Quem ganhar leva a coroa e +5 de reputação.'))}</p>`;
   } else if (jornalSec === 'fofocas') {
     h = voltar('Fofocas') + (virais.length ? `<div class="sub2">🔥 ${esc(tr('Viral no Muxima'))}</div>${virais.map(p => `<div class="row"><span class="e">${p.foto || '🔥'}</span><div class="t"><b>"${esc(p.texto.slice(0, 70))}"</b><small>${esc(p.nome)} · ${fmtN(gostosDe(p))} gostos</small></div></div>`).join('')}<div class="sub2">${esc(tr('Últimas'))}</div>` : '')
-      + (noticias.length ? noticias.map(nota).join('') : `<div class="empty">${esc(tr('Dia calmo em Luanda. Nada a reportar.'))}</div>`);
+      + (noticias.length ? noticias.map(nota).join('') : `<div class="empty">${esc(tr('Dia calmo em Maputo. Nada a reportar.'))}</div>`);
   } else {
     const fof24 = noticias.filter(n => Date.now() - new Date(n.criado_em) < 864e5).length;
     const el = typeof PROV !== 'undefined' && PROV ? (PROV.eleicoes || [])[0] : null;
     const foto = capa?.bairro && bairro(capa.bairro) ? capa.bairro : 'mutamba';
     const manchete = rico ? [tr('{0} é o/a mais rico/a da semana').replace('{0}', rico.c.nome), fmtMt(rico.c.valor), 'coroas'] : capa ? [corpo(capa.texto), `${bairro(capa.bairro)?.nome || 'Maputo'} · há ${tempoRel(capa.criado_em)}`, 'fofocas'] : null;
     const sec = (k, ic, cor, nome, sub, acao) => `<button class="row dest-card ui2-secj" data-js="${k}"><div class="dest-foto" style="--c:${cor}"><span class="e">${ic}</span></div><div class="t"><b>${esc(tr(nome))}</b><small>${esc(sub)}</small></div><span class="dest-preco">${esc(acao)} ›</span></button>`;
-    h = (manchete ? `<button class="ui2-manchete" data-js="${manchete[2]}"><img src="img/bairros/${esc(foto)}.webp" alt="" draggable="false"><span><i>${esc(tr('MANCHETE'))}</i><b>${esc(manchete[0])}</b><small>${esc(manchete[1])}</small></span></button>` : `<div class="empty">${esc(tr('Dia calmo em Luanda. Nada a reportar.'))}</div>`)
+    h = (manchete ? `<button class="ui2-manchete" data-js="${manchete[2]}"><img src="img/bairros/${esc(foto)}.webp" alt="" draggable="false"><span><i>${esc(tr('MANCHETE'))}</i><b>${esc(manchete[0])}</b><small>${esc(manchete[1])}</small></span></button>` : `<div class="empty">${esc(tr('Dia calmo em Maputo. Nada a reportar.'))}</div>`)
       + `<p class="ui2-q">${esc(tr('Secções do jornal'))}</p><div class="dest-grelha">
         ${sec('coroas', '👑', '#ffcb00', 'Coroas', tr('Os campeões da semana'), passadas.length ? tr(passadas.length === 1 ? '{0} coroa' : '{0} coroas').replace('{0}', passadas.length) : tr('Ver'))}
         ${sec('semana', '📊', '#8fa8ff', 'Esta semana', tr('Quem vai à frente'), tr('Ver tabela'))}
@@ -416,16 +416,16 @@ async function ui2Ranking(body, data) {
   ui2Como(body, 'Como se conta o património');
 }
 
-/* ---------- ⛅ Tempo: aqui em grande com a foto do bairro; o resto de Angola em cartões ---------- */
-const UI2_REG_FOTO = { luanda: 'mutamba', benguela: 'benguela', huambo: 'huambo', 'huíla': 'lubango', namibe: 'namibe', malanje: 'malanje', cabinda: 'cabinda' };
+/* ---------- ⛅ Tempo: aqui em grande com a foto do bairro; o resto de Moçambique em cartões ---------- */
+const UI2_REG_FOTO = { maputo: 'baixa', sofala: 'maxaquene', nampula: 'costa_do_sol', zambezia: 'maxaquene', cabo_delgado: 'costa_do_sol', niassa: 'magoanine', inhambane: 'catembe' };
 function ui2Tempo(body) {
   const r = climaHoje?.regioes || {}, aqui = tempoAqui(), minha = regiaoDe(J.bairro);
-  const nomes = { luanda: 'Luanda', benguela: 'Benguela', huambo: 'Huambo', 'huíla': 'Lubango', namibe: 'Namibe', malanje: 'Malanje', cabinda: 'Cabinda' };
+  const nomes = { maputo: 'Maputo', sofala: 'Sofala', nampula: 'Nampula', zambezia: 'Zambézia', cabo_delgado: 'Cabo Delgado', niassa: 'Niassa', inhambane: 'Inhambane' };
   const noite = escuridao() > 0.24, ver = t => t === 'sol' && noite ? ['🌙', 'Céu limpo'] : TEMPO[t] || ['…', ''];
   const chuva = k => { const j = janelaChuva(k); return j ? (r[k] === 'tempestade' ? tr('Tempestade das {0}h às {1}h') : tr('Chuva das {0}h às {1}h')).replace('{0}', j[0]).replace('{1}', j[1]) : ''; };
   const cor = t => t === 'sol' ? 'var(--gold)' : t === 'chuva' || t === 'tempestade' ? '#8fc4ff' : 'var(--muted)';
   ui2Pilula(body, `${String(Math.floor(horaMaputo())).padStart(2, '0')}:${String(Math.floor(horaMaputo() % 1 * 60)).padStart(2, '0')} · ${tr(noite ? 'noite' : 'dia')}`);
-  const fotoAqui = bairro(J.bairro) && ['mutamba', 'maianga', 'talatona', 'kilamba', 'viana', 'cazenga', 'ilha', 'mussulo', 'camama', 'rangel', 'novavida', 'zango', 'benguela', 'huambo', 'lubango', 'namibe', 'malanje', 'cabinda'].includes(J.bairro) ? J.bairro : UI2_REG_FOTO[minha] || 'mutamba';
+  const fotoAqui = bairro(J.bairro) && ['baixa', 'alto_mae', 'sommerschield', 'bairro_central', 'costa_do_sol', 'catembe', 'mussequene', 'magoanine', 'maxaquene', 'polana_canico', 'ilha'].includes(J.bairro) ? J.bairro : UI2_REG_FOTO[minha] || 'baixa';
   body.innerHTML = `<div class="ui2-agora"><img src="img/bairros/${esc(fotoAqui)}.webp" alt="" draggable="false"><span>
       <small>${esc(tr('Aqui'))} · ${esc(bairro(J.bairro)?.nome || '')}</small><b><em>${aqui ? ver(aqui)[0] : '…'}</em>${esc(tr(aqui ? ver(aqui)[1] : ''))}</b><small>${esc(chuva(minha) || tr('Sem chuva hoje'))}</small></span></div>
     <p class="ui2-q">${esc(tr('No resto de Moçambique'))}</p>
@@ -598,7 +598,7 @@ function ui2Empresas(body, minhas, nOutras) {
     else { const r = body.querySelector(`.rel[data-e="${empSec}"]`); if (r) { r.hidden = false; body.prepend(voltar(minhas.find(x => String(x.id) === empSec)?.nome || '')); } else { empSec = null; return ui2Empresas(body, minhas, nOutras); } }
     body.scrollTop = 0; return;
   }
-  // ecrã principal: cartões + «Abrir» + a lista de Luanda (que fica como está, com pesquisa)
+  // ecrã principal: cartões + «Abrir» + a lista de Maputo (que fica como está, com pesquisa)
   rels.forEach(el => el.hidden = true); filhos.slice(iAbrir < 0 ? iForm : iAbrir, iForm + 1).forEach(el => el.hidden = true);
   const T = id => TIPOS_EMP[id] || {};
   const casa = document.createElement('div');
@@ -715,7 +715,7 @@ function ui2Ouro(body) {
       ${ui2Card('data-os="extras"', '', '🦜', '#8fa8ff', tr('Móveis, animais e carros'), tr('Piano, trono, papagaio…'), pExt ? `${esc(tr('desde'))} ${pExt} ›` : '›')}
       ${ui2Card('data-os="protecao"', '', '🛡️', '#4cc38a', tr('Proteção'), tr('Contra roubos'), esc(tr('Ver')) + ' ›')}
     </div>
-    <div class="ui2-eu" id="ui2PagarOuro" style="cursor:pointer"><span class="t"><b>${esc(tr('Pagar compras com Ouro'))}</b><small>${esc(tr('1 Ouro = 100 Kz nas lojas'))}</small></span><span class="ui2-sw${pagarComOuro() ? ' on' : ''}" role="switch" aria-checked="${pagarComOuro()}"><i></i></span></div>`;
+    <div class="ui2-eu" id="ui2PagarOuro" style="cursor:pointer"><span class="t"><b>${esc(tr('Pagar compras com Ouro'))}</b><small>${esc(tr('1 Ouro = 100 MT nas lojas'))}</small></span><span class="ui2-sw${pagarComOuro() ? ' on' : ''}" role="switch" aria-checked="${pagarComOuro()}"><i></i></span></div>`;
   body.prepend(casa);
   casa.querySelectorAll('[data-os]').forEach(b => b.onclick = () => {
     if (b.dataset.os === 'casas') { const el = sheet(`<h3>${esc(tr('Casas VIP'))}</h3><p class="m">${esc(tr('A Penthouse VIP fica na Torre VIP da Marginal, na Baixa. As vivendas VIP ficam no Mussulo. Vai lá e toca no prédio para comprar com Ouro.'))}</p><button class="btn full" data-ir-paragem>${esc(tr('Ir à paragem'))}</button>`); el.querySelector('[data-ir-paragem]').onclick = () => { fecharSheets(); irParaParagem(); }; return; }
@@ -731,7 +731,7 @@ let sorteSec = null;
 function ui2Sorte(body, s) {
   const { jogos, proxima, ultima, meusBil, aberto, nomeJogo, dataCurta, aps } = s;
   ui2Pilula(body, tr('Sorteio às 20h'));
-  const fechado = J?.comprou_kz ? `<div class="row lock sem-jogos"><span class="e">🚫</span><div class="t"><b>${tr('Os jogos a dinheiro estão fechados para ti')}</b><small>${tr('Compraste Kz (nesta conta ou noutra do mesmo aparelho). Quem compra Kz não pode jogar a dinheiro.')}</small></div></div>` : '';
+  const fechado = J?.comprou_kz ? `<div class="row lock sem-jogos"><span class="e">🚫</span><div class="t"><b>${tr('Os jogos a dinheiro estão fechados para ti')}</b><small>${tr('Compraste MT (nesta conta ou noutra do mesmo aparelho). Quem compra MT não pode jogar a dinheiro.')}</small></div></div>` : '';
   if (sorteSec === 'liga') {
     body.innerHTML = ui2Voltar4('Sorte', 'Liga de Moçambique') + fechado + (jogos.filter(aberto).length ? `<div class="list">${jogos.filter(aberto).map(g => `<div class="rel" style="margin-top:0"><div class="lbl"><span>${esc(g.casa)} x ${esc(g.fora)}</span><span style="color:var(--dim);font-weight:600">${dataCurta(g.dia)} · ${g.hora.slice(0, 5)}</span></div>
       <div class="grelha" style="grid-template-columns:repeat(3,1fr)">${[['1', g.odd1, 'Casa'], ['X', g.oddx, 'Empate'], ['2', g.odd2, 'Fora']].map(([k, o, t]) => `<button data-ap="${g.id}:${k}:${o}" style="justify-content:center;flex-direction:column;gap:0"><b>${k}</b><small>${esc(tr(t))} · ${fmtTaxa(o)}</small></button>`).join('')}</div></div>`).join('')}</div>` : `<div class="empty">${esc(tr('Não há jogos abertos agora.'))}</div>`)
@@ -741,7 +741,7 @@ function ui2Sorte(body, s) {
     const hojeAbertos = jogos.filter(aberto).length;
     body.innerHTML = fechado + `<div class="ui2-lotaria"><span class="ui2-l"><i class="ui2-tag">${esc(tr('Lotaria de hoje'))}</i><small>${meusBil.length ? esc(tr('Os teus bilhetes')) + ': ' + meusBil.map(b => String(b.numero).padStart(3, '0')).join(' · ') : ''}</small></span>
         <small>${esc(tr('Pote'))}</small><b>${fmtMt(proxima?.pote ?? 1000000)}</b>
-        <small>${esc(tr('Acerta os 3 números para levar o pote; os 2 últimos dão 10.000 Kz.'))}${ultima ? ' ' + esc(tr('Último número: {0}').replace('{0}', String(ultima.numero ?? '').padStart(3, '0'))) : ''}</small>
+        <small>${esc(tr('Acerta os 3 números para levar o pote; os 2 últimos dão 10.000 MT.'))}${ultima ? ' ' + esc(tr('Último número: {0}').replace('{0}', String(ultima.numero ?? '').padStart(3, '0'))) : ''}</small>
         <span class="ui2-l"><input class="inp" id="iNum" type="number" min="0" max="999" placeholder="${esc(tr('Nº ou vazio = sorte'))}" aria-label="${esc(tr('Número do bilhete'))}"><button class="btn" id="bBilhete">${esc(tr('Comprar bilhete'))} · ${fmtMt(1000)}</button></span></div>
       <p class="ui2-q">${esc(tr('Ou tenta outra coisa'))}</p>
       <div class="dest-grelha">
@@ -766,17 +766,17 @@ function ui2Sorte(body, s) {
 function ui2Lavras(body, data, noCampo, mult, chuvas, col) {
   ui2Pilula(body, tr(chuvas ? 'Época das chuvas' : 'Cacimbo'));
   const agora = Date.now(), sacos = Object.entries(CULTURAS).reduce((s, [k]) => s + (col[k] || 0), 0);
-  const FOTO = b => ['huambo', 'malanje'].includes(b) ? b : 'huambo';
+  const FOTO = b => ['maxaquene', 'magoanine', 'costa_do_sol', 'catembe'].includes(b) ? b : 'maxaquene';
   body.innerHTML = `${data.length ? `<div class="ui2-rot" style="margin-top:0">${esc(tr('As tuas lavras'))}</div><div class="dest-grelha">${data.map(l => {
       const c = CULTURAS[l.cultura], pronta = new Date(l.pronta_em) <= agora, h = Math.max(0, Math.ceil((new Date(l.pronta_em) - agora) / 3600e3)), aqui = l.bairro === J.bairro;
       const pct = Math.max(4, Math.min(100, 100 - h / c.horas * 100));
       return `<div class="row dest-card ui2-lavra${pronta ? ' pronta' : ''}"><div class="dest-foto"><img src="img/bairros/${FOTO(l.bairro)}.webp" alt="" loading="lazy" draggable="false"><i class="ui2-selo${pronta ? ' verde' : ''}">${esc(pronta ? tr('Pronta') : tr('Faltam {0} h').replace('{0}', h))}</i></div>
         <div class="t"><b>${c.e} ${esc(tr(c.nome))} · ${esc(bairro(l.bairro)?.nome || '')}</b>${pronta ? `<small>${esc(tr('{0} sacos à tua espera').replace('{0}', c.sacos))}</small>` : `<i class="ui2-barra"><u style="width:${pct}%"></u></i>`}${l.regada ? `<small>💧 ${esc(tr('regada'))}</small>` : ''}</div>
-        ${aqui && pronta ? `<button class="btn sm" data-colher="${l.id}">${esc(tr('Colher'))}</button>` : aqui && !l.regada ? `<button class="btn sm ghost" data-regar="${l.id}">💧 ${esc(tr('Regar'))}</button>` : !aqui ? `<small class="m">${esc(tr('Vai lá para {0}').replace('{0}', tr(pronta ? 'colher' : 'regar')))}</small>` : ''}</div>`; }).join('')}</div>` : `<div class="ui2-heroi"><img src="img/bairros/huambo.webp" alt="" draggable="false"><div><b>${esc(tr('Planta a tua primeira lavra'))}</b><span>${esc(tr('No Huambo ou em Malanje. Colhes um ou dois dias depois e vendes em Luanda por mais.'))}</span></div></div>`}
+        ${aqui && pronta ? `<button class="btn sm" data-colher="${l.id}">${esc(tr('Colher'))}</button>` : aqui && !l.regada ? `<button class="btn sm ghost" data-regar="${l.id}">💧 ${esc(tr('Regar'))}</button>` : !aqui ? `<small class="m">${esc(tr('Vai lá para {0}').replace('{0}', tr(pronta ? 'colher' : 'regar')))}</small>` : ''}</div>`; }).join('')}</div>` : `<div class="ui2-heroi"><img src="img/bairros/maxaquene.webp" alt="" draggable="false"><div><b>${esc(tr('Planta a tua primeira lavra'))}</b><span>${esc(tr('Em Maxaquene ou em Magoanine. Colhes um ou dois dias depois e vendes em Maputo por mais.'))}</span></div></div>`}
     ${noCampo ? `<p class="ui2-q">${esc(tr('Plantar aqui em {0}').replace('{0}', bairro(J.bairro).nome))}</p><div class="ui2-grid ui2-plantar">${Object.entries(CULTURAS).map(([k, c]) => `<button class="ui2-peq" data-plantar="${k}"><span>${c.e}</span><b>${esc(tr(c.nome))}<small>${c.horas} h · ${c.sacos} ${esc(tr('sacos'))}</small><small class="ui2-ouro">${fmtMt(c.semente)} ›</small></b></button>`).join('')}</div>`
-      : `<button class="row ui2-fundar" id="ui2IrCampo"><span class="ui2-ic">🚂</span><div class="t"><b>${esc(tr('Ir plantar'))}</b><small>${esc(tr('Huambo ou Malanje · comboio desde Viana ou Benguela'))}</small></div><span class="dest-preco">›</span></button>`}
-    ${sacos ? `<div class="ui2-rot">${esc(tr('Armazém'))} · ${esc(tr(mult === 1.7 ? 'preço de Luanda' : mult === 1 ? 'preço do campo' : 'preço da cidade'))}</div><div class="ui2-caixa">${Object.entries(CULTURAS).filter(([k]) => col[k] > 0).map(([k, c]) => `<div class="ui2-nota"><span class="ui2-ic">${c.e}</span><span class="t"><b>${col[k]} ${esc(tr('sacos'))} · ${esc(tr(c.nome))}</b><small>${fmtMt(Math.round(c.preco * mult))} ${esc(tr('por saco'))}</small></span><button class="btn sm" data-vender="${k}" data-n="${col[k]}">${fmtMt(Math.round(c.preco * mult * col[k]))}</button></div>`).join('')}</div>` : ''}
-    <p class="m">${esc(tr(chuvas ? 'É a época das chuvas: as colheitas rendem mais.' : 'É o cacimbo: sem chuva, rega as lavras ou a colheita sai fraca.'))} ${esc(tr('Planta no campo (Huambo ou Malanje), colhe quando estiver pronto e vende. Em Luanda pagam mais (×1,7), na cidade ×1,3.'))}</p>`;
+      : `<button class="row ui2-fundar" id="ui2IrCampo"><span class="ui2-ic">🚂</span><div class="t"><b>${esc(tr('Ir plantar'))}</b><small>${esc(tr('Maxaquene ou Magoanine · chapa desde Baixa ou Costa do Sol'))}</small></div><span class="dest-preco">›</span></button>`}
+    ${sacos ? `<div class="ui2-rot">${esc(tr('Armazém'))} · ${esc(tr(mult === 1.7 ? 'preço de Maputo' : mult === 1 ? 'preço do campo' : 'preço da cidade'))}</div><div class="ui2-caixa">${Object.entries(CULTURAS).filter(([k]) => col[k] > 0).map(([k, c]) => `<div class="ui2-nota"><span class="ui2-ic">${c.e}</span><span class="t"><b>${col[k]} ${esc(tr('sacos'))} · ${esc(tr(c.nome))}</b><small>${fmtMt(Math.round(c.preco * mult))} ${esc(tr('por saco'))}</small></span><button class="btn sm" data-vender="${k}" data-n="${col[k]}">${fmtMt(Math.round(c.preco * mult * col[k]))}</button></div>`).join('')}</div>` : ''}
+    <p class="m">${esc(tr(chuvas ? 'É a época das chuvas: as colheitas rendem mais.' : 'É o cacimbo: sem chuva, rega as lavras ou a colheita sai fraca.'))} ${esc(tr('Planta no campo (Maxaquene ou Magoanine), colhe quando estiver pronto e vende. Em Maputo pagam mais (×1,7), na cidade ×1,3.'))}</p>`;
   const depois = () => abrirTelemovel('lavras');
   body.querySelectorAll('[data-plantar]').forEach(b => b.onclick = async () => { if (await acao('plantar', { p_cultura: b.dataset.plantar })) depois(); });
   body.querySelectorAll('[data-regar]').forEach(b => b.onclick = async () => { if (await acao('regar', { p_id: +b.dataset.regar })) depois(); });
@@ -889,7 +889,7 @@ function ui2Lugar(el, o) {
   const limpo = t => t.replace(/^\p{Extended_Pictographic}️?\s*/u, '');
   const cartao = (p, i) => {
     const t = limpo(titulo(p)), [ic, cor] = UI2_LUGAR_IC[t] || [(titulo(p).match(/^\p{Extended_Pictographic}️?/u) || ['✨'])[0], '#ffcb00'];
-    const precos = p.flatMap(n => [...n.querySelectorAll('button.btn')].map(b => { const m = b.textContent.replace(/\./g, '').match(/(\d+)\s*Kz/); return m ? +m[1] : null; })).filter(x => x > 0);
+    const precos = p.flatMap(n => [...n.querySelectorAll('button.btn')].map(b => { const m = b.textContent.replace(/\./g, '').match(/(\d+)\s*MT/); return m ? +m[1] : null; })).filter(x => x > 0);
     const linhas = p.reduce((a, n) => a + n.querySelectorAll('.row').length, 0);
     const sub = p[0].querySelector('span')?.textContent?.trim() || (linhas > 1 ? tr('{0} opções').replace('{0}', linhas) : (p[1]?.querySelector('.row .t small')?.textContent || '').slice(0, 40));
     return `<button class="ui2-acao" data-lsec="${i}"><span class="ui2-ic" style="--c:${cor}">${ic}</span><b>${esc(t)}</b><small>${esc(sub)}</small><small class="ui2-ouro">${precos.length ? `${esc(tr('desde'))} ${fmtMt(Math.min(...precos))} ›` : '›'}</small></button>`;

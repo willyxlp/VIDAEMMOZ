@@ -77,7 +77,7 @@ function bbBotaoOdd(e, m, s, rot) {
   return `<button class="bb-odd ${bbNoBoletim(e.id, m, s) ? 'on' : ''}" data-bb-odd="${esc(e.id)}|${m}|${s}"><span>${esc(rot)}</span><b>${bbOdd(o)}</b></button>`;
 }
 function bbCartao(e) {
-  const vivo = e.estado === 'ao_vivo', hora = new Date(e.inicio).toLocaleString(typeof lingua !== 'undefined' && lingua !== 'pt' ? lingua : 'pt-PT', { weekday: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Africa/Luanda' });
+  const vivo = e.estado === 'ao_vivo', hora = new Date(e.inicio).toLocaleString(typeof lingua !== 'undefined' && lingua !== 'pt' ? lingua : 'pt-PT', { weekday: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Africa/Maputo' });
   const odds = ['1', 'X', '2'].map(s => bbBotaoOdd(e, '1x2', s, s)).join('');
   return `<article class="bb-cartao">
     <button class="bb-cab" data-bb-jogo="${esc(e.id)}"><span>${esc(e.liga)}</span><span class="${vivo ? 'vivo' : ''}">${vivo ? esc(e.minuto || tr('Ao vivo')) : esc(hora)}</span></button>
@@ -107,7 +107,7 @@ function bbJogo() {
   return `<header class="bb-topo"><button class="bb-ic" data-bb-ir="inicio" aria-label="${esc(tr('Voltar'))}">${BB_IC.voltar}</button>
       <div class="bb-tit"><small>${esc(e.liga)}</small><b>${esc(e.casa)} vs ${esc(e.fora)}</b></div>${vivo ? `<span class="bb-vivo"><i class="ponto"></i>${esc(tr('AO VIVO'))}</span>` : ''}</header>
     <section class="bb-placar"><div>${bbEscudo(e.casa, 1)}<b>${esc(e.casa)}</b></div>
-      <div class="bb-res"><b>${vivo ? `${e.golos_casa ?? 0} – ${e.golos_fora ?? 0}` : 'vs'}</b><small class="${vivo ? 'vivo' : ''}">${vivo ? esc(e.minuto || '') : esc(new Date(e.inicio).toLocaleString('pt-PT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', timeZone: 'Africa/Luanda' }))}</small></div>
+      <div class="bb-res"><b>${vivo ? `${e.golos_casa ?? 0} – ${e.golos_fora ?? 0}` : 'vs'}</b><small class="${vivo ? 'vivo' : ''}">${vivo ? esc(e.minuto || '') : esc(new Date(e.inicio).toLocaleString('pt-PT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit', timeZone: 'Africa/Maputo' }))}</small></div>
       <div>${bbEscudo(e.fora, 1)}<b>${esc(e.fora)}</b></div></section>
     <main class="bb-corpo">
       ${merc('1x2', vivo ? tr('atualiza sozinho') : '', [['1', e.casa], ['X', tr('Empate')], ['2', e.fora]])}
@@ -127,7 +127,7 @@ function bbBoletimTela() {
     </main>
     ${b.length ? `<section class="bb-valor">
       <div class="lin"><span>${esc(tr('Odds totais'))}</span><b class="grande">${bbOdd(tot)}</b></div>
-      <label>${esc(tr('Valor a apostar (Kz)'))}<input id="bbValor" type="text" inputmode="numeric" value="${bbN(BB.valor)}"></label>
+      <label>${esc(tr('Valor a apostar (MT)'))}<input id="bbValor" type="text" inputmode="numeric" value="${bbN(BB.valor)}"></label>
       <div class="chips">${[1000, 5000, 10000].map(v => `<button data-bb-v="${v}" class="${BB.valor === v ? 'on' : ''}">${bbN(v)}</button>`).join('')}<button data-bb-v="max">${esc(tr('Máx.'))}</button></div>
       <div class="lin"><span>${esc(tr('Ganho possível'))}</span><b class="verde" id="bbGanho">${bbKz(ganho)}</b></div>
       <button class="bb-apostar" data-bb-apostar>${esc(tr('Apostar {0}').replace('{0}', bbKz(BB.valor)))}</button>
@@ -151,27 +151,27 @@ function bbApostasTela(lista) {
 function bbPromos() {
   const st = BB.est || {}, pct = Math.min(100, Math.round(100 * (st.hoje || 0) / (st.limite || 500000)));
   const P = [['+25%', 'Acumuladora turbo', 'Junta 5 ou mais jogos e ganhas até +25% em cima do prémio.'], ['GIRA', 'Odds aumentadas na Girabola', 'Todos os sábados, os jogos grandes do campeonato angolano com odds melhores.'],
-    ['1x', 'Aposta grátis da semana', 'Faz 3 apostas de 2.000 Kz até domingo e recebes uma aposta grátis de 2.000 Kz.'], ['TOP', 'Desafio do apostador', 'Quem acertar mais resultados da semana entra no ranking e ganha uma coroa.']];
+    ['1x', 'Aposta grátis da semana', 'Faz 3 apostas de 2.000 MT até domingo e recebes uma aposta grátis de 2.000 MT.'], ['TOP', 'Desafio do apostador', 'Quem acertar mais resultados da semana entra no ranking e ganha uma coroa.']];
   return `<header class="bb-topo"><h1 class="bb-h1">${esc(tr('Promoções'))}</h1><button class="bb-ic" data-bb-fechar aria-label="${esc(tr('Fechar'))}">${BB_IC.x}</button></header>
     <main class="bb-corpo">${P.map(([s, t, d]) => `<article class="bb-pr"><span class="selo">${esc(s)}</span><div><b>${esc(tr(t))}</b><small>${esc(tr(d))}</small></div><span class="breve">${esc(tr('Em breve'))}</span></article>`).join('')}
       <section class="bb-resp"><h2>${BB_IC.escudo}${esc(tr('Jogo responsável'))}</h2>
         <div class="lin"><span>${esc(tr('Limite diário de apostas'))}</span><b>${bbKz(st.limite || 500000)}</b></div>
         <div class="lin"><span>${esc(tr('Já apostaste hoje'))}</span><b>${bbKz(st.hoje || 0)}</b></div>
         <div class="barra"><i style="width:${pct}%"></i></div>
-        <p>${esc(tr('Aqui só se aposta dinheiro do jogo: não se compra com dinheiro real nem se levanta. Quem compra Kz não pode apostar. 18+.'))}</p></section></main>${bbNav()}`;
+        <p>${esc(tr('Aqui só se aposta dinheiro do jogo: não se compra com dinheiro real nem se levanta. Quem compra MT não pode apostar. 18+.'))}</p></section></main>${bbNav()}`;
 }
 function bbEntrada() {
   return `<div class="bb-entrada"><div class="cima"><span class="bb-marca grande">${BB_IC.logo}</span><b class="bb-nome">BANDA<i>BET</i></b>
       <p>${esc(tr('Apostas em jogos de verdade — futebol, basquetebol, ténis e combates — com o dinheiro do teu jogo.'))}</p></div>
     <section class="caixa"><h1>${esc(tr('Tens 18 anos ou mais?'))}</h1>
-      <ul><li>${esc(tr('Só se aposta dinheiro do jogo. Não tem valor real e não se levanta.'))}</li><li>${esc(tr('Quem compra Kz (nesta conta ou noutra do mesmo aparelho) não pode apostar.'))}</li><li>${esc(tr('Limite de 500.000 Kz em apostas por dia.'))}</li></ul>
+      <ul><li>${esc(tr('Só se aposta dinheiro do jogo. Não tem valor real e não se levanta.'))}</li><li>${esc(tr('Quem compra MT (nesta conta ou noutra do mesmo aparelho) não pode apostar.'))}</li><li>${esc(tr('Limite de 500.000 MT em apostas por dia.'))}</li></ul>
       <label><input type="checkbox" id="bb18"> ${esc(tr('Confirmo que tenho 18 anos ou mais'))}</label>
       <button class="bb-apostar" data-bb-18 disabled>${esc(tr('Entrar na BandaBet'))}</button>
       <button class="bb-nao" data-bb-fechar>${esc(tr('Agora não'))}</button></section></div>`;
 }
 function bbBloqueado() {
   return `${bbTopo()}<main class="bb-corpo"><section class="bb-resp"><h2>${BB_IC.escudo}${esc(tr('Os jogos a dinheiro estão fechados para ti'))}</h2>
-    <p>${esc(tr('Compraste Kz (nesta conta ou noutra do mesmo aparelho). Quem compra Kz não pode jogar a dinheiro.'))}</p></section></main>`;
+    <p>${esc(tr('Compraste MT (nesta conta ou noutra do mesmo aparelho). Quem compra MT não pode jogar a dinheiro.'))}</p></section></main>`;
 }
 
 function bbDesenhar(lista) {

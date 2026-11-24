@@ -2,7 +2,7 @@
    Vida na Banda — MEDIA
    💛 Muxima (rede social: posts, fotos, gostos, comentários,
    seguidores, fãs, viral, receitas de influencer) e
-   📰 Jornal de Luanda (as notícias do que os jogadores fazem).
+   📰 Jornal de Maputo (as notícias do que os jogadores fazem).
    ============================================================ */
 let muxAba = 'feed', meusGostos = new Set(), aSeguir = new Set();
 const FOTOS = ['🌅', '🏖️', '🍗', '💃', '⚽', '🚐', '🎉', '😎', '🌴', '🏙️', '💍', '👶'];
@@ -116,7 +116,7 @@ async function renderMuxEu(c, body) {
       <div class="stats"><div><b>${fmtN(fas)}</b><small>fãs</small></div><div><b>${seg || 0}</b><small>seguidores</small></div><div><b>${fmtN(total)}</b><small>gostos</small></div></div></div>
     <div class="sub2">💰 Ganhar com o Muxima</div>
     <div class="list">
-      <div class="row ${fas >= 200 ? '' : 'lock'}"><span class="e">💸</span><div class="t"><b>Receita diária</b><small>${fas >= 200 ? `3 Kz por fã (${fmtMt(Math.min(200000, fas * 3))} hoje). Precisas de ter publicado nos últimos 2 dias.` : `A partir de 200 fãs (faltam ${200 - fas})`}</small></div><button class="btn sm" data-inf="receita" ${fas >= 200 && J.influencer_dia !== hoje ? '' : 'disabled'}>${J.influencer_dia === hoje ? 'Recebido' : 'Receber'}</button></div>
+      <div class="row ${fas >= 200 ? '' : 'lock'}"><span class="e">💸</span><div class="t"><b>Receita diária</b><small>${fas >= 200 ? `3 MT por fã (${fmtMt(Math.min(200000, fas * 3))} hoje). Precisas de ter publicado nos últimos 2 dias.` : `A partir de 200 fãs (faltam ${200 - fas})`}</small></div><button class="btn sm" data-inf="receita" ${fas >= 200 && J.influencer_dia !== hoje ? '' : 'disabled'}>${J.influencer_dia === hoje ? 'Recebido' : 'Receber'}</button></div>
       <div class="row ${fas >= 1000 ? '' : 'lock'}"><span class="e">🤝</span><div class="t"><b>Post patrocinado</b><small>${fas >= 1000 ? `Uma marca paga-te ${fmtMt(Math.min(500000, fas * 5))} por um post (1 por dia).` : `A partir de 1.000 fãs (faltam ${fmtN(1000 - fas)})`}</small></div><button class="btn sm" data-inf="patrocinio" ${fas >= 1000 && J.patrocinio_dia !== hoje ? '' : 'disabled'}>${J.patrocinio_dia === hoje ? 'Feito' : 'Aceitar'}</button></div>
     </div>
     <p class="m" style="margin-top:8px">Ganhas fãs a publicar (com foto é melhor), quando gostam, comentam ou te seguem. De vez em quando um post fica viral 🔥.</p>
@@ -125,8 +125,8 @@ async function renderMuxEu(c, body) {
   ligarPosts(c, posts || [], body);
 }
 
-/* ---------- 📰 Jornal de Luanda ---------- */
-// LL3 · coroas da semana (segunda a domingo, hora de Luanda)
+/* ---------- 📰 Jornal de Maputo ---------- */
+// LL3 · coroas da semana (segunda a domingo, hora de Maputo)
 const COROAS = [
   ['rico', '👑', 'O/A mais rico/a', v => fmtMt(v)],
   ['popular', '⭐', 'O/A mais popular', v => `${fmtN(v)} gostos`],
@@ -167,11 +167,11 @@ async function renderJornal(body) {
   const emo = t => (t.match(/^\p{Extended_Pictographic}️?/u) || ['📰'])[0];
   body.innerHTML = `<div class="jornal">
     <div class="masthead">JORNAL DE LUANDA<small>${esc(dataTexto())} · Notícias dos bairros</small></div>
-    ${capa ? `<div class="capa"><div class="e">${emo(capa.texto)}</div><h3>${esc(corpo(capa.texto))}</h3><small>${esc(bairro(capa.bairro)?.nome || 'Angola')} · há ${tempoRel(capa.criado_em)}</small></div>` : '<div class="empty">Dia calmo em Luanda. Nada a reportar.</div>'}
+    ${capa ? `<div class="capa"><div class="e">${emo(capa.texto)}</div><h3>${esc(corpo(capa.texto))}</h3><small>${esc(bairro(capa.bairro)?.nome || 'Maputo')} · há ${tempoRel(capa.criado_em)}</small></div>` : '<div class="empty">Dia calmo em Maputo. Nada a reportar.</div>'}
     ${coroasHTML(coroas)}
     ${(v.data || []).length ? `<div class="sub2">🔥 Viral no Muxima</div>${v.data.map(p => `<div class="row"><span class="e">${p.foto || '🔥'}</span><div class="t"><b>"${esc(p.texto.slice(0, 70))}"</b><small>${esc(p.nome)} · ${fmtN(gostosDe(p))} gostos</small></div></div>`).join('')}` : ''}
     <div class="sub2">Últimas</div>
-    ${noticias.slice(1).map(n => `<div class="nota"><span>${emo(n.texto)}</span><div><b>${esc(corpo(n.texto))}</b><small>${esc(bairro(n.bairro)?.nome || 'Angola')} · há ${tempoRel(n.criado_em)}</small></div></div>`).join('')}
+    ${noticias.slice(1).map(n => `<div class="nota"><span>${emo(n.texto)}</span><div><b>${esc(corpo(n.texto))}</b><small>${esc(bairro(n.bairro)?.nome || 'Maputo')} · há ${tempoRel(n.criado_em)}</small></div></div>`).join('')}
   </div>`;
   ligarCoroas(coroas);
 }

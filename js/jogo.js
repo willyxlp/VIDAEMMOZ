@@ -144,7 +144,7 @@ async function oferecerOuro(fn, args, motivo, podeKz = false) {
     if (/Não tens Ouro/i.test(error.message) && typeof sugerirOuro === 'function') { sugerirOuro(null, limparErro(error.message)); return null; }   // 0dp-2: falta Ouro → pacote de 9,99 €
     toast(limparErro(error.message), 'mau'); return null;
   }
-  const ok = await perguntar(`${motivo ? motivo + ' ' : ''}${tr('Pagar com {0} Ouro? (tens {1})').replace('{0}', data.ouro).replace('{1}', J.ouro || 0)}`, '🪙 ' + tr('Pagar com Ouro'), podeKz ? tr('Pagar em Kz') : tr('Cancelar'));
+  const ok = await perguntar(`${motivo ? motivo + ' ' : ''}${tr('Pagar com {0} Ouro? (tens {1})').replace('{0}', data.ouro).replace('{1}', J.ouro || 0)}`, '🪙 ' + tr('Pagar com Ouro'), podeKz ? tr('Pagar em MT') : tr('Cancelar'));
   if (ok === false && podeKz) return 'kz';
   if (!ok) return null;
   const r = await acao('pagar_com_ouro', { p_acao: fn, p_args: args });
@@ -896,7 +896,7 @@ async function entrarNoJogo(session) {
     setTimeout(() => diaDoSugar(), 8000);
     setTimeout(() => typeof perguntarCasamentos === 'function' && perguntarCasamentos(), 6000);   // 7 nov: anunciar o casamento só se os dois quiserem
     const pKz = new URLSearchParams(location.search).get('kz');
-    if (pKz) { history.replaceState(null, '', location.pathname); toast(pKz === 'ok' ? tr('Pagamento recebido! Os teus Kz chegam em segundos.') : tr('Pagamento cancelado.'), pKz === 'ok' ? 'bom' : 'info', 6000); }
+    if (pKz) { history.replaceState(null, '', location.pathname); toast(pKz === 'ok' ? tr('Pagamento recebido! Os teus MT chegam em segundos.') : tr('Pagamento cancelado.'), pKz === 'ok' ? 'bom' : 'info', 6000); }
     if (/[?&]fila=/.test(location.search)) history.replaceState(null, '', location.pathname);
     const pOuro = new URLSearchParams(location.search).get('ouro');
     if (pOuro) { history.replaceState(null, '', location.pathname); toast(pOuro === 'ok' ? 'Pagamento recebido! O teu Ouro chega em segundos.' : 'Pagamento cancelado.', pOuro === 'ok' ? 'bom' : 'info', 6000); if (pOuro === 'ok') setTimeout(async () => { const { data } = await sb.rpc('estado'); if (data) setJogador(data.jogador); }, 5000); }
@@ -2325,10 +2325,10 @@ async function abrirLugar(o) {
     if (a.t === 'outdoor') h += outdoorHTML(a.slot);
     if (a.t === 'lazer' && (a.id === 'kizomba' || a.id === 'bola') && !h.includes('A tocar agora')) h += musicaLugarHTML();
     if (a.t === 'estacao') h += estacaoHTML();
-    if (a.t === 'grupos' && a.tipo === 'clube') h += `<div class="sec"><h4>⚽ ${tr('Penáltis')}</h4><span>${tr('até 5 por dia')}</span></div><div class="list"><div class="row"><span class="e">🥅</span><div class="t"><b>${tr('Bater penáltis')}</b><small>${tr('5 remates contra o guarda-redes do bairro. Até 900 Kz.')}</small></div><button class="btn sm" data-penaltis>${tr('Jogar')}</button></div></div>`;
-    if (a.t === 'moda') h += `<div class="sec"><h4>💃 ${tr('Desafio de estilo')}</h4><span>${tr('até 5 por dia')}</span></div><div class="list"><div class="row"><span class="e">👗</span><div class="t"><b>${tr('Vestir uma cliente')}</b><small>${tr('Ela diz o tema; tu escolhes roupa, cores, penteado e acessórios. Até 1.200 Kz.')}</small></div><button class="btn sm" data-moda>${tr('Jogar')}</button></div></div>`;
+    if (a.t === 'grupos' && a.tipo === 'clube') h += `<div class="sec"><h4>⚽ ${tr('Penáltis')}</h4><span>${tr('até 5 por dia')}</span></div><div class="list"><div class="row"><span class="e">🥅</span><div class="t"><b>${tr('Bater penáltis')}</b><small>${tr('5 remates contra o guarda-redes do bairro. Até 900 MT.')}</small></div><button class="btn sm" data-penaltis>${tr('Jogar')}</button></div></div>`;
+    if (a.t === 'moda') h += `<div class="sec"><h4>💃 ${tr('Desafio de estilo')}</h4><span>${tr('até 5 por dia')}</span></div><div class="list"><div class="row"><span class="e">👗</span><div class="t"><b>${tr('Vestir uma cliente')}</b><small>${tr('Ela diz o tema; tu escolhes roupa, cores, penteado e acessórios. Até 1.200 MT.')}</small></div><button class="btn sm" data-moda>${tr('Jogar')}</button></div></div>`;
     if (a.t === 'barco') h += barcoHTML();
-    if (a.t === 'moda_loja') h +=   /* 9 nov: lojas de roupa no jogo a sério */ `<div class="sec"><h4>👗 ${esc(tr('Loja de moda'))}</h4><span>${esc(tr('coleção da semana'))}</span></div><div class="list"><div class="row"><span class="e">🛍️</span><div class="t"><b>${esc(tr('Ver a coleção e experimentar'))}</b><small>${esc(tr('Peças em Kz e edições limitadas em Ouro.'))}</small></div><button class="btn sm" data-loja-moda>${esc(tr('Entrar'))}</button></div>
+    if (a.t === 'moda_loja') h +=   /* 9 nov: lojas de roupa no jogo a sério */ `<div class="sec"><h4>👗 ${esc(tr('Loja de moda'))}</h4><span>${esc(tr('coleção da semana'))}</span></div><div class="list"><div class="row"><span class="e">🛍️</span><div class="t"><b>${esc(tr('Ver a coleção e experimentar'))}</b><small>${esc(tr('Peças em MT e edições limitadas em Ouro.'))}</small></div><button class="btn sm" data-loja-moda>${esc(tr('Entrar'))}</button></div>
       <div class="row"><span class="e">👗</span><div class="t"><b>${esc(tr('O meu guarda-roupa'))}</b><small>${esc(tr('Experimenta e veste o que já compraste.'))}</small></div><button class="btn sm ghost" data-guarda-roupa>${esc(tr('Abrir'))}</button></div></div>`;
     if (a.t === 'cemiterio') h += `<div class="sec"><h4>🪦 ${esc(tr('Campas'))}</h4><span>💐 ${fmtMt(2000)}</span></div><div class="list" id="campas"><div class="empty">…</div></div>
       <div class="sec"><h4>👻 ${esc(tr('Histórias de fantasmas'))}</h4><span>${esc(tr('só à noite'))}</span></div><div class="list"><div class="row"><span class="e">👻</span><div class="t"><b>${esc(tr('Ouvir histórias à volta da fogueira'))}</b><small>${esc(tr('Das 20h às 5h. Diversão garantida… e às vezes um susto.'))}</small></div><button class="btn sm" data-fantasmas>${esc(tr('Ouvir'))}</button></div></div>`;
@@ -2521,8 +2521,8 @@ const MEIOS = {
   fretado: () => ({ p: 2500000, en: 2, n: 'Jato fretado', e: '✈️' }),   // economia C (2 nov): igual ao servidor (viajar 'fretado')   // 0aq: 0,01% do preço do avião (igual ao servidor: _custo_voo)
   boleia: d => d > 30 ? { p: 0, en: 45, n: 'Boleia de camionista', e: '👍' } : { p: 0, en: 12 + Math.round(d * 2), n: 'Boleia', e: '👍' },   // 27 out: só para quem não tem dinheiro nem para o mais barato
 };
-const AEROPORTOS = ['maianga', 'benguela', 'huambo', 'lubango', 'namibe', 'malanje', 'cabinda'];
-const LINHAS = [['benguela', 'huambo', 'Caminho de Ferro de Benguela'], ['namibe', 'lubango', 'Caminho de Ferro de Moçâmedes'], ['viana', 'malanje', 'Linha de Maputo']];
+const AEROPORTOS = ['alto_mae', 'bairro_central', 'costa_do_sol', 'catembe', 'maxaquene', 'magoanine', 'sommerschield'];
+const LINHAS = [['baixa', 'maxaquene', 'Chapa Baixa-Maxaquene'], ['costa_do_sol', 'catembe', 'Ferry para Catembe'], ['bairro_central', 'magoanine', 'Chapa Central-Magoanine']];
 const provDe = id => bairro(id)?.provincia || 'Maputo';
 // quem não tem dinheiro nem para o candongueiro (ou o autocarro, para outra província) pode apanhar boleia — ninguém fica preso
 function comBoleia(meios, d, dest) {
@@ -2663,7 +2663,7 @@ async function garagem(meio) {
   }
   const entHTML = !ent ? '' : ent.destino
     ? `<div class="row entrega"><span class="e">📦</span><div class="t"><b>${tr('Embrulho para')} ${esc(bairro(ent.destino)?.nome || '')}</b><small>${tr('Paga quando chegares lá de carro ou mota. Vale 2 horas.')}</small></div><span class="price">+${fmtMt(ent.pago)}</span></div>`
-    : `<button class="row entrega" id="bEntrega" ${ent.hoje >= ent.max ? 'disabled' : ''}><span class="e">📦</span><div class="t"><b>${tr('Fazer uma entrega pelo caminho')}</b><small>1.500–4.000 Kz · ${ent.hoje}/${ent.max} ${tr('hoje')}</small></div><span class="price">›</span></button>`;
+    : `<button class="row entrega" id="bEntrega" ${ent.hoje >= ent.max ? 'disabled' : ''}><span class="e">📦</span><div class="t"><b>${tr('Fazer uma entrega pelo caminho')}</b><small>1.500–4.000 MT · ${ent.hoje}/${ent.max} ${tr('hoje')}</small></div><span class="price">›</span></button>`;
   // 0k-B: levar contigo quem está em tua casa (convite; cada um aceita no seu telemóvel)
   const naCasa = cena?.tipo === 'casa' && meio !== 'mota' ? [...outros.entries()].filter(([id]) => !bloqueados.has(id)) : [];
   const maxi = meio === 'privado' ? 8 : 4, levar = new Set();
@@ -2868,10 +2868,10 @@ function desenhaFantasma(t) {
 function abrirPintura() {
   let parede = cena.dono.parede || '#e9dcc4', chao = cena.dono.chao || 'cimento';
   const render = () => {
-    const el = sheet(`<h3>🎨 Paredes e chão</h3><p class="m">Cada mudança custa 500 Kz de tinta e material.</p>
+    const el = sheet(`<h3>🎨 Paredes e chão</h3><p class="m">Cada mudança custa 500 MT de tinta e material.</p>
       <div class="sec"><h4>Cor das paredes</h4></div><div class="cores">${CORES_PAREDE.map(c => `<button data-p="${c}" class="${c === parede ? 'on' : ''}" style="background:${c}"></button>`).join('')}</div>
       <div class="sec"><h4>Chão</h4></div><div class="tabs" style="flex-wrap:wrap">${Object.keys(CHAOS).map(k => `<button data-c="${k}" class="${k === chao ? 'on' : ''}">${k[0].toUpperCase() + k.slice(1)}</button>`).join('')}</div>
-      <button class="btn full" id="aplicar">Aplicar · 500 Kz</button>`);
+      <button class="btn full" id="aplicar">Aplicar · 500 MT</button>`);
     el.querySelectorAll('[data-p]').forEach(b => b.onclick = () => { parede = b.dataset.p; preview(); render(); });
     el.querySelectorAll('[data-c]').forEach(b => b.onclick = () => { chao = b.dataset.c; preview(); render(); });
     el.querySelector('#aplicar').onclick = async () => {
@@ -2950,7 +2950,7 @@ async function folhaLonge(destCasa) {
     <div class="sec"><h4>🚏 ${tr(meus.length ? 'Ou transporte público' : 'Transporte público')}</h4>${r.nota ? `<span>${esc(r.nota)}</span>` : ''}</div>
     ${grelhaDestinos(publico)}
     <div class="sec"><h4>🛏️ ${tr('Dormir aqui')}</h4></div>
-    <button class="btn full ghost" id="bPensao">${pobre ? '🪑 ' + tr('Dormir no banco da paragem') : '🛏️ ' + tr('Dormir na pensão') + ' · 2.500 Kz'}</button>`);
+    <button class="btn full ghost" id="bPensao">${pobre ? '🪑 ' + tr('Dormir no banco da paragem') : '🛏️ ' + tr('Dormir na pensão') + ' · 2.500 MT'}</button>`);
   el.querySelectorAll('[data-viajar]').forEach(bt => bt.onclick = () => viajar(bt.dataset.viajar, bt.dataset.meio));
   el.querySelector('#bPensao').onclick = async () => { fecharSheets(); await acao('dormir'); };
 }

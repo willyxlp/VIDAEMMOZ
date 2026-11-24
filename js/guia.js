@@ -1,6 +1,6 @@
 /* ============================================================
    Guia do novato (Onboarding, dono 8 nov 12:31 — desenho aprovado: «Onboarding guide — first session»)
-   5 passos com prémios em Kz, guia sempre à vista, passo feito, fim do dia, «Volta amanhã» e,
+   5 passos com prémios em MT, guia sempre à vista, passo feito, fim do dia, «Volta amanhã» e,
    por último, o pacote de boas-vindas (do chat Money: window.abrirPacoteInicial / pacoteInicialDisponivel).
    O servidor confirma cada passo pelas ações do jogador (acoes_dia) e paga uma vez — ver
    supabase/migrations/20261108200100_guia_novato.sql. Uma janela de cada vez.
@@ -9,7 +9,7 @@ const GUIA_PASSOS = [
   { ic: 'fome', cor: '#4cbf74', t: 'Mata a fome', s: 'Come numa cantina', dica: 'A barriga está quase vazia. Vai à cantina e pede comida.', feito: 'Barriga cheia!', feitoTxt: 'Come sempre antes que a barriga fique vazia: com fome tudo cansa mais.' },
   { ic: 'vagas', cor: '#a98bff', t: 'Arranja um emprego', s: 'Telemóvel → Vagas', dica: 'Abre o Telemóvel e toca em Vagas. Zungueiro/a dá para começar já, sem estudo nem entrevista.', feito: 'Já tens trabalho!', feitoTxt: 'Trabalha bem e pede promoção: cada nível paga +25%.' },
   { ic: 'relogio', cor: '#a98bff', t: 'Faz o teu primeiro turno', s: 'Vai ao trabalho e carrega em Trabalhar', dica: 'Vai ao teu trabalho (o sítio está em Telemóvel → Vagas) e carrega em Trabalhar. Um biscato também conta.', feito: 'Primeiro turno feito!', feitoTxt: 'Cada turno paga o teu salário e faz subir o desempenho.' },
-  { ic: 'estrela', cor: '#ffcb00', t: 'Escolhe o teu sonho', s: 'Empresário, artista, político…', dica: 'Abre o Telemóvel → Objetivos e escolhe o que queres ser em Luanda.', feito: 'Já tens um sonho!', feitoTxt: 'Os teus objetivos dizem-te o que fazer a seguir para lá chegar.' },
+  { ic: 'estrela', cor: '#ffcb00', t: 'Escolhe o teu sonho', s: 'Empresário, artista, político…', dica: 'Abre o Telemóvel → Objetivos e escolhe o que queres ser em Maputo.', feito: 'Já tens um sonho!', feitoTxt: 'Os teus objetivos dizem-te o que fazer a seguir para lá chegar.' },
   { ic: 'falar', cor: '#35c2b4', t: 'Diz olá ao bairro', s: 'Manda uma mensagem no chat', dica: 'Toca em Falar e escreve uma mensagem ao bairro (ou toca noutro jogador).', feito: 'O bairro já te conhece!', feitoTxt: 'Toca nos outros jogadores para fazer amigos, namorar e até casar.' },
 ];
 const GUIA_SVG = {
@@ -138,7 +138,7 @@ function guiaBoasVindas() {
   const cartao = (p, k) => `<div class="gu2-passo${k === 0 ? ' on' : ''}"><i class="gu2-n">${k + 1}</i><span class="gu2-ic" style="--c:${p.cor}">${guiaIc(p.ic, p.cor, 22)}</span>
       <b>${esc(tr(p.t))}</b><small>${esc(tr(p.s))}</small><b class="gu2-kz">+${fmtMt(guiaPremios[k])}</b></div>`;
   const p5 = GUIA_PASSOS[4];
-  const el = sheet(`<div class="gu2-heroi"><img src="img/bairros/${esc(J.bairro)}.webp" alt="" onerror="this.src='img/bairros/mutamba.webp'"><div><b>${esc(tr('Bem-vindo a Luanda!'))}</b><span>${esc(tr('Estás em {0}, ao pé da paragem.').replace('{0}', b?.nome || 'Luanda'))}</span></div></div>
+  const el = sheet(`<div class="gu2-heroi"><img src="img/bairros/${esc(J.bairro)}.webp" alt="" onerror="this.src='img/bairros/baixa.webp'"><div><b>${esc(tr('Bem-vindo a Maputo!'))}</b><span>${esc(tr('Estás em {0}, ao pé da paragem.').replace('{0}', b?.nome || 'Maputo'))}</span></div></div>
     <div class="gu2-l"><span>${esc(tr('O teu primeiro dia: 5 passos'))}</span><b>+${fmtMt(total)}</b></div>
     <div class="gu2-grelha">${GUIA_PASSOS.slice(0, 4).map(cartao).join('')}</div>
     <div class="gu2-linha"><span class="gu2-ic" style="--c:${p5.cor}">${guiaIc(p5.ic, p5.cor, 22)}</span><span class="gu2-t"><b>5 · ${esc(tr(p5.t))}</b><small>${esc(tr(p5.s))}</small></span><b class="gu2-kz">+${fmtMt(guiaPremios[4])}</b></div>
@@ -284,7 +284,7 @@ function guiaFim(repetir) {
   if (guiaJanelaAberta()) return setTimeout(() => guiaFim(true), 2500);
   const curto = ['Comer', 'Emprego', 'Turno', 'Sonho', 'Olá'], total = guiaPremios.reduce((a, x) => a + x, 0) + (guiaEst?.premio_fim || 2000);
   const el = sheet(`<div class="gu-centro"><span class="gu2-k">5 / 5</span>
-      <h3 style="margin:4px 0;font-size:28px">${esc(tr('Primeiro dia feito!'))}</h3><p class="m">${esc(tr('Já és da banda, {0}. Luanda é tua.').replace('{0}', (J?.nome || '').split(' ')[0]))}</p></div>
+      <h3 style="margin:4px 0;font-size:28px">${esc(tr('Primeiro dia feito!'))}</h3><p class="m">${esc(tr('Já és da banda, {0}. Maputo é tua.').replace('{0}', (J?.nome || '').split(' ')[0]))}</p></div>
     <div class="gu2-dois"><div class="gu2-ouro col"><b>+${fmtMt(guiaEst?.premio_fim || 2000)}</b><small>${esc(tr('Bónus do 1.º dia'))}</small></div>
       <div class="gu2-ouro col">${guiaIc('candeeiro', 'var(--gold)', 30)}<small>${esc(tr('Candeeiro para a casa'))}</small></div></div>
     <div class="gu2-cinco">${curto.map(t => `<span>${guiaIc('certo', 'var(--green)', 18, 3)}${esc(tr(t))}</span>`).join('')}</div>

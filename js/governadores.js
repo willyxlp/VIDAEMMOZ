@@ -33,7 +33,7 @@ function apFormal(ap) {
   const saia = [1, 3, 4].includes(ap.roupa || 0);
   return saia ? { ...ap, roupa: 3 } : { ...ap, roupa: 2, calca: '#1f2a44' };
 }
-const fechaTxt = iso => new Date(iso).toLocaleDateString(provLoc(), { weekday: 'long', day: 'numeric', month: 'numeric', timeZone: 'Africa/Luanda' }) + ' 20h';
+const fechaTxt = iso => new Date(iso).toLocaleDateString(provLoc(), { weekday: 'long', day: 'numeric', month: 'numeric', timeZone: 'Africa/Maputo' }) + ' 20h';
 
 /* ---------- barra «vai votar» para todos ---------- */
 function eleicaoParaMim() {

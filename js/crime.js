@@ -6,10 +6,10 @@
 let smsLista = [], smsNovas = 0, crimesContra = [];
 const preso = () => !!(J?.preso_ate && new Date(J.preso_ate) > new Date());
 const CRIMES = {
-  carteira: { e: '👛', n: 'Tirar carteiras', d: 'No meio da multidão. 1.500–6.000 Kz.', risco: 15, en: 15 },
+  carteira: { e: '👛', n: 'Tirar carteiras', d: 'No meio da multidão. 1.500–6.000 MT.', risco: 15, en: 15 },
   burla: { e: '📲', n: 'Burla por SMS', d: 'Mandas mensagens falsas. Um jogador real pode cair… ou denunciar-te.', risco: 10, en: 10 },
   assalto: { e: '🔪', n: 'Assaltar alguém', d: 'Um jogador aqui perto. Pode defender-se e ver-te a cara.', risco: 25, en: 20 },
-  contrabando: { e: '📦', n: 'Contrabando na fronteira', d: 'Compras 20.000 Kz de combustível e tabaco e vendes do outro lado: 45.000–70.000 Kz.', risco: 22, en: 30 },
+  contrabando: { e: '📦', n: 'Contrabando na fronteira', d: 'Compras 20.000 MT de combustível e tabaco e vendes do outro lado: 45.000–70.000 MT.', risco: 22, en: 30 },
 };
 const TIPO_CRIME = { carteira: ['👛', 'Carteirista'], casa: ['🏚️', 'Assalto à casa'], assalto: ['🔪', 'Assalto'], burla: ['📲', 'Burla'] };
 
@@ -115,7 +115,7 @@ function ligarCrime(el, depois) {
   el.querySelectorAll('[data-crime]').forEach(b => b.onclick = async () => {
     const t = b.dataset.crime;
     if (t === 'assalto') { fecharSheets(); return escolherVitima(); }
-    if (t === 'contrabando' && !await perguntar('Investir 20.000 Kz no carregamento?')) return;
+    if (t === 'contrabando' && !await perguntar('Investir 20.000 MT no carregamento?')) return;
     b.disabled = true; const r = await acao('crime', { p_tipo: t }); b.disabled = false;
     if (r) { eu.fala = { txt: '🤫', ate: performance.now() + 2000 }; depois && depois(); }
   });
@@ -156,11 +156,11 @@ function cadeiaHTML(o) {
   const racao = J.racao_em && Date.now() - new Date(J.racao_em) < 3 * 3600e3;
   const linhas = {
     comer: `<div class="row"><span class="e">🥣</span><div class="t"><b>Refeição da cadeia</b><small>${racao ? 'Próxima às ' + new Date(new Date(J.racao_em).getTime() + 3 * 3600e3).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }) : 'Funge com feijão. Barriga +40'}</small></div><button class="btn sm" data-cadeia="comer" ${racao ? 'disabled' : ''}>Grátis</button></div>`,
-    trabalhar: `<div class="row"><span class="e">🔨</span><div class="t"><b>Oficina</b><small>+300 Kz e −30 min de pena · −25 energia</small></div><button class="btn sm" data-cadeia="trabalhar">Trabalhar</button></div>`,
+    trabalhar: `<div class="row"><span class="e">🔨</span><div class="t"><b>Oficina</b><small>+300 MT e −30 min de pena · −25 energia</small></div><button class="btn sm" data-cadeia="trabalhar">Trabalhar</button></div>`,
     treinar: `<div class="row"><span class="e">💪</span><div class="t"><b>Exercício no pátio</b><small>Forma +6 · −15 energia</small></div><button class="btn sm ghost" data-cadeia="treinar">Treinar</button></div>`,
     cartas: `<div class="row"><span class="e">🃏</span><div class="t"><b>Cartas com os colegas de cela</b><small>Uma sueca: humor +6, menos solidão e stress · 1 vez por hora · sem apostas</small></div><button class="btn sm ghost" data-cadeia="cartas">Jogar</button></div>`,
     precaria: `<div class="row"><span class="e">⭐</span><div class="t"><b>Pedir a saída precária</b><small>Com 60 de bom comportamento, a pena que falta passa para metade (1 vez por pena)</small></div><button class="btn sm" data-cadeia="precaria" disabled>Pedir</button></div>`,
-    fianca: `<div class="row"><span class="e">🔓</span><div class="t"><b>Pagar fiança</b><small>15.000 Kz por cada hora que falta</small></div><button class="btn sm" data-cadeia="fianca">${fmtMt(Math.ceil((new Date(J.preso_ate) - Date.now()) / 3600e3) * 15000)}</button></div>`,
+    fianca: `<div class="row"><span class="e">🔓</span><div class="t"><b>Pagar fiança</b><small>15.000 MT por cada hora que falta</small></div><button class="btn sm" data-cadeia="fianca">${fmtMt(Math.ceil((new Date(J.preso_ate) - Date.now()) / 3600e3) * 15000)}</button></div>`,
   };
   // cartas e saída precária são a 2.ª ação do pátio/secretaria: o cabeçalho (pena e barra) já está em cima
   if (o === 'cartas' || o === 'precaria') return `<div class="list" style="margin-top:8px">${linhas[o]}</div>`;

@@ -69,16 +69,16 @@ async function renderGoverno(body) {
     <div class="rel" style="margin-top:0">${Object.keys(SERVICOS).map(k => barraServico(k, m[k])).join('')}</div>`;
 
   if (souAdmin) h += `<div class="sub2">🏢 O teu gabinete</div>
-    <p class="m">Recebes 25.000 Kz/dia. O Estado manda 150.000 Kz/dia; a taxa municipal soma. Cada 10.000 Kz investidos = +1 no serviço (que perde uns pontos por dia).</p>
+    <p class="m">Recebes 25.000 MT/dia. O Estado manda 150.000 MT/dia; a taxa municipal soma. Cada 10.000 MT investidos = +1 no serviço (que perde uns pontos por dia).</p>
     <div class="list">${Object.keys(SERVICOS).map(k => `<div class="row"><span class="e">${SERVICOS[k][0]}</span><div class="t"><b>Investir em ${SERVICOS[k][1].toLowerCase()}</b><small>Nível ${Math.round(m[k])}</small></div><button class="btn sm" data-gov="investir" data-s="${k}">Investir</button></div>`).join('')}
-      <div class="row"><span class="e">🧾</span><div class="t"><b>Taxa municipal</b><small>0 a 1.000 Kz por dia, paga por quem mora cá. Impopular!</small></div><button class="btn sm ghost" data-gov="taxa">${fmtMt(m.taxa)}</button></div>
+      <div class="row"><span class="e">🧾</span><div class="t"><b>Taxa municipal</b><small>0 a 1.000 MT por dia, paga por quem mora cá. Impopular!</small></div><button class="btn sm ghost" data-gov="taxa">${fmtMt(m.taxa)}</button></div>
       <div class="row"><span class="e">🤫</span><div class="t"><b>Desviar fundos</b><small>Para a "empresa de um primo". A Inspeção faz auditorias…</small></div><button class="btn sm red" data-gov="desviar">Desviar</button></div>
       <div class="row"><span class="e">🚪</span><div class="t"><b>Demitir-me</b></div><button class="btn sm ghost" data-gov="demitir">Sair</button></div>
     </div>`;
 
   if (e) {
     const npcPts = e.npc_votos;
-    h += `<div class="sub2">🗳️ Eleições · fecham ${fecha.toLocaleDateString('pt-PT', { weekday: 'long', timeZone: 'Africa/Luanda' })} às 20h${dias ? ` (${dias} dia${dias > 1 ? 's' : ''})` : ''}</div>
+    h += `<div class="sub2">🗳️ Eleições · fecham ${fecha.toLocaleDateString('pt-PT', { weekday: 'long', timeZone: 'Africa/Maputo' })} às 20h${dias ? ` (${dias} dia${dias > 1 ? 's' : ''})` : ''}</div>
       <div class="list">
         <div class="row"><span class="e">🎗️</span><div class="t"><b>${esc(e.npc_nome)}</b><small>${esc(partidoDe(e.npc_nome) || 'Independente')} · ${npcPts} voto${npcPts === 1 ? '' : 's'} de jogadores (e os apoiantes do partido)</small></div>${jaVotei ? '' : '<button class="btn sm ghost" data-votar="">Votar</button>'}</div>
         ${cands.map(c => `<div class="row ${c.jogador_id === uid ? 'mine' : ''}"><span class="e">🙋</span><div class="t"><b>${esc(c.nome)}</b><small>"${esc(c.lema || '')}" · ${c.votos} voto${c.votos === 1 ? '' : 's'} · 📣 ${c.campanha} apoio</small></div>${jaVotei ? '' : `<button class="btn sm" data-votar="${c.jogador_id}">Votar</button>`}</div>`).join('')}
@@ -89,7 +89,7 @@ async function renderGoverno(body) {
         <div class="row"><span class="e">🚪</span><div class="t"><b>Porta a porta</b><small>Grátis, cansa · +25–45 apoio</small></div><button class="btn sm ghost" data-camp="porta">Ir</button></div>
         <div class="row"><span class="e">👕</span><div class="t"><b>Camisolas e "gasosa" eleitoral</b><small>+300 apoio… se nenhum jornalista vir</small></div><button class="btn sm red" data-camp="camisolas">${fmtMt(50000)}</button></div>
       </div><p class="m" style="margin-top:6px">A campanha faz-se dentro do município (${m.bairros.map(b => esc(bairro(b)?.nome || b)).join(', ')}).</p>`;
-    else h += `<div class="list" style="margin-top:8px"><div class="row"><span class="e">✋</span><div class="t"><b>Candidatar-me a administrador/a</b><small>20.000 Kz · reputação 10+ · cadastro limpo · morar no município</small></div><button class="btn sm" id="bCand">Candidatar</button></div></div>`;
+    else h += `<div class="list" style="margin-top:8px"><div class="row"><span class="e">✋</span><div class="t"><b>Candidatar-me a administrador/a</b><small>20.000 MT · reputação 10+ · cadastro limpo · morar no município</small></div><button class="btn sm" id="bCand">Candidatar</button></div></div>`;
   }
 
   h += `<div class="sub2">Outros municípios</div><div class="list">${municipios.filter(x => x.id !== m.id).map(x => `<div class="row"><span class="e">${x.sem_luz ? '🕯️' : '💡'}${x.sem_agua ? '🚱' : ''}</span><div class="t"><b>${esc(x.nome)}</b><small>${esc(x.admin_nome)} · ${Object.keys(SERVICOS).map(k => `<span class="svc">${icone(icDoEmoji(SERVICOS[k][0]) || 'ponto', 13)}${Math.round(x[k])}</span>`).join(' ')}</small></div></div>`).join('')}</div>`;
@@ -118,8 +118,8 @@ async function renderGoverno(body) {
   body.querySelectorAll('[data-gov]').forEach(b => b.onclick = () => {
     const a = b.dataset.gov;
     if (a === 'demitir') { perguntar('Demitir-te do cargo?').then(ok => ok && acao('governar', { p_acao: 'demitir' }).then(r => r && depois())); return; }
-    if (a === 'investir') return pedirValor(`${SERVICOS[b.dataset.s][0]} Investir em ${SERVICOS[b.dataset.s][1].toLowerCase()}`, `Orçamento: ${fmtMt(m.orcamento)}. Cada 10.000 Kz = +1.`, Math.min(m.orcamento, 100000), async v => { if (await acao('governar', { p_acao: 'investir', p_servico: b.dataset.s, p_valor: v })) { fecharSheetsTel(); depois(); } });
-    if (a === 'taxa') return pedirValor('🧾 Taxa municipal', 'Por dia, paga por quem mora no município (0 a 1.000 Kz).', m.taxa, async v => { if (await acao('governar', { p_acao: 'taxa', p_valor: v })) { fecharSheetsTel(); depois(); } });
+    if (a === 'investir') return pedirValor(`${SERVICOS[b.dataset.s][0]} Investir em ${SERVICOS[b.dataset.s][1].toLowerCase()}`, `Orçamento: ${fmtMt(m.orcamento)}. Cada 10.000 MT = +1.`, Math.min(m.orcamento, 100000), async v => { if (await acao('governar', { p_acao: 'investir', p_servico: b.dataset.s, p_valor: v })) { fecharSheetsTel(); depois(); } });
+    if (a === 'taxa') return pedirValor('🧾 Taxa municipal', 'Por dia, paga por quem mora no município (0 a 1.000 MT).', m.taxa, async v => { if (await acao('governar', { p_acao: 'taxa', p_valor: v })) { fecharSheetsTel(); depois(); } });
     if (a === 'desviar') return pedirValor('🤫 Desviar fundos', `Orçamento: ${fmtMt(m.orcamento)}. Quanto mais desvias, mais provável uma auditoria: exoneração e detenção.`, 50000, async v => { if (await acao('governar', { p_acao: 'desviar', p_valor: v })) { fecharSheetsTel(); depois(); } });
   });
 }
