@@ -424,7 +424,7 @@ function ui2Tempo(body) {
   const noite = escuridao() > 0.24, ver = t => t === 'sol' && noite ? ['🌙', 'Céu limpo'] : TEMPO[t] || ['…', ''];
   const chuva = k => { const j = janelaChuva(k); return j ? (r[k] === 'tempestade' ? tr('Tempestade das {0}h às {1}h') : tr('Chuva das {0}h às {1}h')).replace('{0}', j[0]).replace('{1}', j[1]) : ''; };
   const cor = t => t === 'sol' ? 'var(--gold)' : t === 'chuva' || t === 'tempestade' ? '#8fc4ff' : 'var(--muted)';
-  ui2Pilula(body, `${String(Math.floor(horaLuanda())).padStart(2, '0')}:${String(Math.floor(horaLuanda() % 1 * 60)).padStart(2, '0')} · ${tr(noite ? 'noite' : 'dia')}`);
+  ui2Pilula(body, `${String(Math.floor(horaMaputo())).padStart(2, '0')}:${String(Math.floor(horaMaputo() % 1 * 60)).padStart(2, '0')} · ${tr(noite ? 'noite' : 'dia')}`);
   const fotoAqui = bairro(J.bairro) && ['mutamba', 'maianga', 'talatona', 'kilamba', 'viana', 'cazenga', 'ilha', 'mussulo', 'camama', 'rangel', 'novavida', 'zango', 'benguela', 'huambo', 'lubango', 'namibe', 'malanje', 'cabinda'].includes(J.bairro) ? J.bairro : UI2_REG_FOTO[minha] || 'mutamba';
   body.innerHTML = `<div class="ui2-agora"><img src="img/bairros/${esc(fotoAqui)}.webp" alt="" draggable="false"><span>
       <small>${esc(tr('Aqui'))} · ${esc(bairro(J.bairro)?.nome || '')}</small><b><em>${aqui ? ver(aqui)[0] : '…'}</em>${esc(tr(aqui ? ver(aqui)[1] : ''))}</b><small>${esc(chuva(minha) || tr('Sem chuva hoje'))}</small></span></div>
