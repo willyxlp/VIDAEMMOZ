@@ -229,7 +229,7 @@ function desenhaPessoa(ctx, sx, sy, ap, t, andar, dir = 1, costas = false, escal
   // sombra no chão (elipse maior e mais visível para ancorar o personagem ao tile)
   ctx.fillStyle = 'rgba(0,0,0,.18)'; ctx.beginPath(); ctx.ellipse(0, 2, 16, 7, 0, 0, 7); ctx.fill();
   ctx.fillStyle = 'rgba(0,0,0,.12)'; ctx.beginPath(); ctx.ellipse(0, 2, 22, 10, 0, 0, 7); ctx.fill();
-  ctx.translate(0, -bob + 3); // +3: desce o corpo para os pés (y≈-1) coincidirem com a sombra (y=+2)
+  ctx.translate(0, -bob + 8); // +8: desce o corpo para os pés tocarem na sombra
   // pernas
   const perna = (ox, f) => {
     ctx.fillStyle = saia || vestido || pano || marca ? pele : fato ? '#22252b' : luxo ? camisa : calca;
