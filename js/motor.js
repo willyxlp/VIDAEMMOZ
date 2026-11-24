@@ -203,7 +203,7 @@ function desenhaPessoa3D(ctx, sx, sy, f, ap, t, andar, dir, costas, escala, pose
   q += vista * f.pv;
   const bob = andar || pose ? 0 : Math.sin(t * 2) * 0.4;                            // parado: respira um bocadinho
   const zPose = pose === 'deitado' ? 14 : pose === 'sentado' ? (ap.perfil === 'celina' ? 4 : 9) : 0;
-  ctx.drawImage(f.cv, q * f.cw, 0, f.cw, f.ch, -f.ax / 2, -f.ay / 2 - bob - zPose, f.cw / 2, f.ch / 2);
+  ctx.drawImage(f.cv, q * f.cw, 0, f.cw, f.ch, -f.ax / 2, -(f.ch / 2) - bob - zPose, f.cw / 2, f.ch / 2);
   if (ap.animal === 'papagaio' && pose !== 'deitado') { ctx.translate(0, -bob - zPose); if (vista === 3 || vista === 4) ctx.globalAlpha = 0.9; desenhaAnimal(ctx, 0, 0, 'papagaio', t, andar); ctx.globalAlpha = 1; }
   ctx.restore();
 }

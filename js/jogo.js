@@ -7,6 +7,9 @@ const SUPA_KEY = window.VEL_SUPA?.key || '';
 // Agora espera cada vez mais (2 s, 4 s, 8 s… até 2 min), com folga ao acaso para não voltarem todos ao mesmo tempo.
 const sb = supabase.createClient(SUPA_URL, SUPA_KEY, { realtime: { reconnectAfterMs: n => Math.min(120000, 2000 * 2 ** Math.max(0, n - 1)) * (0.7 + Math.random() * 0.6) } });
 if (typeof rtRapidoInstalar === 'function') rtRapidoInstalar();   // 9 nov: via rápida (js/tempo_real.js)
+// stubs de funções da Vida na Banda não portadas ainda
+const turnoPreso = () => false;
+const almoco = { aoAndar: () => {} };
 
 // 8 nov (bug: «the bank in the game is not working at all»): o redesenho (js/ui2.js) só está no site de teste, mas o código das
 // apps chama ui2()/ui2Social()/ui2LojaLigar()… — no jogo ao vivo isso rebentava o Banco, Loja, Social, Mensagens, Família,
@@ -2085,7 +2088,7 @@ cv.addEventListener('pointermove', e => {
     return;
   }
   const dx = e.clientX - toque.x, dy = e.clientY - toque.y;
-  if (!toque.arrastou && Math.hypot(dx, dy) > 10) toque.arrastou = true;
+  if (!toque.arrastou && Math.hypot(dx, dy) > 20) toque.arrastou = true;
   if (toque.arrastou && !toque.pinch && m3dAtivo()) { cam.seguir = false; M3D.arrastar(e.clientX - toque.lx, e.clientY - toque.ly, cam.z); toque.lx = e.clientX; toque.ly = e.clientY; return; }
   toque.lx = e.clientX; toque.ly = e.clientY;
   if (toque.arrastou && !toque.pinch) { cam.seguir = false; cam.x = toque.cx - dx / cam.z; cam.y = toque.cy - dy / cam.z; }
@@ -2093,7 +2096,9 @@ cv.addEventListener('pointermove', e => {
 const fimToque = e => {
   pontos.delete(e.pointerId);
   if (!toque) return;
-  if (!toque.arrastou && pontos.size === 0) tocar(e.clientX, e.clientY);
+  // usa distância ao ponto de pressão em vez de arrastou — evita perder cliques por micromovimento do rato
+  const dist = Math.hypot(e.clientX - toque.x, e.clientY - toque.y);
+  if (dist < 20 && pontos.size === 0) tocar(e.clientX, e.clientY);
   if (pontos.size === 0) toque = null;
 };
 cv.addEventListener('pointerup', fimToque); cv.addEventListener('pointercancel', e => { pontos.delete(e.pointerId); toque = null; });
