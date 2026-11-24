@@ -2231,7 +2231,7 @@ function abrirCozinha(o) {
   const pratos = (D.comidas || []).filter(f => f.caseira).sort((a, b) => a.preco - b.preco);
   const el = sheet(`<h3>🍳 ${tr('Cozinhar em casa')}</h3><p class="m">${tr('Com os ingredientes do mercado, fazes tu a comida: sai mais barato do que no restaurante e sabe a casa.')}</p>
     <div class="list"><div class="row">${arteListaHTML('comida', 'funge_bombo', '🍲')}<div class="t"><b>${tr('Prato rápido (funge com peixe)')}</b><small>Barriga +35</small></div><button class="btn sm" data-cz="">${fmtMt(600)}</button></div>
-    ${pratos.map(f => `<div class="row">${arteListaHTML('comida', f.id, f.emoji)}<div class="t"><b>${esc(f.nome)}</b><small>Barriga +${f.fome}${' · Humor +' + (f.felicidade + 2)}</small></div><button class="btn sm" data-cz="${f.id}">${fmtMt(custoCozinhar(f))}</button></div>`).join('')}</div>`);
+    ${pratos.map(f => `<div class="row">${arteListaHTML('comida', f.id, f.emoji)}<div class="t"><b>${esc(f.nome)}</b><small>Barriga +${f.fome}${' · Humor +' + (f.felicidade + 2)}${f.energia ? ' · ⚡ +' + f.energia : ''}</small></div><button class="btn sm" data-cz="${f.id}">${fmtMt(custoCozinhar(f))}</button></div>`).join('')}</div>`);
   el.querySelectorAll('[data-cz]').forEach(b => b.addEventListener('click', async () => {
     let est = null;
     if (b.dataset.cz) { est = await jogoCozinha(pratos.find(f => f.id === b.dataset.cz)); if (est === undefined) return; }   // LL13
@@ -2252,7 +2252,7 @@ async function usarMovel(o) {
 /* ============================================================
    LUGARES (painéis dos edifícios)
    ============================================================ */
-function linhaComida(f) { return `<div class="row">${arteListaHTML('comida', f.id, f.emoji)}<div class="t"><b>${esc(f.nome)}${f.alcool ? ' <span class="tag" style="color:var(--red)">18+</span>' : ''}</b><small>Barriga +${f.fome}${f.felicidade ? ' · Humor +' + f.felicidade : ''}</small></div><button class="btn sm" data-a="comer" data-v="${f.id}">${fmtMt(f.preco)}</button></div>`; }
+function linhaComida(f) { return `<div class="row">${arteListaHTML('comida', f.id, f.emoji)}<div class="t"><b>${esc(f.nome)}${f.alcool ? ' <span class="tag" style="color:var(--red)">18+</span>' : ''}</b><small>Barriga +${f.fome}${f.felicidade ? ' · Humor +' + f.felicidade : ''}${f.energia ? ' · ⚡ +' + f.energia : ''}</small></div><button class="btn sm" data-a="comer" data-v="${f.id}">${fmtMt(f.preco)}</button></div>`; }
 function linhaLazer(l) { return `<div class="row">${arteListaHTML('lazer', l.id, l.emoji)}<div class="t"><b>${esc(l.nome)}</b><small>${esc(l.descricao)} · Humor +${l.felicidade}</small></div><button class="btn sm ghost" data-a="divertir" data-v="${l.id}">${l.preco ? fmtMt(l.preco) : 'Grátis'}</button></div>`; }
 // cada pedaço traduzido à parte (a frase "Precisas: {0}" não traduz o que vai dentro do {0})
 function requisitos(e) {
