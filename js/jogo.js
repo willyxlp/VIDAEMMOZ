@@ -2435,10 +2435,10 @@ async function renderEmpregados(body) {
 
 /* ---------- 🎓 universidades ---------- */
 const UNIVS = {
-  uan: { nome: 'Universidade Agostinho Neto', bairro: 'mutamba', mult: 1, txt: 'Pública e barata. A mais antiga do país.', cursos: ['direito', 'medicina', 'economia', 'engenharia'] },
-  isaf: { nome: 'ISAF', bairro: 'maianga', mult: 1.3, txt: 'Instituto Superior de Administração e Finanças.', cursos: ['financas', 'gestao', 'economia'] },
-  uor: { nome: 'Universidade Óscar Ribas', bairro: 'talatona', mult: 1.6, txt: 'Privada. Dá reputação (+1 por módulo).', cursos: ['gestao', 'direito', 'informatica', 'comunicacao'] },
-  isptec: { nome: 'ISPTEC', bairro: 'talatona', mult: 2, txt: 'A mais cara e a mais respeitada. +1 reputação por módulo.', cursos: ['engenharia', 'petroleo', 'informatica'] },
+  uem:    { nome: 'Universidade Eduardo Mondlane', bairro: 'alto_mae', mult: 1,   txt: 'Pública e barata. A mais antiga de Moçambique.', cursos: ['direito', 'medicina', 'economia', 'engenharia'] },
+  isaf:   { nome: 'ISAF', bairro: 'baixa', mult: 1.3, txt: 'Instituto Superior de Administração e Finanças.', cursos: ['financas', 'gestao', 'economia'] },
+  uor:    { nome: 'Universidade Óscar Ribas', bairro: 'sommerschield', mult: 1.6, txt: 'Privada. Dá reputação (+1 por módulo).', cursos: ['gestao', 'direito', 'informatica', 'comunicacao'] },
+  isptec: { nome: 'ISPTEC', bairro: 'bairro_central', mult: 2, txt: 'A mais cara e a mais respeitada. +1 reputação por módulo.', cursos: ['engenharia', 'petroleo', 'informatica'] },
 };
 const CURSOS = { direito: 'Direito', medicina: 'Medicina', economia: 'Economia', engenharia: 'Engenharia', financas: 'Finanças', gestao: 'Gestão', informatica: 'Informática', comunicacao: 'Comunicação', petroleo: 'Engenharia de Petróleos' };
 let cursoEscolhido = {};
