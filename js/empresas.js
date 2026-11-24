@@ -428,7 +428,7 @@ async function prontidaoFilial(e, el, depois) {
   });
   box.querySelector('[data-inspecao]')?.addEventListener('click', async ev => {
     ev.currentTarget.disabled = true;
-    const { data, error } = await sb.rpc('filial_inspecao', { p_empresa: e.id });
+    const { data, error } = await sb.rpc('filial_inspecao', { p_filial_id: e.id });
     if (error) toast(limparErro(error.message), 'mau');
     else toast(data.passou ? '✅ ' + tr('A inspeção passou! Já podes abrir uma filial noutro bairro.') : '❌ ' + tr('O inspetor encontrou problemas. Volta amanhã (a barra desceu para 85%). Com fama 80 passa sempre.'), data.passou ? 'bom' : 'mau', 6000);
     recarregar();
