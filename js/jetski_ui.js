@@ -1,5 +1,5 @@
 /* ============================================================
-   Vida na Banda — 🌊 Jet Ski na Baía: o quiosque na Ilha, o resultado e o ranking da semana.
+   Vida em Moz — 🌊 Jet Ski na Costa: o quiosque na Costa do Sol, o resultado e o ranking da semana.
    O jogo em si está em js/jetski.js (three.js, só se descarrega quando vais jogar).
    O servidor abre e fecha cada corrida (jetski_comecar / jetski_acabar) e confere os pontos.
    ============================================================ */
@@ -7,9 +7,9 @@ const JETSKI_PRECO = 500, JETSKI_ESCUDO = 300;
 
 function jetskiHTML() {
   const ok = typeof temWebGL === 'function' && temWebGL();
-  return `<div class="sec"><h4>🌊 ${tr('Jet Ski na Baía')}</h4><span>${tr('Ranking da semana')}</span></div>
-    <p class="m">${tr('Acelera pela Baía de Luanda: desvia-te do lixo, das boias e dos barcos, salta por cima dos tubarões e apanha as moedas.')}</p>
-    <p class="m">${tr('Cada moeda vale 10 Kz. Um novo recorde pessoal dá 1 Ouro (até 3 por dia).')}</p>
+  return `<div class="sec"><h4>🌊 ${tr('Jet Ski na Costa do Sol')}</h4><span>${tr('Ranking da semana')}</span></div>
+    <p class="m">${tr('Acelera pela Costa do Sol: desvia-te do lixo, das boias e dos barcos, salta por cima dos tubarões e apanha as moedas.')}</p>
+    <p class="m">${tr('Cada moeda vale 10 MT. Um novo recorde pessoal dá 1 Ouro (até 3 por dia).')}</p>
     ${ok ? `<div class="list">
       <div class="row">${arteListaHTML('acao', 'barco')}<div class="t"><b>${tr('Uma corrida')}</b><small>${tr('1 vida · −5 energia')}</small></div><button class="btn sm" data-jetski="0">${fmtMt(JETSKI_PRECO)}</button></div>
       <div class="row">${arteListaHTML('acao', 'barco')}<div class="t"><b>${tr('Com escudo')} 🛡️</b><small>${tr('Aguenta uma pancada')}</small></div><button class="btn sm ghost" data-jetski="1">${fmtMt(JETSKI_PRECO + JETSKI_ESCUDO)}</button></div>
@@ -50,10 +50,10 @@ async function jogarJetski(escudo, desafio = null) {   // 0ck: desafio = {id, no
 }
 function resultadoJetski(res, f, escudo) {
   const valida = f && f.tipo !== 'mau';
-  const el = sheet(`<h3>🌊 ${tr('Jet Ski na Baía')}</h3>
+  const el = sheet(`<h3>🌊 ${tr('Jet Ski na Costa do Sol')}</h3>
     <div style="text-align:center;margin:8px 0 14px"><div style="font:900 44px Inter,system-ui,sans-serif;color:#FFCB00">${res.pontos.toLocaleString()}</div><div class="m">${tr('pontos')}</div></div>
     ${valida ? `<div class="list">
-      <div class="row"><span class="e">🪙</span><div class="t"><b>${res.moedas} ${tr('moedas')}</b><small>${tr('10 Kz cada (máx. 20.000 Kz por dia)')}</small></div><b>+${fmtMt(f.kz || 0)}</b></div>
+      <div class="row"><span class="e">🪙</span><div class="t"><b>${res.moedas} ${tr('moedas')}</b><small>${tr('10 MT cada (máx. 20.000 MT por dia)')}</small></div><b>+${fmtMt(f.kz || 0)}</b></div>
       ${f.recorde ? `<div class="row mine"><span class="e">🏆</span><div class="t"><b>${tr('Novo recorde!')}</b><small>${f.ouro ? tr('+1 Ouro') : tr('Já ganhaste o Ouro de hoje (máx. 3)')}</small></div></div>` : `<div class="row"><span class="e">🏆</span><div class="t"><b>${tr('O teu recorde')}: ${Number(f.melhor || 0).toLocaleString()}</b></div></div>`}
       ${!f.recorde && f.melhor > 0 && res.pontos >= f.melhor * 0.6 ? `<div class="row"><span class="e">🎯</span><div class="t"><b>${tr('Faltaram')} ${(f.melhor - res.pontos + 1).toLocaleString()} ${tr('pontos para o teu recorde!')}</b><small>${tr('Estás quase. As moedas já são tuas.')}</small></div></div>` : ''}
       <div class="row"><span class="e">📊</span><div class="t"><b>${tr('Lugar no ranking da semana')}: ${f.posicao || '—'}</b></div></div>

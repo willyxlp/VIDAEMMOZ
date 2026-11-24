@@ -1,5 +1,5 @@
 /* ============================================================
-   Vida na Banda — ANGOLA: tempo e lavras
+   Vida em Moz — MOÇAMBIQUE: tempo e lavras
    ============================================================ */
 let climaHoje = null, climaAviso = null;
 const TEMPO = { sol: ['☀️', 'Sol'], nublado: ['⛅', 'Nublado'], chuva: ['🌧️', 'Chuva'], tempestade: ['⛈️', 'Tempestade'], cacimbo: ['🌫️', 'Cacimbo'] };
@@ -59,22 +59,24 @@ function desenhaTempo(t) {
 
 /* ---------- 🌱 Lavras ---------- */
 const CULTURAS = {
-  milho: { nome: 'Milho', e: '🌽', semente: 2000, horas: 24, sacos: 8, preco: 700 },
-  feijao: { nome: 'Feijão', e: '🫘', semente: 3000, horas: 36, sacos: 6, preco: 1400 },
-  mandioca: { nome: 'Mandioca', e: '🥔', semente: 1500, horas: 48, sacos: 12, preco: 550 },
-  batata: { nome: 'Batata', e: '🥔', semente: 2500, horas: 24, sacos: 9, preco: 800 },
+  milho:    { nome: 'Milho',     e: '🌽', semente: 2000, horas: 24, sacos: 8,  preco: 700  },
+  mandioca: { nome: 'Mandioca',  e: '🥬', semente: 1500, horas: 48, sacos: 12, preco: 550  },
+  amendoim: { nome: 'Amendoim',  e: '🥜', semente: 3500, horas: 36, sacos: 7,  preco: 1600 },
+  caju:     { nome: 'Cajú',      e: '🌰', semente: 4000, horas: 60, sacos: 10, preco: 2000 },
+  mapira:   { nome: 'Mapira',    e: '🌾', semente: 1200, horas: 20, sacos: 9,  preco: 500  },
+  feijao:   { nome: 'Feijão',    e: '🫘', semente: 3000, horas: 36, sacos: 6,  preco: 1400 },
 };
 async function renderLavras(body) {
   body.innerHTML = '<div class="empty">A carregar…</div>';
   const { data, error } = await sb.from('lavras').select('*').eq('jogador_id', uid).eq('colhida', false).order('id');
   if (error) { body.innerHTML = '<div class="empty">Esta parte ainda está a ser instalada no servidor. Tenta mais tarde!</div>'; return; }
-  const noCampo = ['huambo', 'malanje'].includes(J.bairro);
-  const mult = regiaoDe(J.bairro) === 'luanda' ? 1.7 : noCampo ? 1.0 : 1.3;
+  const noCampo = ['catembe', 'mussequene'].includes(J.bairro);
+  const mult = regiaoDe(J.bairro) === 'maputo' ? 1.7 : noCampo ? 1.0 : 1.3;
   const chuvas = climaHoje?.epoca === 'chuvas';
   const col = J.colheita || {};
   const agora = Date.now();
   if (typeof ui2 === 'function' && ui2()) return ui2Lavras(body, data, noCampo, mult, chuvas, col);   // 8 nov: redesenho (teste)
-  body.innerHTML = `<p class="m">Planta na machamba (Sofala ou Gaza), colhe quando estiver pronto e vende. ${chuvas ? '🌧️ É a época das chuvas: as colheitas rendem mais.' : '🌫️ É o cacimbo: sem chuva, <b>rega</b> as lavras ou a colheita sai fraca.'} Em Maputo pagam 70% mais pelos sacos.</p>
+  body.innerHTML = `<p class="m">Planta na machamba (Catembe ou arredores), colhe quando estiver pronto e vende. ${chuvas ? '🌧️ É a época das chuvas: as colheitas rendem mais.' : '☀️ É a época seca: sem chuva, <b>rega</b> as lavras ou a colheita sai fraca.'} Em Maputo cidade pagam 70% mais pelos sacos.</p>
     <div class="sub2">As tuas lavras</div>
     ${data.length ? `<div class="list">${data.map(l => {
       const c = CULTURAS[l.cultura], pronta = new Date(l.pronta_em) <= agora, h = Math.max(0, Math.ceil((new Date(l.pronta_em) - agora) / 3600e3));
@@ -84,8 +86,8 @@ async function renderLavras(body) {
     }).join('')}</div>` : '<div class="empty">Ainda não tens lavras.</div>'}
     ${noCampo ? `<div class="sub2">Plantar aqui em ${esc(bairro(J.bairro).nome)}</div>
       <div class="grelha">${Object.entries(CULTURAS).map(([k, c]) => `<button data-plantar="${k}"><span class="e">${c.e}</span><span>${c.nome}<small style="display:block;font-weight:600;color:var(--dim);font-size:11px">${fmtMt(c.semente)} · ${c.horas} h · ~${c.sacos} sacos</small></span></button>`).join('')}</div>`
-      : `<p class="m" style="margin-top:10px">🚂 Para plantar, vai ao Huambo ou a Malanje (comboio desde Viana ou Benguela).</p>`}
-    <div class="sub2">Armazém · vender aqui (${mult === 1.7 ? 'preço de Maputo' : mult === 1 ? 'preço do campo' : 'preço da cidade'})</div>
+      : `<p class="m" style="margin-top:10px">🚌 Para plantar, vai a Catembe (chapa desde a Baixa) ou Mussequene.</p>`}
+    <div class="sub2">Armazém · vender aqui (${mult === 1.7 ? 'preço Maputo cidade' : mult === 1 ? 'preço do campo' : 'preço da zona'})</div>
     ${Object.entries(CULTURAS).some(([k]) => col[k] > 0) ? `<div class="list">${Object.entries(CULTURAS).filter(([k]) => col[k] > 0).map(([k, c]) => `<div class="row"><span class="e">${c.e}</span><div class="t"><b>${col[k]} sacos de ${c.nome.toLowerCase()}</b><small>≈ ${fmtMt(c.preco * mult)} por saco aqui</small></div><button class="btn sm" data-vender="${k}" data-n="${col[k]}">Vender tudo</button></div>`).join('')}</div>` : '<div class="empty">O armazém está vazio.</div>'}`;
   const depois = () => abrirTelemovel('lavras');
   body.querySelectorAll('[data-plantar]').forEach(b => b.onclick = async () => { if (await acao('plantar', { p_cultura: b.dataset.plantar })) depois(); });
@@ -97,11 +99,11 @@ async function renderLavras(body) {
 /* ---------- 🏥 Saúde ---------- */
 const DOENCAS = { malaria: ['🦟', 'Malária', 'Febre alta e tremores. Enquanto jogas, perdes saúde: trata-te depressa.'], tifoide: ['🤢', 'Febre tifoide', 'Só passa com receita (centro de saúde ou clínica).'], gripe: ['🤧', 'Gripe', 'Chata, mas passa sozinha num dia.'] };
 const SAUDE_LUGARES = {
-  farmacia: ['mutamba', 'maianga', 'cazenga', 'viana', 'kilamba', 'talatona', 'benguela', 'huambo', 'lubango', 'namibe', 'malanje', 'cabinda'],
-  centro: ['cazenga', 'viana', 'maianga', 'benguela', 'huambo', 'lubango', 'namibe', 'malanje', 'cabinda'],
-  clinica: ['talatona', 'mutamba', 'benguela', 'lubango', 'cabinda'],
-  hospital: ['maianga'],
-  curandeiro: ['cazenga', 'malanje', 'huambo', 'cabinda'],
+  farmacia:   ['baixa', 'alto_mae', 'maxaquene', 'polana_canico', 'sommerschield', 'bairro_central', 'costa_do_sol', 'catembe', 'mussequene', 'magoanine'],
+  centro:     ['maxaquene', 'polana_canico', 'magoanine', 'mussequene', 'catembe'],
+  clinica:    ['sommerschield', 'bairro_central', 'alto_mae'],
+  hospital:   ['alto_mae'],
+  curandeiro: ['polana_canico', 'magoanine', 'mussequene', 'catembe'],
 };
 async function renderSaude(body) {
   if (J.seguro_ate === undefined) { body.innerHTML = '<div class="empty">Esta parte ainda está a ser instalada no servidor. Tenta mais tarde!</div>'; return; }
@@ -109,7 +111,7 @@ async function renderSaude(body) {
   const d = J.doenca ? DOENCAS[J.doenca] : null, s = Math.round(J.saude);
   const seguro = J.seguro_ate && new Date(J.seguro_ate) > new Date();
   const aqui = k => SAUDE_LUGARES[k].includes(J.bairro);
-  const preco = { farmacia: J.doenca === 'malaria' ? 6000 : 1500, centro: 0, clinica: seguro ? 0 : 25000, hospital: seguro ? 2000 : 12000, curandeiro: 2000 };
+  const preco = { farmacia: J.doenca === 'malaria' ? 7500 : 2000, centro: 0, clinica: seguro ? 0 : 30000, hospital: seguro ? 2500 : 15000, curandeiro: 2500 };
   const op = (k, e, nome, desc, ok, p) => `<div class="row"><span class="e">${e}</span><div class="t"><b>${nome}</b><small>${desc}</small></div><button class="btn sm ${ok ? '' : 'ghost'}" data-tratar="${k}" ${ok ? '' : 'disabled'}>${p === 0 ? 'Grátis' : fmtMt(p)}</button></div>`;
   const ondeTxt = k => 'Em: ' + SAUDE_LUGARES[k].map(b => bairro(b)?.nome || b).join(', ');
   body.innerHTML = `<div class="rel" style="margin-top:0">
@@ -118,18 +120,18 @@ async function renderSaude(body) {
       <p class="m" style="margin:10px 0 0">${d ? `${d[0]} <b>${d[1]}</b> — ${d[2]}` : '💪 Estás de boa saúde.'}</p>
       <p class="m" style="margin:6px 0 0">${seguro ? `🛡️ Seguro ativo até ${new Date(J.seguro_ate).toLocaleString('pt-PT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}` : '🛡️ Sem seguro de saúde.'}</p>
     </div>
-    <p class="m" style="margin-top:12px">${climaHoje?.epoca === 'chuvas' ? '🦟 Época das chuvas: muita malária. Casas melhores (conforto 3+) protegem.' : '🤧 Cacimbo: gripes. Manter a forma ajuda.'} Casas muito fracas apanham febre tifoide.</p>
+    <p class="m" style="margin-top:12px">${climaHoje?.epoca === 'chuvas' ? '🦟 Época das chuvas: muita malária. Casas melhores (conforto 3+) protegem.' : '🤧 Época seca: vento e gripes. Manter a forma ajuda.'} Casas muito fracas apanham febre tifoide.</p>
     <div class="sub2">Tratar-me</div>
     <div class="list">
       ${op('farmacia', '💊', 'Farmácia', J.doenca === 'tifoide' ? 'Precisa de receita para a tifoide' : aqui('farmacia') ? 'Aqui perto' : 'Não há aqui', aqui('farmacia') && J.doenca && J.doenca !== 'tifoide', preco.farmacia)}
-      ${op('farmacia_online', '🛵', 'Farmácia com entrega', 'Chega onde estiveres (+2.000 Kz)', J.doenca && J.doenca !== 'tifoide', preco.farmacia + 2000)}
-      ${op('centro', '🏥', 'Centro de saúde público', `Grátis, mas a fila é longa e às vezes não há médico. ${aqui('centro') ? 'Aqui perto.' : ondeTxt('centro')}`, aqui('centro') && (J.doenca || s < 80), 0)}
-      ${op('clinica', '🩺', 'Clínica privada', `Trata tudo, +35 saúde. ${aqui('clinica') ? 'Aqui perto.' : ondeTxt('clinica')}`, aqui('clinica'), preco.clinica)}
-      ${op('hospital', '🚑', 'Hospital Josina Machel', `Uma noite internado e saúde 80+. ${aqui('hospital') ? 'Aqui perto.' : 'Na Maianga.'}`, aqui('hospital') && (J.doenca || s < 80), preco.hospital)}
+      ${op('farmacia_online', '🛵', 'Farmácia com entrega', 'Chega onde estiveres (+2.500 MT)', J.doenca && J.doenca !== 'tifoide', preco.farmacia + 2500)}
+      ${op('centro', '🏥', 'Centro de Saúde do bairro', `Grátis, mas a fila é longa e às vezes não há médico. ${aqui('centro') ? 'Aqui perto.' : ondeTxt('centro')}`, aqui('centro') && (J.doenca || s < 80), 0)}
+      ${op('clinica', '🩺', 'Clínica Sommerschield', `Trata tudo, +35 saúde. ${aqui('clinica') ? 'Aqui perto.' : ondeTxt('clinica')}`, aqui('clinica'), preco.clinica)}
+      ${op('hospital', '🚑', 'Hospital Central de Maputo', `Uma noite internado e saúde 80+. ${aqui('hospital') ? 'Aqui perto.' : 'No Alto Maé.'}`, aqui('hospital') && (J.doenca || s < 80), preco.hospital)}
       ${op('curandeiro', '🌿', 'Curandeiro tradicional', `Chá de raízes. Às vezes resulta… ${aqui('curandeiro') ? 'Aqui perto.' : ondeTxt('curandeiro')}`, aqui('curandeiro') && J.doenca, 2000)}
     </div>
     <div class="sub2">Seguro de saúde</div>
-    <div class="row"><span class="e">🛡️</span><div class="t"><b>7 dias de seguro</b><small>Clínica grátis, hospital por 2.000 Kz${seguro ? ' · renova por mais 7 dias' : ''}</small></div><button class="btn sm" id="bSeguro">${fmtMt(15000)}</button></div>`;
+    <div class="row"><span class="e">🛡️</span><div class="t"><b>7 dias de seguro</b><small>Clínica grátis, hospital por 2.500 MT${seguro ? ' · renova por mais 7 dias' : ''}</small></div><button class="btn sm" id="bSeguro">${fmtMt(18000)}</button></div>`;
   body.querySelectorAll('[data-tratar]').forEach(b => b.onclick = async () => { if (await acao('tratar', { p_onde: b.dataset.tratar })) abrirTelemovel('saude'); });
   body.querySelector('#bSeguro').onclick = async () => { if (await acao('comprar_seguro')) abrirTelemovel('saude'); };
 }

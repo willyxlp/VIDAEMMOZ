@@ -325,7 +325,7 @@ function ui2Jornal(body, noticias, coroas, virais) {
   const corpo = t => t.replace(/^\p{Extended_Pictographic}️?\s*/u, ''), emo = t => (t.match(/^\p{Extended_Pictographic}️?/u) || ['📰'])[0];
   const passadas = COROAS.map(([t, e, nome, fmt]) => { const c = (coroas?.coroas || []).find(x => x.tipo === t); return c && { t, e, nome, fmt, c }; }).filter(Boolean);
   const rico = passadas.find(p => p.t === 'rico'), capa = noticias[0];
-  const dia = new Date().toLocaleDateString(typeof provLoc === 'function' ? provLoc() : 'pt-PT', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'Africa/Luanda' });
+  const dia = new Date().toLocaleDateString(typeof provLoc === 'function' ? provLoc() : 'pt-PT', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'Africa/Maputo' });
   ui2Pilula(body, dia);
   const voltar = t => `<div class="ui2-cab"><button class="ui2-volta" data-js="">‹ ${esc(tr('Jornal'))}</button><b>${esc(tr(t))}</b></div>`;
   const nota = n => `<div class="nota"><span>${emo(n.texto)}</span><div><b>${esc(corpo(n.texto))}</b><small>${esc(bairro(n.bairro)?.nome || 'Maputo')} · há ${tempoRel(n.criado_em)}</small></div></div>`;
@@ -352,7 +352,7 @@ function ui2Jornal(body, noticias, coroas, virais) {
         ${sec('coroas', '👑', '#ffcb00', 'Coroas', tr('Os campeões da semana'), passadas.length ? tr(passadas.length === 1 ? '{0} coroa' : '{0} coroas').replace('{0}', passadas.length) : tr('Ver'))}
         ${sec('semana', '📊', '#8fa8ff', 'Esta semana', tr('Quem vai à frente'), tr('Ver tabela'))}
         ${sec('fofocas', '💬', '#ff8fb1', 'Fofocas', tr('O que se diz no bairro'), fof24 ? tr('{0} novas').replace('{0}', fof24) : tr('Ler'))}
-        ${sec('eleicoes', '🗳️', '#4cc38a', 'Eleições', el ? tr('Governador/a de {0}').replace('{0}', provNome(el.provincia)) : tr('Governo das províncias'), el ? tr('Fecha {0}').replace('{0}', new Date(el.fecha_em).toLocaleDateString(provLoc(), { weekday: 'long', timeZone: 'Africa/Luanda' })) : tr('Ver'))}
+        ${sec('eleicoes', '🗳️', '#4cc38a', 'Eleições', el ? tr('Governador/a de {0}').replace('{0}', provNome(el.provincia)) : tr('Governo das províncias'), el ? tr('Fecha {0}').replace('{0}', new Date(el.fecha_em).toLocaleDateString(provLoc(), { weekday: 'long', timeZone: 'Africa/Maputo' })) : tr('Ver'))}
       </div>
       <p class="m">${esc(tr('Todas as semanas há sete coroas: o/a mais rico/a, o/a mais popular, o/a melhor cozinheiro/a, condutor/a, o/a mais trabalhador/a, o rei ou a rainha do Jet Ski e a melhor crew. Fecha domingo à meia-noite e quem ganhar leva a coroa e +5 de reputação.'))}</p>`;
   }
@@ -519,7 +519,7 @@ function ui2Governo(body, m, e, hp) {
     el = `<button class="ui2-eleicao" data-gs="prov"><span class="ui2-foto"><img src="img/bairros/${esc(pe.provincia === 'luanda' ? 'mutamba' : (UI2_REG_FOTO[pe.provincia] || 'mutamba'))}.webp" alt=""><i class="ui2-tag">${esc(tr('Eleições'))}</i></span>
       <span class="t"><b>${esc(tr('Governador/a de {0}').replace('{0}', pr?.nome || pe.provincia))}</b><span class="ui2-l">${caras(pe.candidatos || [])}<small>${esc(tr('{0} candidatos').replace('{0}', n))} · ${esc(tr('fecha {0}').replace('{0}', fechaTxt(pe.fecha_em)))}</small><b class="ui2-val">${esc(tr(pe.votei ? 'Já votaste' : 'Votar'))} ›</b></span></span></button>`; }
   else if (e) el = `<button class="ui2-eleicao" data-gs="mun"><span class="ui2-foto"><img src="img/bairros/${esc(m.bairros?.[0] || 'mutamba')}.webp" alt=""><i class="ui2-tag">${esc(tr('Eleições'))}</i></span>
-      <span class="t"><b>${esc(tr('Administrador/a de {0}').replace('{0}', m.nome))}</b><span class="ui2-l"><small>${esc(tr('fecha {0}').replace('{0}', new Date(e.fecha_em).toLocaleDateString(provLoc(), { weekday: 'long', timeZone: 'Africa/Luanda' })))}</small><b class="ui2-val">${esc(tr('Votar'))} ›</b></span></span></button>`;
+      <span class="t"><b>${esc(tr('Administrador/a de {0}').replace('{0}', m.nome))}</b><span class="ui2-l"><small>${esc(tr('fecha {0}').replace('{0}', new Date(e.fecha_em).toLocaleDateString(provLoc(), { weekday: 'long', timeZone: 'Africa/Maputo' })))}</small><b class="ui2-val">${esc(tr('Votar'))} ›</b></span></span></button>`;
   const casa = document.createElement('div'); casa.className = 'ui2-gov';
   casa.innerHTML = `<div class="ui2-rot" style="margin-top:0">${esc(tr('Hoje onde moras'))}</div>
     <div class="ui2-tres3">
@@ -620,12 +620,12 @@ function ui2Empresas(body, minhas, nOutras) {
 let cambioOnde = null, cambioUsd = 100;
 function ui2Dolares(body, c) {
   const h = c.historico || [], ini = h[0]?.oficial, fim = h[h.length - 1]?.oficial, varia = ini ? ((fim / ini - 1) * 100) : 0;
-  const naBaixa = J.bairro === 'mutamba', semKinguilas = ['kilamba', 'talatona'].includes(J.bairro);
+  const naBaixa = J.bairro === 'baixa', semCambistas = ['sommerschield', 'bairro_central'].includes(J.bairro);
   const W = 300, H = 64, vals = h.flatMap(x => [x.oficial, x.rua]), mn = Math.min(...vals), mx = Math.max(...vals);
   const pt = (v, i) => `${(i / Math.max(1, h.length - 1)) * W},${H - ((v - mn) / Math.max(1, mx - mn)) * (H - 8) - 4}`, linha = k => h.map((x, i) => pt(x[k], i)).join(' ');
-  if (!cambioOnde) cambioOnde = naBaixa ? 'banco' : 'kinguila';
+  if (!cambioOnde) cambioOnde = naBaixa ? 'banco' : 'cambista';
   ui2Pilula(body, `1 $ = ${fmtTaxa(c.banco_compra)} MT`);
-  const pode = cambioOnde === 'banco' ? naBaixa : !semKinguilas;
+  const pode = cambioOnde === 'banco' ? naBaixa : !semCambistas;
   const compra = cambioOnde === 'banco' ? c.banco_compra : c.kinguila_compra, venda = cambioOnde === 'banco' ? c.banco_venda : c.kinguila_venda;
   const card = (k, foto, nome, sub, taxa, selo, ok) => `<button class="row dest-card ui2-c4${cambioOnde === k ? ' ui2-sel' : ''}" data-co="${k}"><div class="dest-foto"><img src="img/bairros/${foto}.webp" alt="" loading="lazy" draggable="false">${selo ? `<i class="ui2-selo${k === 'banco' ? ' verde' : ''}">${esc(tr(selo))}</i>` : ''}</div>
     <div class="t"><b>${esc(tr(nome))}</b><small>${esc(sub)}</small></div><span class="dest-preco"${ok ? '' : ' style="color:var(--muted)"'}>1 $ = ${fmtTaxa(taxa)} ›</span></button>`;
@@ -633,18 +633,18 @@ function ui2Dolares(body, c) {
       ${h.length > 1 ? `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:64px" aria-hidden="true"><polyline points="${linha('oficial')}" fill="none" stroke="#5aa7e0" stroke-width="2.5"/><polyline points="${linha('rua')}" fill="none" stroke="#f5b81c" stroke-width="2.5"/></svg>` : ''}
       <span class="ui2-l"><small><b style="color:#5aa7e0">━</b> ${esc(tr('Banco'))} · <b style="color:#f5b81c">━</b> ${esc(tr('Rua'))}</small><small style="color:${varia > 0 ? 'var(--red)' : 'var(--green)'}">${esc(tr('Dólar {0}% em {1} dias').replace('{0}', (varia >= 0 ? '+' : '') + varia.toFixed(1)).replace('{1}', h.length))}</small></span></div></div>
     <p class="ui2-q">${esc(tr('Onde queres trocar?'))}</p>
-    <div class="dest-grelha">${card('banco', 'mutamba', 'Banco', naBaixa ? tr('Até {0} por dia').replace('{0}', fmtUsd(200)) : tr('Só ao balcão, na Baixa'), c.banco_compra, 'Melhor preço', naBaixa)}
-      ${card('kinguila', 'cazenga', 'Kinguilas', semKinguilas ? tr('Não há aqui') : tr('Quanto quiseres, mais caro'), c.kinguila_compra, 'Na rua', !semKinguilas)}</div>
-    <div class="ui2-troca"><span class="ui2-l"><b>${esc(tr(cambioOnde === 'banco' ? 'Banco' : 'Kinguilas'))}</b><small>${cambioOnde === 'banco' && naBaixa ? esc(tr('Hoje ainda: {0}').replace('{0}', fmtUsd(c.limite_banco))) : !pode ? esc(tr(cambioOnde === 'banco' ? 'Vai à Baixa para trocar no banco' : 'Não há kinguilas neste bairro')) : ''}</small></span>
+    <div class="dest-grelha">${card('banco', 'baixa', 'Banco BCI / Millennium', naBaixa ? tr('Até {0} por dia').replace('{0}', fmtUsd(200)) : tr('Só ao balcão, na Baixa'), c.banco_compra, 'Melhor preço', naBaixa)}
+      ${card('cambista', 'polana_canico', 'Cambistas informais', semCambistas ? tr('Não há aqui') : tr('Quanto quiseres, mais caro'), c.kinguila_compra, 'Na rua', !semCambistas)}</div>
+    <div class="ui2-troca"><span class="ui2-l"><b>${esc(tr(cambioOnde === 'banco' ? 'Banco' : 'Cambistas'))}</b><small>${cambioOnde === 'banco' && naBaixa ? esc(tr('Hoje ainda: {0}').replace('{0}', fmtUsd(c.limite_banco))) : !pode ? esc(tr(cambioOnde === 'banco' ? 'Vai à Baixa para trocar no banco' : 'Não há cambistas neste bairro')) : ''}</small></span>
       <span class="ui2-qts">${[50, 100, 200].map(v => `<button class="${cambioUsd === v ? 'on' : ''}" data-usd="${v}">$ ${v}</button>`).join('')}<button class="${[50, 100, 200].includes(cambioUsd) ? '' : 'on'}" data-usd="">${[50, 100, 200].includes(cambioUsd) ? esc(tr('Outro')) : '$ ' + cambioUsd}</button></span>
       <span class="ui2-dois" style="margin:0"><button class="btn" data-t="comprar" ${pode && !(cambioOnde === 'banco' && c.limite_banco <= 0) ? '' : 'disabled'}>${esc(tr('Comprar'))} · ${fmtMt(Math.round(cambioUsd * compra))}</button><button class="btn ghost" data-t="vender" ${pode ? '' : 'disabled'}>${esc(tr('Vender'))} · ${fmtMt(Math.round(cambioUsd * venda))}</button></span></div>
-    <p class="m">${esc(tr('O kwanza vai perdendo valor: guardar em dólares protege-te. O banco tem o melhor câmbio, mas só vende 200 $ por dia e só ao balcão, na Baixa. As kinguilas vendem quanto quiseres, mais caro.'))}</p>`;
+    <p class="m">${esc(tr('O metical pode desvalorizar: guardar em dólares protege-te. O banco BCI ou Millennium tem o melhor câmbio, mas só vende 200 $ por dia e só ao balcão, na Baixa. Os cambistas informais vendem quanto quiseres, mais caro — às vezes com notas falsas.'))}</p>`;
   body.querySelectorAll('[data-co]').forEach(b => b.onclick = () => { cambioOnde = b.dataset.co; ui2Dolares(body, c); });
   body.querySelectorAll('[data-usd]').forEach(b => b.onclick = () => {
     if (b.dataset.usd) { cambioUsd = +b.dataset.usd; return ui2Dolares(body, c); }
     pedirValor(esc(tr('Quantos dólares?')), '', cambioUsd, v => { if (v >= 1) { cambioUsd = Math.floor(v); fecharSheets(); ui2Dolares(body, c); } });
   });
-  body.querySelectorAll('[data-t]').forEach(b => b.onclick = async () => { b.disabled = true; if (await acao('trocar', { p_onde: cambioOnde, p_acao: b.dataset.t, p_usd: cambioUsd })) abrirTelemovel('dolares'); else b.disabled = false; });
+  body.querySelectorAll('[data-t]').forEach(b => b.onclick = async () => { b.disabled = true; const onde = cambioOnde === 'cambista' ? 'kinguila' : cambioOnde; if (await acao('trocar', { p_onde: onde, p_acao: b.dataset.t, p_usd: cambioUsd })) abrirTelemovel('dolares'); else b.disabled = false; });
   ui2Como(body, 'Porquê guardar em dólares?');
 }
 
@@ -665,7 +665,7 @@ async function ui2Kumbu(body, extra, nomes, recentes) {
     ${nomes.length ? `<div class="ui2-fila ui2-kfila">${nomes.slice(0, 8).map(n => `<button type="button" data-kn="${esc(n)}"><span class="ui2-av"><b>${esc(n.slice(0, 2).toUpperCase())}</b></span><span data-sem-traducao>${esc(n)}</span></button>`).join('')}</div>` : ''}
     <label class="ui2-busca">${icone('procurar', 18)}<input id="ui2Para" maxlength="16" autocomplete="off" placeholder="${esc(tr('Nome do jogador'))}" aria-label="${esc(tr('Nome do jogador'))}" value="${esc(kumbuPara)}"></label>
     <p class="ui2-q" style="margin-top:14px">${esc(tr('Quanto?'))}</p>
-    <label class="ui2-valor"><input id="ui2Val" type="number" min="1" step="1" inputmode="numeric" value="${kumbuVal}" aria-label="${esc(tr('Quanto?'))}"><span>Kz</span></label><small class="ui2-fica" id="ui2Fica"></small>
+    <label class="ui2-valor"><input id="ui2Val" type="number" min="1" step="1" inputmode="numeric" value="${kumbuVal}" aria-label="${esc(tr('Quanto?'))}"><span>MT</span></label><small class="ui2-fica" id="ui2Fica"></small>
     <div class="ui2-qts">${[1000, 5000, 10000, 50000].map(v => `<button type="button" data-kv="${v}">${v.toLocaleString('pt-PT')}</button>`).join('')}</div>
     <button class="btn full ui2-grande" id="ui2Env" style="justify-content:center"></button>
     <small class="ui2-fica">${esc(tr('Chega na hora, sem taxas.'))}</small>`;
@@ -733,7 +733,7 @@ function ui2Sorte(body, s) {
   ui2Pilula(body, tr('Sorteio às 20h'));
   const fechado = J?.comprou_kz ? `<div class="row lock sem-jogos"><span class="e">🚫</span><div class="t"><b>${tr('Os jogos a dinheiro estão fechados para ti')}</b><small>${tr('Compraste Kz (nesta conta ou noutra do mesmo aparelho). Quem compra Kz não pode jogar a dinheiro.')}</small></div></div>` : '';
   if (sorteSec === 'liga') {
-    body.innerHTML = ui2Voltar4('Sorte', 'Liga de Luanda') + fechado + (jogos.filter(aberto).length ? `<div class="list">${jogos.filter(aberto).map(g => `<div class="rel" style="margin-top:0"><div class="lbl"><span>${esc(g.casa)} x ${esc(g.fora)}</span><span style="color:var(--dim);font-weight:600">${dataCurta(g.dia)} · ${g.hora.slice(0, 5)}</span></div>
+    body.innerHTML = ui2Voltar4('Sorte', 'Liga de Moçambique') + fechado + (jogos.filter(aberto).length ? `<div class="list">${jogos.filter(aberto).map(g => `<div class="rel" style="margin-top:0"><div class="lbl"><span>${esc(g.casa)} x ${esc(g.fora)}</span><span style="color:var(--dim);font-weight:600">${dataCurta(g.dia)} · ${g.hora.slice(0, 5)}</span></div>
       <div class="grelha" style="grid-template-columns:repeat(3,1fr)">${[['1', g.odd1, 'Casa'], ['X', g.oddx, 'Empate'], ['2', g.odd2, 'Fora']].map(([k, o, t]) => `<button data-ap="${g.id}:${k}:${o}" style="justify-content:center;flex-direction:column;gap:0"><b>${k}</b><small>${esc(tr(t))} · ${fmtTaxa(o)}</small></button>`).join('')}</div></div>`).join('')}</div>` : `<div class="empty">${esc(tr('Não há jogos abertos agora.'))}</div>`)
       + (jogos.some(g => g.golos_casa != null) ? `<div class="ui2-rot">${esc(tr('Resultados'))}</div><div class="ui2-caixa">${jogos.filter(g => g.golos_casa != null).map(g => `<div class="ui2-nota"><span class="t"><b>${esc(g.casa)} ${g.golos_casa}-${g.golos_fora} ${esc(g.fora)}</b><small>${dataCurta(g.dia)}</small></span></div>`).join('')}</div>` : '');
     body.querySelector('[data-ui2v]').onclick = () => { sorteSec = null; ui2Sorte(body, s); };
@@ -746,10 +746,10 @@ function ui2Sorte(body, s) {
       <p class="ui2-q">${esc(tr('Ou tenta outra coisa'))}</p>
       <div class="dest-grelha">
         ${ui2Card('id="bRaspa"', '', '🎟️', '#ffcb00', tr('Raspadinha'), tr('Vês na hora · até 100.000'), fmtMt(500) + ' ›')}
-        ${ui2Card('data-ss="liga"', '', '⚽', '#4cc38a', tr('Liga de Luanda'), tr('Aposta 1 X 2'), esc(hojeAbertos ? tr('{0} jogos').replace('{0}', hojeAbertos) : tr('Resultados')) + ' ›')}
+        ${ui2Card('data-ss="liga"', '', '⚽', '#4cc38a', tr('Liga de Moçambique'), tr('Aposta 1 X 2'), esc(hojeAbertos ? tr('{0} jogos').replace('{0}', hojeAbertos) : tr('Resultados')) + ' ›')}
       </div>
       ${aps.length ? `<div class="ui2-rot">${esc(tr('As tuas apostas'))}</div><div class="ui2-caixa">${aps.slice(0, 6).map(a => `<div class="ui2-nota"><span class="t"><b>${esc(nomeJogo(a.jogo_id))} · ${esc(a.escolha)}</b><small>${fmtMt(a.valor)} @ ${fmtTaxa(a.odd)}</small></span><b class="ui2-val" style="color:${a.premio == null ? 'var(--muted)' : a.premio > 0 ? 'var(--green)' : 'var(--red)'}">${a.premio == null ? esc(tr('A decorrer')) : a.premio > 0 ? '+' + fmtMt(a.premio) : esc(tr('Perdeste'))}</b></div>`).join('')}</div>` : ''}
-      <p class="m">${esc(tr('Raspadinha: 500 Kz, prémios até 100.000 Kz. Lotaria: bilhete de 1.000 Kz, sorteio todos os dias às 20h; se ninguém acertar, o pote acumula. Liga de Luanda: aposta no vencedor ou no empate; se acertares, recebes o valor vezes a odd. Joga só o que podes perder.'))}</p>`;
+      <p class="m">${esc(tr('Raspadinha: 500 MT, prémios até 100.000 MT. Lotaria: bilhete de 1.000 MT, sorteio todos os dias às 20h; se ninguém acertar, o pote acumula. Liga de Moçambique: aposta no vencedor ou no empate; se acertares, recebes o valor vezes a odd. Joga só o que podes perder.'))}</p>`;
     body.querySelector('[data-ss]').onclick = () => { sorteSec = 'liga'; ui2Sorte(body, s); body.scrollTop = 0; };
     body.querySelector('#bRaspa').onclick = async () => { const r = await acao('raspadinha', {}, { silencio: true }); if (r) raspar(r.premio, r.msg); };
     body.querySelector('#bBilhete').onclick = async () => { const v = body.querySelector('#iNum').value; if (await acao('comprar_bilhete', { p_numero: v === '' ? null : parseInt(v, 10) })) abrirTelemovel('sorte'); };

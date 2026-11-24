@@ -22,11 +22,11 @@ const CH = { relva: 0, terra: 1, areia: 2, mar: 3, asfalto: 4, passeio: 5, praca
 const COR_CHAO = ['#6f9b4a', '#b4683f', '#e9d39c', '#2b84ad', '#4b4c52', '#bdb5a8', '#d3c7b2', '#9c5a36'];
 
 // básicos + 3 extras que rodam todos os dias (cada bairro calha numa combinação diferente)
-const COMIDA_RODA = ['cabrite', 'pincho', 'mikate', 'sumo_tutti', 'eka', 'cuca', 'kissangua', 'ginguba', 'bombo', 'sumo_maracuja', 'funge', 'sumo_mucua'];
+const COMIDA_RODA = ['amendoim_torr', 'caju_assado', 'banana_frita', 'sumo_caju', 'sumo_manga', 'batata_doce', 'mucapata', 'madondo', 'nhemba', 'pao_bife', 'xima', 'pirao'];
 const DIA_COMIDA = Math.floor(Date.now() / 864e5);
-const CANTINA = ['pao_chourico', 'gelada', 'funge_calulu', 'kizaca', 'fanta', 'coca_cola', ...[0, 3, 6, 9].map(k => COMIDA_RODA[(DIA_COMIDA + k) % COMIDA_RODA.length])];
-// bares: cerveja, refrigerante, vinho do pacote, kissangua e ginguba para petiscar
-const BAR = ['gelada', 'nocal', 'fanta', 'coca_cola', 'vinho_pacote', 'kissangua', 'ginguba'];
+const CANTINA = ['prego_pao', 'cerveja_2m', 'xima', 'matapa', 'refrigerante', 'cafe', ...[0, 3, 6, 9].map(k => COMIDA_RODA[(DIA_COMIDA + k) % COMIDA_RODA.length])];
+// bares: cerveja 2M, refrigerante, vinho, amendoim e caju para petiscar
+const BAR = ['cerveja_2m', 'vinho_verde', 'refrigerante', 'cafe', 'sumo_manga', 'amendoim_torr', 'caju_assado'];
 // quarteirões candidatos a outdoor, por ordem; cada bairro fica com até OUTDOORS_POR_BAIRRO (lugares A–E)
 const OUTDOOR_QUARTEIROES = [[1, 1], [2, 0], [0, 2], [2, 2], [1, 0], [0, 1], [2, 1], [1, 2], [0, 0]];
 const OUTDOORS_POR_BAIRRO = 5;
@@ -47,7 +47,7 @@ const BAIRROS_MAPA = {
       { s: 13, nome: 'Quintal do Sr. Manuel', emoji: '🛖', w: 4, d: 4, h: 24, cor: '#cdb79a', telhado: 'zinco', acao: [{ t: 'casa', id: 'anexo_cazenga' }] },
       { s: 12, nome: 'Administração do Cazenga', emoji: '🏛️', w: 4, d: 3, h: 30, cor: '#e8dcc0', telhado: 'plano', toldo: '#c0392b', acao: [{ t: 'info', txt: 'Bandeira à porta, fila lá dentro.' }, { t: 'governo' }] },
       { s: 8, nome: 'Beco do Esquema', emoji: '🕶️', w: 3, d: 3, h: 18, cor: '#4a4040', telhado: 'zinco', acao: [{ t: 'info', txt: 'Uns rapazes encostados à parede, de olho em quem passa…' }, { t: 'crime', tipos: ['carteira', 'burla', 'assalto'] }] },
-      { s: 15, nome: 'Cantinho do Kota', emoji: '🍺', w: 3, d: 3, h: 22, cor: '#2f8f5b', telhado: 'zinco', toldo: '#f5b81c', acao: [{ t: 'lazer', id: 'bola' }, { t: 'comida', ids: [...BAR, 'pao_chourico'] }] },
+      { s: 15, nome: 'Cantinho do Kota', emoji: '🍺', w: 3, d: 3, h: 22, cor: '#2f8f5b', telhado: 'zinco', toldo: '#f5b81c', acao: [{ t: 'lazer', id: 'bola' }, { t: 'comida', ids: [...BAR, 'pao_bife'] }] },
     ]
   },
   viana: {
@@ -72,14 +72,14 @@ const BAIRROS_MAPA = {
     chao: CH.terra, estradaFora: CH.terraEstrada, decor: { casinha: 0.12, palmeira: 0.02, arvore: 0.04, carro: 0.03 }, telhadoCasinha: 'zinco',
     lotes: [
       { s: 0, nome: 'Tasca do Rangel', emoji: '🍲', w: 4, d: 3, h: 26, cor: '#e8c547', telhado: 'zinco', toldo: '#e0313f', acao: [{ t: 'comida', ids: CANTINA }, { t: 'lazer', id: 'bola' }] },
-      { s: 1, nome: 'Terminal do Rangel', emoji: '🚐', w: 3, d: 4, h: 22, cor: '#3d7cc9', telhado: 'zinco', acao: [{ t: 'emprego', id: 'kupapata' }] },
+      { s: 1, nome: 'Terminal do Rangel', emoji: '🚐', w: 3, d: 4, h: 22, cor: '#3d7cc9', telhado: 'zinco', acao: [{ t: 'emprego', id: 'cobrador' }] },
       { s: 2, nome: 'Casas de Quintal', emoji: '🛖', w: 4, d: 4, h: 24, cor: '#d9cbb0', telhado: 'zinco', acao: [{ t: 'casa', id: 'quintal_rangel' }] },
       { s: 3, nome: 'Campo do Rangel', emoji: '⚽', w: 4, d: 3, h: 5, cor: '#4f9a3c', telhado: 'plano', acao: [{ t: 'grupos', tipo: 'clube' }, { t: 'emprego', id: 'treinador' }] },
       { s: 4, nome: 'Igreja do Rangel', emoji: '⛪', w: 4, d: 4, h: 46, cor: '#f2efe8', telhado: 'telha', acao: [{ t: 'info', txt: 'Coro ao domingo e reuniões à quarta.' }, { t: 'grupos', tipo: 'igreja' }, { t: 'emprego', id: 'pastor' }] },
       { s: 6, nome: 'Obra', emoji: '🧱', w: 4, d: 3, h: 16, cor: '#a9a39a', telhado: 'plano', acao: [{ t: 'biscato' }] },
       { s: 13, nome: 'Casas de Quintal', emoji: '🛖', w: 4, d: 4, h: 24, cor: '#cdb79a', telhado: 'zinco', acao: [{ t: 'casa', id: 'quintal_rangel' }] },
       { s: 12, nome: 'Comissão de Moradores', emoji: '🤝', w: 4, d: 3, h: 30, cor: '#e8dcc0', telhado: 'plano', toldo: '#c0392b', acao: [{ t: 'info', txt: 'Aqui resolve-se tudo: da luz ao lixo.' }, { t: 'grupos', tipo: 'associacao' }] },
-      { s: 15, nome: 'Bar do Rangel', emoji: '🍺', w: 3, d: 3, h: 22, cor: '#2f8f5b', telhado: 'zinco', toldo: '#f5b81c', acao: [{ t: 'lazer', id: 'bola' }, { t: 'comida', ids: [...BAR, 'pao_chourico'] }] },
+      { s: 15, nome: 'Bar do Rangel', emoji: '🍺', w: 3, d: 3, h: 22, cor: '#2f8f5b', telhado: 'zinco', toldo: '#f5b81c', acao: [{ t: 'lazer', id: 'bola' }, { t: 'comida', ids: [...BAR, 'pao_bife'] }] },
     ]
   },
   novavida: {
@@ -88,7 +88,7 @@ const BAIRROS_MAPA = {
       { s: 0, nome: 'Escola de Futebol da Nova Vida', emoji: '⚽', w: 5, d: 4, h: 40, cor: '#f5b81c', telhado: 'plano', acao: [{ t: 'emprego', id: 'treinador' }] },
       { s: 1, nome: 'Sede do Condomínio', emoji: '🤝', w: 3, d: 4, h: 30, cor: '#2c6fb0', telhado: 'plano', toldo: '#f5b81c', acao: [{ t: 'grupos', tipo: 'associacao' }] },
       { s: 3, nome: 'Prédio Amarelo', emoji: '🏢', w: 3, d: 4, h: 110, cor: '#f3d36b', telhado: 'plano', acao: [{ t: 'casa', id: 'apart_novavida' }] },
-      { s: 4, nome: 'Churrasqueira da Nova Vida', emoji: '🍖', w: 4, d: 3, h: 22, cor: '#c0392b', telhado: 'zinco', toldo: '#f5b81c', acao: [{ t: 'comida', ids: ['frango_churrasco', 'porco_grelhado', ...CANTINA] }] },
+      { s: 4, nome: 'Churrasqueira da Nova Vida', emoji: '🍖', w: 4, d: 3, h: 22, cor: '#c0392b', telhado: 'zinco', toldo: '#f5b81c', acao: [{ t: 'comida', ids: ['frango_grelhado', 'galinha_caril', ...CANTINA] }] },
       { s: 6, nome: 'Cantina da Nova Vida', emoji: '🍲', w: 4, d: 3, h: 22, cor: '#8fc4e8', telhado: 'plano', toldo: '#e0313f', acao: [{ t: 'comida', ids: CANTINA }, { t: 'lazer', id: 'bola' }] },
       { s: 13, nome: 'Prédio Verde', emoji: '🏢', w: 4, d: 4, h: 110, cor: '#9ccf9a', telhado: 'plano', acao: [{ t: 'casa', id: 'apart_novavida' }] },
     ]
@@ -102,7 +102,7 @@ const BAIRROS_MAPA = {
       { s: 5, nome: 'Igreja do Zango', emoji: '⛪', w: 4, d: 4, h: 40, cor: '#f5f1e8', telhado: 'telha', acao: [{ t: 'grupos', tipo: 'igreja' }, { t: 'emprego', id: 'pastor' }] },
       { s: 6, nome: 'Cantina do Zango', emoji: '🍲', w: 4, d: 3, h: 24, cor: '#e8c547', telhado: 'zinco', toldo: '#e0313f', acao: [{ t: 'comida', ids: CANTINA }, { t: 'lazer', id: 'bola' }] },
       { s: 13, nome: 'Casas do Zango', emoji: '🏠', w: 4, d: 4, h: 26, cor: '#cfc3a8', telhado: 'zinco', acao: [{ t: 'casa', id: 'casa_zango' }] },
-      { s: 8, nome: 'Rua da Dirá', emoji: '🍺', w: 3, d: 3, h: 16, cor: '#5a4a3a', telhado: 'zinco', acao: [{ t: 'info', txt: 'A rua que nunca dorme: kuduro alto, grelhados no passeio e gente até de madrugada.' }, { t: 'lazer', id: 'bola' }, { t: 'comida', ids: [...BAR, 'pincho'] }] },
+      { s: 8, nome: 'Rua da Dirá', emoji: '🍺', w: 3, d: 3, h: 16, cor: '#5a4a3a', telhado: 'zinco', acao: [{ t: 'info', txt: 'A rua que nunca dorme: marrabenta alto, grelhados no passeio e gente até de madrugada.' }, { t: 'lazer', id: 'bola' }, { t: 'comida', ids: [...BAR, 'amendoim_torr'] }] },
     ]
   },
   maianga: {
@@ -110,14 +110,14 @@ const BAIRROS_MAPA = {
     lotes: [
       { s: 0, nome: 'Hospital Josina Machel', emoji: '🏥', w: 5, d: 4, h: 50, cor: '#f2f2f2', telhado: 'plano', toldo: '#e0313f', acao: [{ t: 'info', txt: 'Se desmaiares, é aqui que acordas — e a conta não é barata.' }, { t: 'saude', txt: 'Hospital, centro de saúde e farmácia.' }, { t: 'emprego', id: 'medico' }] },
       { s: 1, nome: 'Lavagem do Zé', emoji: '🧽', w: 3, d: 4, h: 20, cor: '#16a3a3', telhado: 'zinco', acao: [{ t: 'emprego', id: 'lavador' }] },
-      { s: 2, nome: 'Restaurante da Maianga', emoji: '🍗', w: 4, d: 3, h: 28, cor: '#f5b81c', telhado: 'telha', toldo: '#e0313f', acao: [{ t: 'comida', ids: ['muamba', ...CANTINA] }] },
+      { s: 2, nome: 'Restaurante da Baixa', emoji: '🍗', w: 4, d: 3, h: 28, cor: '#f5b81c', telhado: 'telha', toldo: '#e0313f', acao: [{ t: 'comida', ids: ['galinha_caril', ...CANTINA] }] },
       { s: 10, nome: 'ISAF', emoji: '🎓', w: 4, d: 4, h: 44, cor: '#e9dcc4', telhado: 'plano', toldo: '#2c6fb0', acao: [{ t: 'univ', id: 'isaf' }] },
       { s: 5, nome: 'Aeroporto 4 de Fevereiro', emoji: '✈️', w: 3, d: 5, h: 34, cor: '#e9eef2', telhado: 'plano', toldo: '#2c6fb0', antena: true, acao: [{ t: 'aeroporto' }] },
       { s: 3, nome: 'Campo da Maianga', emoji: '⚽', w: 4, d: 3, h: 5, cor: '#4f9a3c', telhado: 'plano', acao: [{ t: 'grupos', tipo: 'clube' }, { t: 'emprego', id: 'treinador' }] },
       { s: 4, nome: 'Prédio da Maianga', emoji: '🏬', w: 4, d: 4, h: 78, cor: '#e8b9a0', telhado: 'plano', antena: true, acao: [{ t: 'casa', id: 'apart_maianga' }] },
       { s: 6, nome: 'Obra', emoji: '🧱', w: 4, d: 3, h: 16, cor: '#a9a39a', telhado: 'plano', acao: [{ t: 'biscato' }] },
       { s: 8, nome: 'Kartódromo da Maianga', emoji: '🏎️', w: 5, d: 4, h: 6, cor: '#2d2f33', telhado: 'plano', toldo: '#cc092f', acao: [{ t: 'info', txt: 'Pneus empilhados, cheiro a gasolina e karts a rugir. 3 voltas pelas ruas da Maianga.' }, { t: 'kart' }] },
-      { s: 13, nome: 'Bar do Largo', emoji: '⚽', w: 3, d: 3, h: 24, cor: '#7a4b8c', telhado: 'telha', toldo: '#f5b81c', acao: [{ t: 'lazer', id: 'bola' }, { t: 'comida', ids: [...BAR, 'pincho', 'pao_chourico'] }] },
+      { s: 13, nome: 'Bar do Largo', emoji: '⚽', w: 3, d: 3, h: 24, cor: '#7a4b8c', telhado: 'telha', toldo: '#f5b81c', acao: [{ t: 'lazer', id: 'bola' }, { t: 'comida', ids: [...BAR, 'amendoim_torr', 'pao_bife'] }] },
     ]
   },
   mutamba: {
@@ -138,13 +138,13 @@ const BAIRROS_MAPA = {
   },
   benguela: {
     chao: CH.areia, estradaFora: CH.asfalto, praia: true, decor: { palmeira: 0.06, arvore: 0.05, casinha: 0.05, carro: 0.02 }, telhadoCasinha: 'telha',
-    barraca: { nome: 'Praia Morena', emoji: '🏖️', acao: [{ t: 'lazer', id: 'baia_azul' }, { t: 'comida', ids: ['gelada', 'calulu_peixe'] }] },
+    barraca: { nome: 'Praia Morena', emoji: '🏖️', acao: [{ t: 'lazer', id: 'baia_azul' }, { t: 'comida', ids: ['cerveja_2m', 'pirao'] }] },
     lotes: [
       { s: 2, nome: 'Porto do Lobito', emoji: '🚢', w: 5, d: 4, h: 40, cor: '#7f8a93', telhado: 'plano', tanque: true, acao: [{ t: 'emprego', id: 'estivador' }, { t: 'biscato' }] },
       { s: 3, nome: 'Aeroporto da Catumbela', emoji: '✈️', w: 3, d: 5, h: 32, cor: '#e9eef2', telhado: 'plano', toldo: '#2c6fb0', antena: true, acao: [{ t: 'aeroporto' }] },
       { s: 4, nome: 'Prédio da Praia Morena', emoji: '🏢', w: 4, d: 4, h: 80, cor: '#f2d0c4', telhado: 'plano', acao: [{ t: 'casa', id: 'apart_benguela' }] },
       { s: 5, nome: 'Estação do CFB', emoji: '🚂', w: 3, d: 5, h: 30, cor: '#c0392b', telhado: 'telha', acao: [{ t: 'info', txt: 'O Caminho de Ferro de Benguela liga o Lobito ao planalto e ao leste.' }, { t: 'estacao' }] },
-      { s: 10, nome: 'Cantina da Restinga', emoji: '🐟', w: 4, d: 3, h: 22, cor: '#e8c547', telhado: 'zinco', toldo: '#16a3a3', acao: [{ t: 'comida', ids: ['calulu_peixe', ...CANTINA] }, { t: 'lazer', id: 'bola' }] },
+      { s: 10, nome: 'Cantina da Costa', emoji: '🐟', w: 4, d: 3, h: 22, cor: '#e8c547', telhado: 'zinco', toldo: '#16a3a3', acao: [{ t: 'comida', ids: ['sopa_peixe', ...CANTINA] }, { t: 'lazer', id: 'bola' }] },
       { s: 11, nome: 'Campo da Praia', emoji: '⚽', w: 3, d: 4, h: 5, cor: '#4f9a3c', telhado: 'plano', acao: [{ t: 'grupos', tipo: 'clube' }, { t: 'emprego', id: 'treinador' }] },
       { s: 14, nome: 'Quintal benguelense', emoji: '🛖', w: 4, d: 4, h: 24, cor: '#e7cfa8', telhado: 'zinco', acao: [{ t: 'casa', id: 'quintal_benguela' }] },
       { s: 15, nome: 'Hospital de Benguela', emoji: '🏥', w: 3, d: 4, h: 34, cor: '#f2f2f2', telhado: 'plano', toldo: '#e0313f', acao: [{ t: 'saude', txt: 'Centro de saúde, clínica e farmácia.' }] },
@@ -181,10 +181,10 @@ const BAIRROS_MAPA = {
   },
   mussulo: {
     chao: CH.areia, estradaFora: CH.areia, praia: true, decor: { palmeira: 0.14 },
-    barraca: { nome: 'Praia do Mussulo', emoji: '🏖️', acao: [{ t: 'lazer', id: 'mussulo' }, { t: 'jetski' }, { t: 'comida', ids: ['gelada', 'marisco'] }] },
+    barraca: { nome: 'Praia da Costa do Sol', emoji: '🏖️', acao: [{ t: 'lazer', id: 'mussulo' }, { t: 'jetski' }, { t: 'comida', ids: ['cerveja_2m', 'caranguejo'] }] },
     lotes: [
       { s: 2, nome: 'Cais', emoji: '🛥️', w: 4, d: 3, h: 14, cor: '#16a3a3', telhado: 'plano', toldo: '#f5f1e8', acao: [{ t: 'barco' }] },
-      { s: 3, nome: 'Restaurante da Baía', emoji: '🦞', w: 3, d: 4, h: 22, cor: '#f2e3c2', telhado: 'zinco', toldo: '#e0313f', acao: [{ t: 'comida', ids: ['marisco', 'gelada'] }] },
+      { s: 3, nome: 'Restaurante da Baía', emoji: '🦞', w: 3, d: 4, h: 22, cor: '#f2e3c2', telhado: 'zinco', toldo: '#e0313f', acao: [{ t: 'comida', ids: ['lagostim', 'caranguejo', 'cerveja_2m'] }] },
       { s: 4, nome: 'Casas de praia', emoji: '🏝️', w: 5, d: 4, h: 26, cor: '#f5f1e8', telhado: 'telha', acao: [{ t: 'casa', id: 'resort_mussulo' }] },
       { s: 5, nome: 'Posto de nadadores', emoji: '🛟', w: 3, d: 3, h: 18, cor: '#e0313f', telhado: 'plano', acao: [{ t: 'emprego', id: 'nadador_salvador' }] },
       { s: 10, nome: 'Jet-ski & Kite', emoji: '🚤', w: 4, d: 3, h: 14, cor: '#2c6fb0', telhado: 'plano', toldo: '#f5b81c', acao: [{ t: 'info', txt: 'Jet skis prontos na areia do Mussulo.' }, { t: 'jetski' }] },
@@ -194,7 +194,7 @@ const BAIRROS_MAPA = {
   },
   namibe: {
     chao: CH.areia, estradaFora: CH.asfalto, praia: true, decor: { casinha: 0.05, carro: 0.02, palmeira: 0.01 }, telhadoCasinha: 'plano',
-    barraca: { nome: 'Praia das Miragens', emoji: '🏖️', acao: [{ t: 'lazer', id: 'praia' }, { t: 'comida', ids: ['gelada', 'peixe_seco'] }] },
+    barraca: { nome: 'Praia de Catembe', emoji: '🏖️', acao: [{ t: 'lazer', id: 'praia' }, { t: 'comida', ids: ['cerveja_2m', 'pirao'] }] },
     lotes: [
       { s: 2, nome: 'Porto de Pesca', emoji: '🎣', w: 5, d: 4, h: 22, cor: '#7f8a93', telhado: 'zinco', acao: [{ t: 'emprego', id: 'pescador' }, { t: 'grupos', tipo: 'associacao' }] },
       { s: 3, nome: 'Aeroporto Yuri Gagarin', emoji: '✈️', w: 3, d: 5, h: 30, cor: '#e9eef2', telhado: 'plano', toldo: '#2c6fb0', acao: [{ t: 'aeroporto' }] },
@@ -202,7 +202,7 @@ const BAIRROS_MAPA = {
       { s: 5, nome: 'Estação do CFM', emoji: '🚂', w: 3, d: 5, h: 28, cor: '#c0392b', telhado: 'telha', acao: [{ t: 'estacao' }] },
       { s: 10, nome: 'Tours no deserto', emoji: '🏜️', w: 4, d: 3, h: 10, cor: '#d9a35f', telhado: 'plano', acao: [{ t: 'lazer', id: 'deserto' }, { t: 'lazer', id: 'arco' }] },
       { s: 14, nome: 'Centro de Saúde', emoji: '🏥', w: 4, d: 4, h: 24, cor: '#f2f2f2', telhado: 'plano', toldo: '#2f8f5b', acao: [{ t: 'saude', txt: 'Centro de saúde e farmácia.' }] },
-      { s: 11, nome: 'Cantina do Namibe', emoji: '🐟', w: 3, d: 4, h: 22, cor: '#e8c547', telhado: 'zinco', toldo: '#16a3a3', acao: [{ t: 'comida', ids: ['peixe_seco', ...CANTINA] }, { t: 'lazer', id: 'bola' }] },
+      { s: 11, nome: 'Cantina de Catembe', emoji: '🐟', w: 3, d: 4, h: 22, cor: '#e8c547', telhado: 'zinco', toldo: '#16a3a3', acao: [{ t: 'comida', ids: ['sopa_peixe', ...CANTINA] }, { t: 'lazer', id: 'bola' }] },
     ]
   },
   malanje: {
@@ -213,7 +213,7 @@ const BAIRROS_MAPA = {
       { s: 2, nome: 'Estação do CFL', emoji: '🚂', w: 5, d: 4, h: 28, cor: '#c0392b', telhado: 'telha', acao: [{ t: 'estacao' }] },
       { s: 3, nome: 'Centro de Saúde', emoji: '🏥', w: 3, d: 4, h: 24, cor: '#f2f2f2', telhado: 'plano', toldo: '#2f8f5b', acao: [{ t: 'saude', txt: 'Centro de saúde, farmácia e curandeiro.' }] },
       { s: 4, nome: 'Casas de Malanje', emoji: '🏡', w: 4, d: 4, h: 24, cor: '#e9d8b8', telhado: 'zinco', acao: [{ t: 'casa', id: 'casa_malanje' }] },
-      { s: 6, nome: 'Cantina de Malanje', emoji: '🥬', w: 4, d: 3, h: 22, cor: '#e8c547', telhado: 'zinco', toldo: '#2f8f5b', acao: [{ t: 'comida', ids: ['funge_bombo', ...CANTINA] }, { t: 'lazer', id: 'bola' }] },
+      { s: 6, nome: 'Cantina de Mussequene', emoji: '🥬', w: 4, d: 3, h: 22, cor: '#e8c547', telhado: 'zinco', toldo: '#2f8f5b', acao: [{ t: 'comida', ids: ['matapa', ...CANTINA] }, { t: 'lazer', id: 'bola' }] },
       { s: 12, nome: 'Excursões: Kalandula', emoji: '💧', w: 4, d: 3, h: 12, cor: '#3fb8c9', telhado: 'plano', acao: [{ t: 'lazer', id: 'kalandula' }, { t: 'lazer', id: 'pungo' }] },
       { s: 13, nome: 'Campo de Malanje', emoji: '⚽', w: 3, d: 4, h: 5, cor: '#4f9a3c', telhado: 'plano', acao: [{ t: 'grupos', tipo: 'clube' }, { t: 'emprego', id: 'treinador' }] },
     ]
@@ -227,7 +227,7 @@ const BAIRROS_MAPA = {
       { s: 3, nome: 'Clínica do Petróleo', emoji: '🩺', w: 3, d: 4, h: 40, cor: '#f5f8fa', telhado: 'plano', toldo: '#2c6fb0', acao: [{ t: 'saude', txt: 'Centro de saúde, clínica, farmácia e curandeiro.' }] },
       { s: 4, nome: 'Entrada do Maiombe', emoji: '🌳', w: 4, d: 4, h: 10, cor: '#2f6b33', telhado: 'plano', acao: [{ t: 'lazer', id: 'maiombe' }, { t: 'grupos', tipo: 'igreja' }, { t: 'emprego', id: 'pastor' }, { t: 'emprego', id: 'guarda_maiombe' }] },
       { s: 5, nome: 'Fronteira do Yema', emoji: '📦', w: 3, d: 5, h: 20, cor: '#6a6a4a', telhado: 'zinco', acao: [{ t: 'info', txt: 'Do outro lado é o Congo. Há quem passe combustível e tabaco… e há a Polícia Fiscal.' }, { t: 'crime', tipos: ['contrabando'] }, { t: 'emprego', id: 'comerciante_fronteira' }] },
-      { s: 6, nome: 'Cantina de Cabinda', emoji: '🍲', w: 4, d: 3, h: 22, cor: '#e8c547', telhado: 'zinco', toldo: '#e0313f', acao: [{ t: 'comida', ids: ['mwambe', ...CANTINA] }, { t: 'lazer', id: 'bola' }] },
+      { s: 6, nome: 'Cantina de Cabinda', emoji: '🍲', w: 4, d: 3, h: 22, cor: '#e8c547', telhado: 'zinco', toldo: '#e0313f', acao: [{ t: 'comida', ids: ['matapa', ...CANTINA] }, { t: 'lazer', id: 'bola' }] },
       // dono 4 nov («tenho um emprego, mas não vem a placa do work»): 4 empregos de Cabinda não tinham onde trabalhar
       { s: 7, nome: 'Porto de Cabinda', emoji: '⚓', w: 4, d: 4, h: 26, cor: '#5d6b75', telhado: 'zinco', acao: [{ t: 'emprego', id: 'estivador_cabinda' }] },
     ]
@@ -247,13 +247,13 @@ const BAIRROS_MAPA = {
   ilha: {
     chao: CH.areia, estradaFora: CH.asfalto, praia: true, decor: { palmeira: 0.12, carro: 0.03 },
     lotes: [
-      { s: 2, nome: 'Restaurante Coconuts', emoji: '🐟', w: 4, d: 3, h: 26, cor: '#f2e3c2', telhado: 'zinco', toldo: '#16a3a3', acao: [{ t: 'comida', ids: ['mufete', ...CANTINA] }, { t: 'emprego', id: 'empregado_mesa' }] },
-      { s: 3, nome: 'Discoteca Kizomba', emoji: '💃', w: 3, d: 4, h: 30, cor: '#3b1f4a', telhado: 'plano', toldo: '#e86aa6', acao: [{ t: 'lazer', id: 'kizomba' }, { t: 'comida', ids: ['gelada', 'nocal', 'coca_cola', 'moet'] }, { t: 'emprego', id: 'dj' }] },
+      { s: 2, nome: 'Restaurante Coconuts', emoji: '🐟', w: 4, d: 3, h: 26, cor: '#f2e3c2', telhado: 'zinco', toldo: '#16a3a3', acao: [{ t: 'comida', ids: ['pirao', ...CANTINA] }, { t: 'emprego', id: 'empregado_mesa' }] },
+      { s: 3, nome: 'Discoteca Marrabenta', emoji: '💃', w: 3, d: 4, h: 30, cor: '#3b1f4a', telhado: 'plano', toldo: '#e86aa6', acao: [{ t: 'lazer', id: 'kizomba' }, { t: 'comida', ids: ['cerveja_2m', 'vinho_verde', 'refrigerante', 'lagostim'] }, { t: 'emprego', id: 'dj' }] },
       { s: 4, nome: 'Prédio Vista Mar', emoji: '🌊', w: 4, d: 4, h: 96, cor: '#f5f1e8', telhado: 'plano', antena: true, acao: [{ t: 'casa', id: 'apart_ilha' }] },
       { s: 11, nome: 'Cais do Mussulo', emoji: '🛥️', w: 3, d: 4, h: 14, cor: '#16a3a3', telhado: 'plano', toldo: '#f5f1e8', acao: [{ t: 'barco' }] },
       { s: 10, nome: 'Cantina da Ilha', emoji: '🍲', w: 4, d: 3, h: 22, cor: '#e8c547', telhado: 'zinco', toldo: '#e0313f', acao: [{ t: 'comida', ids: CANTINA }, { t: 'lazer', id: 'bola' }] },
       { s: 5, nome: 'Jet Ski da Baía', emoji: '🌊', w: 3, d: 3, h: 16, cor: '#ffcb00', telhado: 'plano', toldo: '#cc092f', acao: [{ t: 'info', txt: 'Jet skis alinhados na areia, prontos para voar pela Baía.' }, { t: 'jetski' }] },
-      { s: 15, nome: 'Bar da Praia', emoji: '🍹', w: 3, d: 3, h: 20, cor: '#16a3a3', telhado: 'zinco', toldo: '#f5b81c', acao: [{ t: 'comida', ids: [...BAR, 'sumo_maracuja', 'pao_chourico'] }, { t: 'lazer', id: 'bola' }] },
+      { s: 15, nome: 'Bar da Praia', emoji: '🍹', w: 3, d: 3, h: 20, cor: '#16a3a3', telhado: 'zinco', toldo: '#f5b81c', acao: [{ t: 'comida', ids: [...BAR, 'sumo_manga', 'pao_bife'] }, { t: 'lazer', id: 'bola' }] },
     ]
   },
   kilamba: {
@@ -292,11 +292,11 @@ const BAIRROS_MAPA = {
       { s: 21, nome: 'Café Belas', emoji: '☕', w: 3, d: 4, h: 24, cor: '#c8a27a', telhado: 'plano', toldo: '#2f8f5b', acao: [{ t: 'comida', ids: CANTINA }] },
       { s: 22, nome: 'Condomínio Belas', emoji: '🏡', w: 5, d: 4, h: 30, cor: '#f2efe6', telhado: 'telha', acao: [{ t: 'casa', id: 'vivenda_talatona' }, { t: 'emprego', id: 'seguranca' }] },
       { s: 23, nome: 'Igreja de Talatona', emoji: '⛪', w: 3, d: 5, h: 46, cor: '#f2efe8', telhado: 'telha', acao: [{ t: 'grupos', tipo: 'igreja' }, { t: 'emprego', id: 'pastor' }] },
-      { s: 24, nome: 'Lounge Talatona', emoji: '🍸', w: 5, d: 4, h: 30, cor: '#1f1f1f', telhado: 'plano', toldo: '#d4af37', acao: [{ t: 'comida', ids: [...BAR, 'moet'] }] },
+      { s: 24, nome: 'Lounge Sommerschield', emoji: '🍸', w: 5, d: 4, h: 30, cor: '#1f1f1f', telhado: 'plano', toldo: '#d4af37', acao: [{ t: 'comida', ids: [...BAR, 'lagostim'] }] },
       { s: 25, nome: 'Belas Fit', emoji: '🏋️', w: 3, d: 4, h: 32, cor: '#e0313f', telhado: 'plano', toldo: '#1f1f1f', acao: [{ t: 'treino', onde: 'ginasio' }] },
       { s: 26, nome: 'Loja de Telemóveis', emoji: '📱', w: 5, d: 4, h: 28, cor: '#e9eef2', telhado: 'plano', toldo: '#16a3a3', acao: [{ t: 'itens', cats: ['telemovel'] }] },
       { s: 28, nome: 'Condomínio Jardim', emoji: '🏡', w: 5, d: 4, h: 30, cor: '#efe6d2', telhado: 'telha', acao: [{ t: 'casa', id: 'vivenda_talatona' }] },
-      { s: 0, nome: 'Talatona Shopping', emoji: '🛍️', w: 5, d: 4, h: 44, cor: '#eaeaea', telhado: 'plano', toldo: '#2c6fb0', acao: [{ t: 'moda_loja' }, { t: 'lazer', id: 'shopping' }, { t: 'comida', ids: ['jantar_fino', 'gelada', 'sumo_maracuja', 'moet'] }, { t: 'itens' }] },
+      { s: 0, nome: 'Shopping Maputo', emoji: '🛍️', w: 5, d: 4, h: 44, cor: '#eaeaea', telhado: 'plano', toldo: '#2c6fb0', acao: [{ t: 'moda_loja' }, { t: 'lazer', id: 'shopping' }, { t: 'comida', ids: ['massala', 'cerveja_2m', 'sumo_manga', 'lagostim'] }, { t: 'itens' }] },
       { s: 1, nome: 'Casa & Design', emoji: '🛋️', w: 3, d: 4, h: 30, cor: '#1f1f1f', telhado: 'plano', toldo: '#f5b81c', acao: [{ t: 'moveis', loja: 'fina' }] },
       { s: 2, nome: 'Petrolífera', emoji: '🛢️', w: 4, d: 4, h: 130, cor: '#2a3b55', telhado: 'plano', antena: true, acao: [{ t: 'emprego', id: 'engenheiro' }] },
       { s: 3, nome: 'Tech Hub', emoji: '💻', w: 3, d: 4, h: 70, cor: '#16a3a3', telhado: 'plano', acao: [{ t: 'emprego', id: 'programador' }] },
@@ -323,7 +323,7 @@ const BAIRROS_MAPA = {
       { s: 5, nome: 'Centro de Saúde', emoji: '🏥', w: 3, d: 4, h: 30, cor: '#f2f2f2', telhado: 'plano', toldo: '#2f8f5b', acao: [{ t: 'saude', txt: 'Centro de saúde público e farmácia.' }] },
       { s: 6, nome: 'Obra', emoji: '🧱', w: 4, d: 3, h: 16, cor: '#a9a39a', telhado: 'plano', acao: [{ t: 'biscato' }] },
       { s: 8, nome: 'Esquina da Noite', emoji: '🕶️', w: 3, d: 3, h: 18, cor: '#4a4040', telhado: 'zinco', acao: [{ t: 'crime', tipos: ['carteira', 'burla'] }] },
-      { s: 15, nome: 'Barraca do Zé', emoji: '🍺', w: 3, d: 3, h: 22, cor: '#2f8f5b', telhado: 'zinco', toldo: '#f5b81c', acao: [{ t: 'comida', ids: [...BAR, 'pao_chourico'] }] },
+      { s: 15, nome: 'Barraca do Zé', emoji: '🍺', w: 3, d: 3, h: 22, cor: '#2f8f5b', telhado: 'zinco', toldo: '#f5b81c', acao: [{ t: 'comida', ids: [...BAR, 'pao_bife'] }] },
     ]
   },
   maxaquene: {
@@ -355,7 +355,7 @@ const BAIRROS_MAPA = {
   sommerschield: {
     chao: CH.relva, estradaFora: CH.asfalto, decor: { predio: 0.04, arvore: 0.07, palmeira: 0.05, carro: 0.06 },
     lotes: [
-      { s: 0, nome: 'Restaurant Zambi', emoji: '🍽️', w: 4, d: 3, h: 28, cor: '#1f1f1f', telhado: 'plano', toldo: '#d4af37', acao: [{ t: 'comida', ids: ['muamba', 'frango_churrasco', 'porco_grelhado', ...CANTINA] }] },
+      { s: 0, nome: 'Restaurante Polana', emoji: '🍽️', w: 4, d: 3, h: 28, cor: '#1f1f1f', telhado: 'plano', toldo: '#d4af37', acao: [{ t: 'comida', ids: ['massala', 'galinha_caril', 'frango_grelhado', ...CANTINA] }] },
       { s: 1, nome: 'Embaixada', emoji: '🏛️', w: 3, d: 4, h: 44, cor: '#e8dcc0', telhado: 'plano', toldo: '#c0392b', acao: [{ t: 'info', txt: 'Bandeiras internacionais, seguranças na porta e limusines.' }] },
       { s: 2, nome: 'Condomínio Sommerschield', emoji: '🏡', w: 5, d: 4, h: 34, cor: '#f5f1e8', telhado: 'telha', acao: [{ t: 'casa', id: 'vivenda_talatona' }, { t: 'emprego', id: 'seguranca' }] },
       { s: 3, nome: 'Ginásio', emoji: '🏋️', w: 3, d: 4, h: 36, cor: '#1f1f1f', telhado: 'plano', toldo: '#e0313f', acao: [{ t: 'treino', onde: 'ginasio' }] },
@@ -379,8 +379,8 @@ const BAIRROS_MAPA = {
   costa_do_sol: {
     chao: CH.areia, estradaFora: CH.asfalto, decor: { palmeira: 0.08, arvore: 0.02, carro: 0.03 }, praia: true,
     lotes: [
-      { s: 0, nome: 'Restaurante da Praia', emoji: '🦐', w: 5, d: 4, h: 28, cor: '#f5b81c', telhado: 'zinco', toldo: '#e0313f', acao: [{ t: 'comida', ids: ['muamba', 'frango_churrasco', ...CANTINA] }, { t: 'emprego', id: 'cozinheiro' }] },
-      { s: 1, nome: 'Bar da Costa', emoji: '🍺', w: 3, d: 4, h: 22, cor: '#2f8f5b', telhado: 'zinco', toldo: '#f5b81c', acao: [{ t: 'comida', ids: [...BAR, 'pincho'] }, { t: 'lazer', id: 'praia' }] },
+      { s: 0, nome: 'Restaurante da Costa do Sol', emoji: '🦐', w: 5, d: 4, h: 28, cor: '#f5b81c', telhado: 'zinco', toldo: '#e0313f', acao: [{ t: 'comida', ids: ['caril_camarao', 'galinha_caril', ...CANTINA] }, { t: 'emprego', id: 'cozinheiro' }] },
+      { s: 1, nome: 'Bar da Costa', emoji: '🍺', w: 3, d: 4, h: 22, cor: '#2f8f5b', telhado: 'zinco', toldo: '#f5b81c', acao: [{ t: 'comida', ids: [...BAR, 'amendoim_torr'] }, { t: 'lazer', id: 'praia' }] },
       { s: 2, nome: 'Casas de Praia', emoji: '🏠', w: 5, d: 4, h: 26, cor: '#d8d0c0', telhado: 'telha', acao: [{ t: 'casa', id: 'apart_novavida' }] },
       { s: 4, nome: 'Hotel Cardoso', emoji: '🏨', w: 4, d: 4, h: 70, cor: '#f2efe8', telhado: 'plano', antena: true, acao: [{ t: 'comida', ids: CANTINA }, { t: 'emprego', id: 'rececionista' }] },
       { s: 5, nome: 'Desportos Aquáticos', emoji: '🤿', w: 3, d: 3, h: 12, cor: '#8fc4e8', telhado: 'zinco', toldo: '#2c6fb0', acao: [{ t: 'lazer', id: 'praia' }] },
@@ -417,7 +417,7 @@ const BAIRROS_MAPA = {
       { s: 0, nome: 'Terminal do Ferry', emoji: '⛴️', w: 4, d: 4, h: 20, cor: '#3d7cc9', telhado: 'zinco', acao: [{ t: 'info', txt: 'De 20 em 20 minutos, o ferry para Maputo cidade.' }, { t: 'estacao' }] },
       { s: 1, nome: 'Peixaria da Catembe', emoji: '🐟', w: 4, d: 3, h: 18, cor: '#c0d8f0', telhado: 'zinco', toldo: '#3d7cc9', acao: [{ t: 'comida', ids: CANTINA }, { t: 'emprego', id: 'vendedor_mercado' }] },
       { s: 2, nome: 'Casas de Pescador', emoji: '🛖', w: 4, d: 4, h: 22, cor: '#c9b89a', telhado: 'zinco', acao: [{ t: 'casa', id: 'quintal_polana' }] },
-      { s: 4, nome: 'Bar Vista Baía', emoji: '🍺', w: 4, d: 3, h: 20, cor: '#2f8f5b', telhado: 'zinco', toldo: '#f5b81c', acao: [{ t: 'comida', ids: [...BAR, 'pincho'] }, { t: 'lazer', id: 'praia' }] },
+      { s: 4, nome: 'Bar Vista Baía', emoji: '🍺', w: 4, d: 3, h: 20, cor: '#2f8f5b', telhado: 'zinco', toldo: '#f5b81c', acao: [{ t: 'comida', ids: [...BAR, 'amendoim_torr'] }, { t: 'lazer', id: 'praia' }] },
       { s: 5, nome: 'Centro de Saúde', emoji: '🏥', w: 3, d: 4, h: 28, cor: '#f2f2f2', telhado: 'plano', toldo: '#2f8f5b', acao: [{ t: 'saude', txt: 'O único centro de saúde da Catembe.' }] },
     ]
   },
@@ -467,26 +467,27 @@ const MODA_NIVEL = a => ['talatona', 'ilha', 'mussulo'].includes(a) ? 'rica' : [
   }
 })();
 
-/* ---------- 🍲 menus (FILA 0c, 26 out): as comidas e bebidas angolanas da Cinnss espalhadas pelo jogo ----------
+/* ---------- 🍲 menus (Vida em Moz): as comidas e bebidas moçambicanas espalhadas pelo jogo ----------
    Cada sítio vende só o que faz sentido lá (cantina, restaurante, bar, café, mercado, praia, paragem); os menus são curtos,
-   mudam de bairro para bairro e rodam todos os dias. Os pratos especiais de cada sítio (muamba da Maianga, mufete da Ilha…)
-   ficam sempre. Fonte das listas: tools/comidas_cinnss.py. Álcool: o servidor só vende a quem confirmou 18+. */
+   mudam de bairro para bairro e rodam todos os dias. Os pratos especiais de cada bairro ficam sempre.
+   Álcool: o servidor só vende a quem confirmou 18+. */
 const POOL_COMIDA = {
-  rua: ['frango_churrasco', 'paracuca', 'kitaba', 'cocada', 'chamucas', 'pastel_carne', 'pastel_peixe', 'pao_ovo', 'pao_frango', 'banana_pao_assada', 'banana_frita', 'mandioca_frita', 'chikuanga', 'catatos', 'bolinhos', 'bolo_mandioca', 'bolo_ginguba', 'doce_ginguba', 'pe_moleque', 'pao_manteiga', 'cachupa', 'pipocas', 'pincho', 'ginguba', 'pao_chourico', 'milho_assado', 'bombo', 'mikate'],
-  casa: ['funge', 'funge_milho', 'funge_bombo', 'pirao', 'muamba', 'muamba_peixe', 'moamba_ginguba', 'calulu_peixe', 'calulu_carne', 'kizaca', 'funge_calulu', 'fumbua', 'jimboa', 'feijao_palma', 'feijao_peixe_seco', 'arroz_feijao', 'arroz_cabidela', 'arroz_frango', 'arroz_peixe', 'peixe_grelhado', 'cacusso', 'caldeirada_peixe', 'caldeirada_cabrito', 'cabrito_assado', 'dobrada', 'feijoada', 'porco_grelhado', 'frango_grelhado', 'bombo_cozido', 'batata_doce', 'banana_pao_cozida', 'milho_cozido', 'matata', 'makayabu', 'peixe_seco', 'feijao_palma_funge', 'carne_guisada', 'massa_frango', 'sopa_peixe'],
-  sumo: ['kissangua', 'kissangua_ananas', 'kissangua_arroz', 'sumo_mucua', 'sumo_tamarindo', 'sumo_maracuja', 'sumo_manga', 'sumo_goiaba', 'sumo_maboque', 'sumo_ananas', 'sumo_melancia', 'sumo_limao', 'sumo_cana', 'sumo_caju', 'sumo_ginguba', 'ginguba_drink', 'gasosa', 'fanta', 'coca_cola', 'sumo_tutti'],
-  alcool: ['cuca', 'nocal', 'eka', 'ngola', 'gelada', 'maruvo', 'capatica', 'mongozo', 'aguardente', 'vinho_tinto', 'vinho_branco', 'vinho_pacote'],
-  cafe: ['pastel_nata', 'pao_manteiga', 'bolo_mandioca', 'bolo_ginguba', 'pao_ovo', 'pao_frango', 'chamucas', 'pastel_carne', 'pastel_peixe', 'bolinhos'],
-  petisco: ['pincho', 'ginguba', 'catatos', 'frango_churrasco', 'chamucas', 'mandioca_frita', 'banana_frita', 'kitaba', 'pastel_carne'],
-  praia: ['peixe_grelhado', 'cacusso', 'banana_frita', 'frango_churrasco', 'arroz_marisco', 'milho_assado', 'pipocas', 'cocada'],
-  fino: ['arroz_marisco', 'cabrito_assado', 'caldeirada_peixe', 'caldeirada_cabrito', 'porco_grelhado', 'cacusso', 'muamba', 'moamba_ginguba', 'feijoada', 'arroz_cabidela'],
+  rua: ['banana_frita', 'amendoim_torr', 'caju_assado', 'batata_doce', 'pao_bife', 'prego_pao', 'paõzinho', 'madondo', 'nhemba', 'sumo_caju', 'sumo_manga'],
+  casa: ['xima', 'mucapata', 'pirao', 'matapa', 'galinha_caril', 'frango_grelhado', 'dobrada', 'sopa_peixe', 'caril_camarao', 'caranguejo', 'massala', 'nhemba', 'madondo', 'batata_doce'],
+  sumo: ['sumo_caju', 'sumo_manga', 'refrigerante', 'cafe'],
+  alcool: ['cerveja_2m', 'vinho_verde'],
+  cafe: ['cafe', 'paõzinho', 'pao_bife', 'banana_frita', 'amendoim_torr'],
+  petisco: ['amendoim_torr', 'caju_assado', 'banana_frita', 'batata_doce', 'pao_bife'],
+  praia: ['caranguejo', 'lagostim', 'caril_camarao', 'pirao', 'banana_frita', 'amendoim_torr', 'sumo_manga'],
+  fino: ['lagostim', 'massala', 'caranguejo', 'caril_camarao', 'galinha_caril', 'frango_grelhado', 'dobrada', 'vinho_verde'],
 };
-// sabores da terra (entram primeiro nos menus desses bairros)
+// sabores da terra de Maputo (entram primeiro nos menus desses bairros)
 const TERRA_COMIDA = {
-  cabinda: ['makayabu', 'chikuanga', 'kitaba'], malanje: ['funge_bombo', 'fumbua', 'jimboa'], huambo: ['milho_assado', 'milho_cozido', 'funge_milho'],
-  benguela: ['caldeirada_peixe', 'calulu_peixe', 'peixe_grelhado'], namibe: ['peixe_seco', 'feijao_peixe_seco', 'sopa_peixe'], lubango: ['caldeirada_cabrito', 'milho_cozido', 'funge_milho'],
-  maianga: ['muamba', 'muamba_peixe'], ilha: ['mufete', 'peixe_grelhado', 'cacusso', 'agua_coco'], mussulo: ['agua_coco', 'arroz_marisco', 'peixe_grelhado'], cazenga: ['catatos', 'kitaba', 'bombo'],
-  viana: ['cachupa', 'bombo_cozido', 'chikuanga'], kilamba: ['frango_churrasco', 'arroz_frango'], talatona: ['arroz_marisco', 'pastel_nata'],
+  polana_canico: ['matapa', 'xima', 'nhemba'], maxaquene: ['mucapata', 'pirao', 'madondo'],
+  magoanine: ['xima', 'batata_doce', 'nhemba'], alto_mae: ['sopa_peixe', 'pirao', 'frango_grelhado'],
+  baixa: ['prego_pao', 'pao_bife', 'cafe'], sommerschield: ['lagostim', 'massala', 'vinho_verde'],
+  bairro_central: ['galinha_caril', 'caranguejo', 'caril_camarao'], costa_do_sol: ['lagostim', 'caranguejo', 'pirao'],
+  catembe: ['pirao', 'sopa_peixe', 'caranguejo'], mussequene: ['xima', 'matapa', 'amendoim_torr'],
 };
 const MENU_FORMA = {   // [lista, quantos]
   cantina: [['terra', 1], ['casa', 4], ['rua', 1], ['sumo', 2], ['alcool', 1]],
@@ -505,8 +506,8 @@ function menuDe(tipo, bairroId, chave = '', fixos = []) {
   const tira = (lista, n) => { const l = lista.filter(x => !out.includes(x)); for (let k = 0; k < n && l.length; k++) out.push(l.splice(Math.floor(r() * l.length), 1)[0]); };
   for (const [nome, n] of MENU_FORMA[tipo] || MENU_FORMA.cantina) {
     if (nome === 'terra') tira(TERRA_COMIDA[bairroId] || [], n);
-    else if (nome === 'quente') out.push(...['cafe', 'cha_caxinde'].filter(x => !out.includes(x)).slice(0, n));
-    else if (nome === 'coco') { if (!out.includes('agua_coco')) out.push('agua_coco'); }
+    else if (nome === 'quente') out.push(...['cafe', 'sumo_caju'].filter(x => !out.includes(x)).slice(0, n));
+    else if (nome === 'coco') { if (!out.includes('sumo_manga')) out.push('sumo_manga'); }
     else tira(POOL_COMIDA[nome] || [], n);
   }
   return out.slice(0, 10);
@@ -519,7 +520,7 @@ function tipoSitioComida(nome = '', emoji = '') {
   if (/restaurante|jantar|marisq|grelh/i.test(nome)) return 'restaurante';
   return 'cantina';
 }
-// LL14 · horários reais (hora de Luanda): discotecas das 21h às 5h, bares das 17h às 3h (o servidor confere a discoteca)
+// LL14 · horários reais (hora de Maputo): discotecas das 21h às 5h, bares das 17h às 3h (o servidor confere a discoteca)
 const HORARIOS = { discoteca: [21, 5], bar: [17, 3] };
 function horarioLugar(spec) {
   if (!spec) return null;
@@ -612,7 +613,7 @@ function gerarBairro(id) {
   // praia: barracas
   if (spec.praia) {
     [[5, 3], [6, 8], [5, 14], [6, 24], [5, 28]].forEach(([x, y], i) => {
-      const o = { kind: 'barraca', x, y, w: 1, d: 1, h: 34, cor: ['#e0313f', '#f5b81c', '#2c6fb0', '#2f8f5b', '#e86aa6'][i], spec: spec.barraca || { nome: 'Praia da Ilha', emoji: '🏖️', acao: [{ t: 'lazer', id: 'praia' }, { t: 'treino', onde: 'correr' }, { t: 'comida', ids: ['gelada'] }] }, porta: [x + 1, y] };
+      const o = { kind: 'barraca', x, y, w: 1, d: 1, h: 34, cor: ['#e0313f', '#f5b81c', '#2c6fb0', '#2f8f5b', '#e86aa6'][i], spec: spec.barraca || { nome: 'Praia de Maputo', emoji: '🏖️', acao: [{ t: 'lazer', id: 'praia' }, { t: 'treino', onde: 'correr' }, { t: 'comida', ids: ['cerveja_2m'] }] }, porta: [x + 1, y] };
       objetos.push(o); marca(x, y, 1, 1); portas.set((x + 1) + ',' + y, o);
     });
   }

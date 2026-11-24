@@ -1,22 +1,22 @@
 /* ============================================================
-   Vida na Banda — 🏎️ Kart da Maianga: o kartódromo, o resultado e o ranking da semana (0k-E, 27 out).
+   Vida em Moz — 🏎️ Kart da Baixa: o kartódromo, o resultado e o ranking da semana (0k-E, 27 out).
    O jogo em si está em js/kart.js (three.js, só se descarrega quando vais correr).
    ============================================================ */
 const KART_PRECO = 400;
 function kartHTML() {
   const ok = typeof temWebGL === 'function' && temWebGL();
-  return `<div class="sec"><h4>🏎️ ${tr('Kart da Maianga')}</h4><span>${tr('3 voltas · tu contra 3')}</span></div>
-    <p class="m">${tr('Corrida de karts pelas ruas da Maianga. Apanha as caixas «?»: turbo de gasosa ou cascas de manga para quem vem atrás.')}</p>
-    <p class="m">${tr('Prémios: 1.º 3.000 Kz · 2.º 1.500 Kz · 3.º 600 Kz (até 15.000 Kz por dia).')}</p>
+  return `<div class="sec"><h4>🏎️ ${tr('Kart da Baixa')}</h4><span>${tr('3 voltas · tu contra 3')}</span></div>
+    <p class="m">${tr('Corrida de karts pelas ruas da Baixa. Apanha as caixas «?»: turbo de gasosa ou cascas de manga para quem vem atrás.')}</p>
+    <p class="m">${tr('Prémios: 1.º 3.000 MT · 2.º 1.500 MT · 3.º 600 MT (até 15.000 MT por dia).')}</p>
     ${ok ? `<div class="list"><div class="row"><span class="e">🏁</span><div class="t"><b>${tr('Uma corrida')}</b><small>${tr('−5 energia')}</small></div><button class="btn sm" data-kart>${fmtMt(KART_PRECO)}</button></div></div>`
       : `<p class="m">${tr('O kart precisa dos gráficos 3D (WebGL), que este aparelho não tem ligados.')}</p>`}
     ${ok ? `<div class="sec"><h4>🗺️ ${tr('Campeonato')}</h4><span data-kart-estrelas></span></div>
-    <p class="m">${tr('15 etapas em 3 pistas: Maianga, Marginal e Ilha. Passa cada etapa para abrir a seguinte.')}</p>
+    <p class="m">${tr('15 etapas em 3 pistas: Baixa, Marginal e Costa. Passa cada etapa para abrir a seguinte.')}</p>
     <button class="btn full" data-kart-mapa>🏁 ${tr('Abrir o mapa')}</button>` : ''}
     <div data-kart-ranking style="margin-top:10px"><div class="empty">${tr('A carregar o ranking…')}</div></div>`;
 }
 /* ---------- 0dp-3 bit 2 (dono 6 nov): mapa de níveis — uma estrada sinuosa com 15 etapas (inspirado nos mapas de níveis, mas de corridas) ---------- */
-const KART_PISTAS = { maianga: ['🏙️', 'Maianga'], marginal: ['🌊', 'Marginal'], ilha: ['🏝️', 'Ilha'] };
+const KART_PISTAS = { baixa: ['🏙️', 'Baixa'], marginal: ['🌊', 'Marginal'], costa: ['🏖️', 'Costa do Sol'] };
 const estrelasTxt = n => '★'.repeat(n) + '☆'.repeat(3 - n);
 function objetivosEtapa(e) {
   return [`${tr('Passar')}: ${tr('chegar em {0}.º ou melhor').replace('{0}', e.alvo_pos)}`, `★ ${tr('Ganhar a corrida')}`, `★ ${tr('Abaixo de {0}').replace('{0}', tempoKart(e.alvo_tempo))}`]
@@ -32,7 +32,7 @@ async function abrirMapaKart() {
   pos.forEach(([x, y], i) => { const [px, py] = i ? pos[i - 1] : [x, y + 60]; const my = (py + y) / 2; d += ` C ${px} ${my}, ${x} ${my}, ${x} ${y}`; });
   d += ` C ${pos[N - 1][0]} ${pos[N - 1][1] - 40}, ${W / 2} ${pos[N - 1][1] - 50}, ${W / 2} 30`;
   const atual = E.find(e => e.estado === 'atual');
-  const faixas = ['maianga', 'marginal', 'ilha'].map((p, k) => {
+  const faixas = ['baixa', 'marginal', 'costa'].map((p, k) => {
     const y1 = H - 20 - k * 5 * PASSO, y0 = y1 - 5 * PASSO, aberta = E[k * 5]?.estado !== 'fechada';
     return `<rect x="0" y="${y0}" width="${W}" height="${5 * PASSO}" fill="${['#2a2118', '#14232c', '#13261c'][k]}" opacity=".9"/>
       <text x="12" y="${y1 - 12}" font-size="13" font-weight="900" fill="${aberta ? '#FFCB00' : '#ffffff55'}">${KART_PISTAS[p][0]} ${esc(tr('Pista da') + ' ' + KART_PISTAS[p][1])}${aberta ? '' : ' 🔒'}</text>`;
@@ -112,7 +112,7 @@ async function jogarKart(desafio = null, etapa = null) {   // 0dp-3 bit 2: etapa
   try { if (typeof registarExposicao === 'function') registarExposicao(res.exposicao); } catch { }
   const f = await acao('kart_acabar', { p_corrida: r.corrida, p_posicao: res.posicao, p_tempo: res.tempo, p_acabou: !res.fugiu, p_voltas: res.voltasT?.length ? res.voltasT : null }, { silencio: true });
   const voltasHTML = (res.voltasT || []).length ? `<div class="row"><span class="e">⏱️</span><div class="t"><b>${tr('Voltas')}</b><small data-sem-traducao>${res.voltasT.map((t, i) => `${i + 1}: ${tempoKart(t)}`).join(' · ')}</small></div></div>` : '';
-  const el = sheet(`<h3>🏎️ ${tr('Kart da Maianga')}</h3>
+  const el = sheet(`<h3>🏎️ ${tr('Kart da Baixa')}</h3>
     <div style="text-align:center;margin:8px 0 14px"><div style="font:900 52px Inter,system-ui,sans-serif;color:#FFCB00">${res.fugiu ? '—' : res.posicao + '.º'}</div><div class="m">${res.fugiu ? tr('Desististe da corrida.') : tempoKart(res.tempo)}</div></div>
     ${f?.ok ? `<div class="list"><div class="row"><span class="e">💰</span><div class="t"><b>${tr('Prémio')}</b></div><b>+${fmtMt(f.kz || 0)}</b></div>
       <div class="row"><span class="e">🏆</span><div class="t"><b>${tr('O teu recorde')}: ${tempoKart(f.melhor)}</b>${f.melhor_volta ? `<small>${tr('Melhor volta')}: ${tempoKart(f.melhor_volta)}${f.volta_recorde ? ' · ⚡ ' + tr('Novo recorde de volta!') : ''}</small>` : ''}</div></div>${voltasHTML}</div>` : `<p class="m">${esc(tr(f?.msg || 'Esta corrida não contou.'))}</p>`}

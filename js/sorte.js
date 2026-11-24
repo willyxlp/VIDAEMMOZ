@@ -1,6 +1,6 @@
 /* ============================================================
-   Vida na Banda — DÓLARES E SORTE
-   Câmbio (banco vs kinguilas), raspadinha, Lotaria e apostas.
+   Vida em Moz — DÓLARES E SORTE
+   Câmbio (banco vs cambistas), raspadinha, Lotaria e apostas.
    ============================================================ */
 const fmtUsd = n => '$' + Number(n || 0).toFixed(2).replace('.', ',');
 const fmtTaxa = n => { const s = Number(n).toFixed(2); return typeof lingua !== 'undefined' && lingua === 'en' ? s : s.replace('.', ','); };   // 0g-C: em inglês, ponto
@@ -13,7 +13,7 @@ async function renderDolares(body) {
   const h = c.historico || [], ini = h[0]?.oficial, fim = h[h.length - 1]?.oficial;
   const varia = ini ? ((fim / ini - 1) * 100) : 0;
   if (typeof ui2 === 'function' && ui2()) return ui2Dolares(body, c);   // 8 nov: redesenho (teste)
-  const naBaixa = J.bairro === 'mutamba', semKinguilas = ['kilamba', 'talatona'].includes(J.bairro);
+  const naBaixa = J.bairro === 'baixa', semCambistas = ['sommerschield', 'bairro_central'].includes(J.bairro);
   // gráfico pequeno: oficial e rua nos últimos dias
   const W = 300, H = 70, vals = h.flatMap(x => [x.oficial, x.rua]), mn = Math.min(...vals), mx = Math.max(...vals);
   const pt = (v, i) => `${(i / Math.max(1, h.length - 1)) * W},${H - ((v - mn) / Math.max(1, mx - mn)) * (H - 8) - 4}`;
@@ -25,17 +25,17 @@ async function renderDolares(body) {
       ${h.length > 1 ? `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:70px;margin-top:10px"><polyline points="${linha('rua')}" fill="none" stroke="#f5b81c" stroke-width="2"/><polyline points="${linha('oficial')}" fill="none" stroke="#5aa7e0" stroke-width="2"/></svg>
         <small style="display:flex;justify-content:space-between;color:var(--dim);font-size:11.5px"><span><b style="color:#5aa7e0">━</b> Banco ${fmtTaxa(c.oficial)} · <b style="color:#f5b81c">━</b> Rua ${fmtTaxa(c.rua)}</span><span>${varia >= 0 ? '+' : ''}${varia.toFixed(1).replace('.', ',')}% em ${h.length} dias</span></small>` : ''}
     </div>
-    <p class="m" style="margin-top:10px">O kwanza vai perdendo valor: guardar em dólares protege-te. O banco tem o melhor câmbio mas só vende <b>${fmtUsd(200)} por dia</b>, e só ao balcão na Baixa. As kinguilas vendem quanto quiseres, mais caro — e às vezes com notas falsas.</p>
+    <p class="m" style="margin-top:10px">O metical pode flutuar: guardar em dólares protege-te. O banco BCI tem o melhor câmbio mas só vende <b>${fmtUsd(200)} por dia</b>, e só ao balcão na Baixa. Os cambistas vendem quanto quiseres, mais caro — e às vezes com notas falsas.</p>
     <label>Valor em dólares</label><input class="inp" id="iUsd" type="number" min="1" step="1" placeholder="ex: 100">
-    <div class="sub2">🏦 Banco ${naBaixa ? '' : '· só na Baixa'}</div>
+    <div class="sub2">🏦 Banco BCI / Millennium ${naBaixa ? '' : '· só na Baixa'}</div>
     <div class="grelha">
       <button data-t="banco:comprar" ${naBaixa && c.limite_banco > 0 ? '' : 'disabled'}><span class="e">🟢</span><span>Comprar a ${fmtTaxa(c.banco_compra)}<small style="display:block;font-weight:600;color:var(--dim);font-size:11px">Hoje ainda: ${fmtUsd(c.limite_banco)}</small></span></button>
       <button data-t="banco:vender" ${naBaixa ? '' : 'disabled'}><span class="e">🔴</span><span>Vender a ${fmtTaxa(c.banco_venda)}</span></button>
     </div>
-    <div class="sub2">🧕🏾 Kinguilas ${semKinguilas ? '· não há aqui' : '· na rua'}</div>
+    <div class="sub2">🧕🏾 Cambistas ${semCambistas ? '· não há aqui' : '· na rua'}</div>
     <div class="grelha">
-      <button data-t="kinguila:comprar" ${semKinguilas ? 'disabled' : ''}><span class="e">🟢</span><span>Comprar a ${fmtTaxa(c.kinguila_compra)}</span></button>
-      <button data-t="kinguila:vender" ${semKinguilas ? 'disabled' : ''}><span class="e">🔴</span><span>Vender a ${fmtTaxa(c.kinguila_venda)}</span></button>
+      <button data-t="kinguila:comprar" ${semCambistas ? 'disabled' : ''}><span class="e">🟢</span><span>Comprar a ${fmtTaxa(c.kinguila_compra)}</span></button>
+      <button data-t="kinguila:vender" ${semCambistas ? 'disabled' : ''}><span class="e">🔴</span><span>Vender a ${fmtTaxa(c.kinguila_venda)}</span></button>
     </div>`;
   body.querySelectorAll('[data-t]').forEach(b => b.onclick = async () => {
     const v = parseFloat(body.querySelector('#iUsd').value);
@@ -62,17 +62,17 @@ async function renderSorte(body) {
   const nomeJogo = id => { const g = jogos.find(x => x.id === id); return g ? `${g.casa} x ${g.fora}` : 'Jogo'; };
   const dataCurta = d => d === hojeStr ? 'Hoje' : d.slice(8, 10) + '/' + d.slice(5, 7);
   if (typeof ui2 === 'function' && ui2()) return ui2Sorte(body, { jogos, proxima, ultima, meusBil, aberto, nomeJogo, dataCurta, aps: aps.data || [] });   // 8 nov: redesenho (teste)
-  body.innerHTML = (J?.comprou_kz ? `<div class="row lock sem-jogos"><span class="e">🚫</span><div class="t"><b>${tr('Os jogos a dinheiro estão fechados para ti')}</b><small>${tr('Compraste Kz (nesta conta ou noutra do mesmo aparelho). Quem compra Kz não pode jogar a dinheiro.')}</small></div></div>` : '') + `<p class="m">🎲 Joga com moderação: a casa ganha sempre a longo prazo. Limite de 500.000 Kz em apostas por dia.</p>
-    <div class="sub2" style="margin-top:6px">🎟️ Raspadinha · 500 Kz</div>
-    <div class="row"><span class="e">🎟️</span><div class="t"><b>Raspa e vê na hora</b><small>Prémios até 100.000 Kz</small></div><button class="btn sm" id="bRaspa">Raspar</button></div>
+  body.innerHTML = (J?.comprou_kz ? `<div class="row lock sem-jogos"><span class="e">🚫</span><div class="t"><b>${tr('Os jogos a dinheiro estão fechados para ti')}</b><small>${tr('Compraste MT (nesta conta ou noutra do mesmo aparelho). Quem compra MT não pode jogar a dinheiro.')}</small></div></div>` : '') + `<p class="m">🎲 Joga com moderação: a casa ganha sempre a longo prazo. Limite de 500.000 MT em apostas por dia.</p>
+    <div class="sub2" style="margin-top:6px">🎟️ Raspadinha · 500 MT</div>
+    <div class="row"><span class="e">🎟️</span><div class="t"><b>Raspa e vê na hora</b><small>Prémios até 100.000 MT</small></div><button class="btn sm" id="bRaspa">Raspar</button></div>
     <div class="sub2">🎰 Lotaria · sorteio todos os dias às 20h</div>
     <div class="rel" style="margin-top:0">
       <div class="lbl"><span>💰 Pote${proxima ? ' de ' + dataCurta(proxima.dia) : ''}</span><span class="price">${fmtMt(proxima?.pote ?? 1000000)}</span></div>
-      <small style="display:block;color:var(--muted);font-size:12px;margin-top:4px">Bilhete: 1.000 Kz. Acerta os 3 números para levar o pote (se ninguém acertar, acumula). Acertar os 2 últimos dá 10.000 Kz.${ultima ? ` Último número: <b>${String(ultima.numero).padStart(3, '0')}</b>${ultima.vencedores ? ` (${ultima.vencedores} vencedor${ultima.vencedores > 1 ? 'es' : ''})` : ' — ninguém acertou'}.` : ''}</small>
+      <small style="display:block;color:var(--muted);font-size:12px;margin-top:4px">Bilhete: 1.000 MT. Acerta os 3 números para levar o pote (se ninguém acertar, acumula). Acertar os 2 últimos dá 10.000 MT.${ultima ? ` Último número: <b>${String(ultima.numero).padStart(3, '0')}</b>${ultima.vencedores ? ` (${ultima.vencedores} vencedor${ultima.vencedores > 1 ? 'es' : ''})` : ' — ninguém acertou'}.` : ''}</small>
       ${meusBil.length ? `<div class="chips" style="margin-top:8px">${meusBil.map(b => `<span class="chip">🎫 ${String(b.numero).padStart(3, '0')}${b.premio ? ' · ' + fmtMt(b.premio) : ''}</span>`).join('')}</div>` : ''}
       <div style="display:flex;gap:6px;margin-top:10px"><input class="inp" id="iNum" type="number" min="0" max="999" placeholder="Nº (000–999) ou vazio = sorte" style="flex:1;padding:8px 10px"><button class="btn sm" id="bBilhete">Comprar</button></div>
     </div>
-    <div class="sub2">⚽ Liga de Luanda · apostas 1 X 2</div>
+    <div class="sub2">⚽ Liga de Moçambique · apostas 1 X 2</div>
     <div class="list">${jogos.filter(aberto).map(g => `<div class="rel" style="margin-top:0"><div class="lbl"><span>${esc(g.casa)} x ${esc(g.fora)}</span><span style="color:var(--dim);font-weight:600">${dataCurta(g.dia)} · ${g.hora.slice(0, 5)}</span></div>
       <div class="grelha" style="grid-template-columns:repeat(3,1fr)">${[['1', g.odd1, 'Casa'], ['X', g.oddx, 'Empate'], ['2', g.odd2, 'Fora']].map(([k, o, t]) => `<button data-ap="${g.id}:${k}:${o}" style="justify-content:center;flex-direction:column;gap:0"><b>${k} · ${fmtTaxa(o)}</b><small style="color:var(--dim);font-size:11px">${t}</small></button>`).join('')}</div></div>`).join('') || '<div class="empty">Não há jogos abertos agora.</div>'}</div>
     ${jogos.some(g => g.golos_casa != null) ? `<div class="sub2">Resultados</div><div class="feed">${jogos.filter(g => g.golos_casa != null).map(g => `<div class="ev">${dataCurta(g.dia)} · ${esc(g.casa)} <b>${g.golos_casa}-${g.golos_fora}</b> ${esc(g.fora)}</div>`).join('')}</div>` : ''}
@@ -97,7 +97,7 @@ function raspar(premio, msg) {
     <div style="position:relative;width:260px;height:120px;margin:14px auto;border-radius:14px;overflow:hidden;background:${premio > 500 ? 'linear-gradient(135deg,#f5b81c,#e0313f)' : 'var(--card2)'};display:flex;align-items:center;justify-content:center;font-family:'Bricolage Grotesque';font-weight:800;font-size:26px;color:#fff;text-align:center">
       ${premio ? fmtMt(premio) : 'Nada 😕'}<canvas id="cvRaspa" width="260" height="120" style="position:absolute;inset:0;touch-action:none;cursor:pointer"></canvas></div>
     <p class="m" id="msgRaspa" style="text-align:center;visibility:hidden">${esc(msg)}</p>
-    <button class="btn full" id="maisRaspa">Outra (500 Kz)</button>`);
+    <button class="btn full" id="maisRaspa">Outra (500 MT)</button>`);
   const cv = el.querySelector('#cvRaspa'), g = cv.getContext('2d');
   g.fillStyle = '#9a9a9a'; g.fillRect(0, 0, 260, 120); g.fillStyle = '#7a7a7a'; g.font = 'bold 18px sans-serif'; g.textAlign = 'center'; g.fillText(tr('RASPA AQUI'), 130, 66);
   let raspado = 0, ativo = false; const mostrar = () => { el.querySelector('#msgRaspa').style.visibility = 'visible'; hud(); };

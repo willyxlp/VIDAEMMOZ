@@ -1,11 +1,11 @@
 /* ============================================================
-   Vida na Banda — viagens na primeira pessoa
-   Candongueiro, autocarro, táxi, carro, mota, kupapata, comboio,
+   Vida em Moz — viagens na primeira pessoa
+   Chapa, autocarro, táxi, carro, mota, cobrador, comboio,
    barco e avião: vês tudo de dentro, com painéis de publicidade
    (e a hospedeira a mostrar um panfleto, no avião).
    ============================================================ */
 
-const DUR_VIAGEM = { boleia: 12, candongueiro: 9, kupapata: 13, taxi: 9, mota: 13, carro: 9, autocarro: 16, comboio: 16, barco: 11, aviao: 40, privado: 18, fretado: 18 };   // 0cz (9): de mota a viagem é mais longa e mais lenta (mais tempo para os anúncios)
+const DUR_VIAGEM = { boleia: 12, chapa: 9, cobrador: 13, taxi: 9, mota: 13, carro: 9, autocarro: 16, comboio: 16, barco: 11, aviao: 40, privado: 18, fretado: 18 };   // 0cz (9): de mota a viagem é mais longa e mais lenta (mais tempo para os anúncios)
 // só os meios relativamente caros deixam saltar a viagem (dono, 27 out); os baratos vêem-se até ao fim
 const SALTAR_APOS = { aviao: 33, privado: 16, fretado: 16, taxi: 7 };   // 0l (dono, 27 out): mais tempo de anúncios antes de poder saltar (o panfleto do avião fica até aos 31 s)
 
@@ -27,7 +27,7 @@ function adViagemDe(ad) {
   if (ad?.id && typeof vistoAnuncio === 'function') vistoAnuncio(ad.id);   // #41a: conta como vista
   if (ad) return { id: ad.id, marca: ad.marca, texto: ad.texto || '', img, url: ad.imagem || null };
   // sem anúncio vendido: o convite (frase traduzida + o email numa linha só dele, nunca cortado)
-  return { marca: 'O teu anúncio aqui', texto: 'Anuncia no Vida na Banda', contacto: 'vidanabanda.com/anunciar', img: null };   // 0u: a loja online
+  return { marca: 'O teu anúncio aqui', texto: 'Anuncia no Vida em Moz', contacto: 'vidaemmoz.com/anunciar', img: null };   // 0u: a loja online
 }
 
 /* ---------- viagens em 3D a sério (js/viagem3d.js, three.js): para todos os aparelhos com WebGL ----------
@@ -148,7 +148,7 @@ function viagemPrimeiraPessoa(meio, destino, opts = {}) {   // opts.com: aparên
   promessa.then(() => removeEventListener('resize', tam));
   return { promessa, fim, get em3d() { return modo === '3d' && !!c3; }, c3: () => c3 };
 }
-const cenaDe = m => ({ candongueiro: 'van', autocarro: 'autocarro', taxi: 'taxi', boleia: 'taxi', carro: 'carro', mota: 'mota', kupapata: 'kupapata', comboio: 'comboio', barco: 'barco', aviao: 'aviao', privado: 'privado', fretado: 'privado' })[m] || 'carro';
+const cenaDe = m => ({ candongueiro: 'van', chapa: 'van', autocarro: 'autocarro', taxi: 'taxi', boleia: 'taxi', carro: 'carro', mota: 'mota', kupapata: 'cobrador', cobrador: 'cobrador', comboio: 'comboio', barco: 'barco', aviao: 'aviao', privado: 'privado', fretado: 'privado' })[m] || 'carro';
 
 /* ---------- peças comuns ---------- */
 function ceuViagem(ctx, W, H, hy, noite) {
@@ -266,7 +266,7 @@ const DESENHO_VIAGEM = {
     ctx.fillStyle = '#1e1e24'; ctx.beginPath(); ctx.moveTo(0, H * 0.68); ctx.quadraticCurveTo(W / 2, H * 0.6, W, H * 0.68); ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.fill();
     ctx.strokeStyle = '#2a2a30'; ctx.lineWidth = W * 0.035; ctx.beginPath(); ctx.arc(W * 0.3, H * 0.86, W * 0.18, Math.PI * 1.05, Math.PI * 1.95); ctx.stroke();
     ctx.fillStyle = '#2b3a46'; ctx.fillRect(W * 0.58, H * 0.72, W * 0.2, H * 0.08);               // ecrã do carro
-    ctx.fillStyle = '#16a3a3'; ctx.font = '700 11px Inter, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('📻 ' + (typeof musicaAtual === 'function' && musicaAtual() ? musicaAtual().titulo : tr('Rádio Luanda')), W * 0.68, H * 0.765);
+    ctx.fillStyle = '#16a3a3'; ctx.font = '700 11px Inter, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('📻 ' + (typeof musicaAtual === 'function' && musicaAtual() ? musicaAtual().titulo : tr('Rádio Maputo')), W * 0.68, H * 0.765);
     ctx.restore();
   },
   // mota: guiador, espelhos e o vento
@@ -281,8 +281,8 @@ const DESENHO_VIAGEM = {
     for (const s of [-1, 1]) { ctx.fillStyle = '#333'; ctx.fillRect(W / 2 + s * W * 0.32 - 2, H * 0.68, 4, H * 0.12); ctx.fillStyle = '#9fb7c4'; ctx.beginPath(); ctx.ellipse(W / 2 + s * W * 0.32, H * 0.66, 16, 11, 0, 0, 7); ctx.fill(); }
     ctx.restore();
   },
-  // kupapata: vais atrás do motoqueiro (e há um autocolante de publicidade no capacete dele)
-  kupapata(ctx, W, H, t, o) {
+  // cobrador: vais atrás do motoqueiro (e há um autocolante de publicidade no capacete dele)
+  cobrador(ctx, W, H, t, o) {
     DESENHO_VIAGEM.mota(ctx, W, H, t, o);
     const s = W / 300;
     ctx.save(); ctx.translate(0, abanao(t, 2));

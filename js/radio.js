@@ -8,12 +8,12 @@ const CONTACTO_MUSICA = 'vidanabanda@gmail.com';
 let musicas = [];                       // músicas ativas (da tabela 'musicas')
 const radio = { audio: null, lista: [], i: 0, synth: null };
 
-/* 0g-C · a Rádio Luanda tem sempre música: batidas feitas aqui mesmo (WebAudio, sem ficheiros), kuduro, kizomba e semba.
+/* 0g-C · a Rádio Maputo tem sempre música: batidas feitas aqui mesmo (WebAudio, sem ficheiros), marrabenta, afrojazz e pandza.
    As músicas promovidas pelos artistas aparecem por cima, quando as houver. */
 const ESTACOES = [
-  { id: -1, gen: 'kuduro', titulo: 'Batida da Banda', artista: 'DJ Rádio Luanda', capa: '', bpm: 136 },
-  { id: -2, gen: 'kizomba', titulo: 'Kizomba da Meia-Noite', artista: 'Rádio Luanda', capa: '', bpm: 92 },
-  { id: -3, gen: 'semba', titulo: 'Semba de Domingo', artista: 'Rádio Luanda', capa: '', bpm: 112 },
+  { id: -1, gen: 'kuduro', titulo: 'Marrabenta da Banda', artista: 'DJ Rádio Maputo', capa: '', bpm: 136 },
+  { id: -2, gen: 'kizomba', titulo: 'Pandza da Meia-Noite', artista: 'Rádio Maputo', capa: '', bpm: 92 },
+  { id: -3, gen: 'semba', titulo: 'Afrojazz de Domingo', artista: 'Rádio Maputo', capa: '', bpm: 112 },
 ];
 function batida(est) {
   const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null;
@@ -142,22 +142,22 @@ function linhaMusica(m, lista) {
 
 // 📻 app Rádio
 function noArAgora() {   // 0g-C: o locutor — hora, tempo e trânsito (a mesma hora e o mesmo tempo do resto do jogo)
-  const h = horaLuanda(), hh = `${String(Math.floor(h)).padStart(2, '0')}:${String(Math.floor(h % 1 * 60)).padStart(2, '0')}`;
+  const h = horaMaputo(), hh = `${String(Math.floor(h)).padStart(2, '0')}:${String(Math.floor(h % 1 * 60)).padStart(2, '0')}`;
   const t = typeof tempoAqui === 'function' ? tempoAqui() : null, noite = escuridao() > 0.24;
-  const tempo = !t ? '' : t === 'sol' ? (noite ? 'Noite de céu limpo.' : 'Sol e calor.') : t === 'nublado' ? 'Céu nublado.' : t === 'cacimbo' ? 'Cacimbo: céu cinzento e fresco.' : t === 'chuva' ? 'Está a chover: cuidado na estrada.' : 'Tempestade: estradas alagadas e barcos parados.';
-  const transito = (h >= 6.5 && h < 9.5) || (h >= 16.5 && h < 19.5) ? 'Hora de ponta: muito trânsito nas estradas principais.' : h >= 22 || h < 5 ? 'Estradas calmas a esta hora.' : 'Trânsito normal na cidade.';
-  return [`🕒 ${hh} em Luanda.`, tempo, transito].filter(Boolean).map(x => `<span>${esc(tr(x))}</span>`).join(' ');
+  const tempo = !t ? '' : t === 'sol' ? (noite ? 'Noite de céu limpo.' : 'Sol e calor.') : t === 'nublado' ? 'Céu nublado.' : t === 'cacimbo' ? 'Época seca: vento e fresco.' : t === 'chuva' ? 'Está a chover: cuidado na estrada.' : 'Tempestade: estradas alagadas e chapas parados.';
+  const transito = (h >= 6.5 && h < 9.5) || (h >= 16.5 && h < 19.5) ? 'Hora de ponta: muito trânsito nas estradas principais.' : h >= 22 || h < 5 ? 'Estradas calmas a esta hora.' : 'Trânsito normal em Maputo.';
+  return [`🕒 ${hh} em Maputo.`, tempo, transito].filter(Boolean).map(x => `<span>${esc(tr(x))}</span>`).join(' ');
 }
 function renderRadio(body) {
   const lista = musicasPara('radio');
   if (typeof ui2 === 'function' && ui2()) return ui2Radio(body, lista);   // 8 nov: redesenho (teste)
-  body.innerHTML = `<div class="radioTopo"><div class="radioNome">📻 ${esc(tr('Rádio Luanda'))}</div><p class="m">A música que está a dar em Luanda. Carrega ▶️ e continua a ouvir enquanto andas pela cidade.</p><p class="m" style="margin-top:6px">🎙️ ${noArAgora()}</p></div>
+  body.innerHTML = `<div class="radioTopo"><div class="radioNome">📻 ${esc(tr('Rádio Maputo'))}</div><p class="m">A música que está a dar em Maputo. Carrega ▶️ e continua a ouvir enquanto andas pela cidade.</p><p class="m" style="margin-top:6px">🎙️ ${noArAgora()}</p></div>
     <div class="sec"><h4>${esc(tr('As nossas estações'))}</h4></div>
     <div class="list">${ESTACOES.map(m => linhaMusica(m, 'radio')).join('')}</div>
     ${lista.length ? `<div class="sec"><h4>${esc(tr('Música dos artistas'))}</h4></div><div class="list">${lista.map(m => linhaMusica(m, 'radio')).join('')}</div><p class="adPub">Músicas promovidas pelos artistas</p>` : ''}
     <div class="sec"><h4>És artista?</h4></div>
-    <p class="m">Põe a tua música a tocar na Rádio Luanda e nos bares e discotecas do jogo.</p>
-    <a class="btn full ghost" href="mailto:${CONTACTO_MUSICA}?subject=${encodeURIComponent('Promover música no Vida na Banda')}">Quero promover a minha música</a>`;
+    <p class="m">Põe a tua música a tocar na Rádio Maputo e nos bares e discotecas do jogo.</p>
+    <a class="btn full ghost" href="mailto:${CONTACTO_MUSICA}?subject=${encodeURIComponent('Promover música no Vida em Moz')}">Quero promover a minha música</a>`;
   const atualizar = () => { if (telSub === 'radio' && body.isConnected) renderRadio(body); };
   if (radio.audio) { radio.audio.onplay = atualizar; radio.audio.onpause = atualizar; }
   body.querySelectorAll('[data-musica]').forEach(b => b.addEventListener('click', () => setTimeout(atualizar, 120)));

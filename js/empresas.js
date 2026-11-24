@@ -1,5 +1,5 @@
 /* ============================================================
-   Vida na Banda — EMPRESAS E CARREIRAS
+   Vida em Moz — EMPRESAS E CARREIRAS
    ============================================================ */
 const CARGOS = ['Estagiário/a', 'Júnior', 'Pleno', 'Sénior', 'Chefe'];
 // LL12: cada emprego tem uma perícia; mudar para outro da mesma perícia mantém o nível na carreira
@@ -20,7 +20,7 @@ const TIPOS_EMP = {
   cantina: { nome: 'Cantina', e: '🍲', custo: 150000, receita: 19000, req: [0, 0] },
   salao: { nome: 'Salão de beleza', e: '💇', custo: 200000, receita: 25000, req: [0, 0] },
   loja: { nome: 'Loja de bairro', e: '🛒', custo: 250000, receita: 29000, req: [0, 0] },
-  candongueiros: { nome: 'Frota de candongueiros', e: '🚐', custo: 500000, receita: 58000, req: [0, 10] },
+  candongueiros: { nome: 'Frota de chapas', e: '🚐', custo: 500000, receita: 58000, req: [0, 10] },
   discoteca: { nome: 'Discoteca', e: '💃', custo: 800000, receita: 87000, req: [0, 10] },
   construtora: { nome: 'Construtora', e: '🏗️', custo: 1500000, receita: 150000, req: [1, 20] },
   importadora: { nome: 'Importadora', e: '📦', custo: 3000000, receita: 290000, req: [2, 30] },
@@ -109,7 +109,7 @@ function blocoMelhorias(e, todas = []) {
       ${camp ? '' : `<button data-m="marketing"><span class="e">📣</span><span>Fazer publicidade</span></button>`}
     </div>
     <div class="sub2" style="margin-top:12px">Contra assaltos</div>
-    <small style="display:block;color:var(--muted);font-size:12px">Os ladrões só aparecem a quem já tem 50 milhões de Kz ou mais.</small>
+    <small style="display:block;color:var(--muted);font-size:12px">Os ladrões só aparecem a quem já tem 50 milhões de MT ou mais.</small>
     <div class="grelha">
       <button data-m="${e.seguranca ? 'sem_seguranca' : 'seguranca'}"><span class="e">💂</span><span>${e.seguranca ? 'Dispensar o segurança' : 'Contratar segurança'}<small style="display:block;font-weight:600;color:var(--dim);font-size:11px">${e.seguranca ? '' : tr('3% das vendas da semana')}</small></span></button>
       ${e.cao ? '' : `<button data-m="cao"><span class="e">🐕</span><span>Cão de guarda<small style="display:block;font-weight:600;color:var(--dim);font-size:11px" data-sem-traducao>${fmtMt(30000)}</small></span></button>`}
@@ -120,7 +120,7 @@ function blocoMelhorias(e, todas = []) {
       ${fil.length ? `<small style="display:block;color:var(--muted);font-size:12px" data-sem-traducao>${fil.map(x => esc(bairro(x.bairro)?.nome || x.bairro)).join(' · ')}</small>` : ''}
       ${fil.length < 4 ? `<div class="grelha"><button data-m="filial" ${aqui ? 'disabled' : ''}><span class="e">🏪</span><span>${aqui ? tr('Vai a outro bairro para abrir uma filial') : `${tr('Abrir filial em')} ${esc(bairro(J.bairro)?.nome || '')}`}<small style="display:block;font-weight:600;color:var(--dim);font-size:11px" data-sem-traducao>${fmtMt((TIPOS_EMP[e.tipo]?.custo || 0) + 25000)}</small></span></button></div>` : ''}`; })()}`;
 }
-// 9 nov (dono: «Let's do 1»): antes de levantar, mostra o IRT — o que é capital teu (sem imposto), o lucro, o imposto e o que recebes
+// 9 nov (dono: «Let's do 1»): antes de levantar, mostra o IRPC — o que é capital teu (sem imposto), o lucro, o imposto e o que recebes
 // cartões de dicas com setas (‹ ›) e deslizar — um ponto de cada vez
 function dicasHTML(itens) {
   return `<div class="dicas"><div class="dicas-txt">${itens.map((t, i) => `<p${i ? ' hidden' : ''}>${t}</p>`).join('')}</div>
@@ -138,8 +138,8 @@ function ligarDicas(raiz) {
 function levantarComIRT(e, fazer) {
   const el = sheet(`<h3>${tr('Levantar de')} ${esc(e.nome)}</h3>
     <p class="m">${tr('A caixa tem')} <b data-sem-traducao>${fmtMt(e.caixa)}</b>. ${tr('Deixa sempre algum para pagar salários!')}</p>
-    <label>${tr('Valor (Kz)')}</label><input class="inp" id="iValor" type="number" min="100" step="100" value="${Math.max(0, Math.floor(e.caixa / 2))}">
-    <div class="irt-prev" id="irtPrev"><small>${tr('A calcular o IRT…')}</small></div>
+    <label>${tr('Valor (MT)')}</label><input class="inp" id="iValor" type="number" min="100" step="100" value="${Math.max(0, Math.floor(e.caixa / 2))}">
+    <div class="irt-prev" id="irtPrev"><small>${tr('A calcular o IRPC…')}</small></div>
     <button class="btn full" id="sim">${tr('Levantar')}</button>`);
   const inp = el.querySelector('#iValor'), box = el.querySelector('#irtPrev'), btn = el.querySelector('#sim');
   let t = null, n = 0;
@@ -148,14 +148,14 @@ function levantarComIRT(e, fazer) {
     const v = parseInt(inp.value, 10) || 0, k = ++n;
     const { data, error } = await sb.rpc('irt_simular', { p_empresa: e.id, p_valor: v });
     if (k !== n || !box.isConnected) return;
-    if (error || !data) { box.innerHTML = `<small>${tr('O lucro que levantas paga IRT; o dinheiro que tu puseste na caixa volta sem imposto.')}</small>`; return; }
+    if (error || !data) { box.innerHTML = `<small>${tr('O lucro que levantas paga IRPC; o dinheiro que tu puseste na caixa volta sem imposto.')}</small>`; return; }
     btn.textContent = `${tr('Levantar')} · ${tr('recebes')} ${fmtMt(data.recebes)}`;
     box.innerHTML = linha(tr('Levantas'), fmtMt(data.valor))
       + (data.capital > 0 ? linha(tr('O teu capital (sem imposto)'), fmtMt(data.capital)) : '')
       + linha(tr('Lucro'), fmtMt(data.lucro))
-      + linha(`🧾 IRT${data.lucro > 0 ? ` · ${data.taxa}%` : ''}`, data.imposto ? '−' + fmtMt(data.imposto) : fmtMt(0), data.imposto ? 'var(--red)' : '')
+      + linha(`🧾 IRPC${data.lucro > 0 ? ` · ${data.taxa}%` : ''}`, data.imposto ? '−' + fmtMt(data.imposto) : fmtMt(0), data.imposto ? 'var(--red)' : '')
       + `<div class="irt-tot">${linha(`<b>${tr('Recebes na carteira')}</b>`, `<b>${fmtMt(data.recebes)}</b>`, 'var(--green)')}</div>`
-      + `<small>${data.lucro > 0 ? tr('O IRT é por escalões da semana (segunda a domingo) e no lucro das empresas nunca passa de 30%. Esta semana já tiveste {0} de rendimentos; o próximo kwanza de lucro paga {1}%.').replace('{0}', fmtMt(data.semana_bruto)).replace('{1}', data.marginal) : tr('Estás a levantar só o capital que puseste: não paga IRT.')}</small>`;
+      + `<small>${data.lucro > 0 ? tr('O IRPC é por escalões da semana (segunda a domingo) e no lucro das empresas nunca passa de 30%. Esta semana já tiveste {0} de rendimentos; o próximo metical de lucro paga {1}%.').replace('{0}', fmtMt(data.semana_bruto)).replace('{1}', data.marginal) : tr('Estás a levantar só o capital que puseste: não paga IRPC.')}</small>`;
   };
   inp.addEventListener('input', () => { clearTimeout(t); t = setTimeout(calcular, 350); });
   btn.onclick = () => { const v = parseInt(inp.value, 10); if (!v) return toast('Escreve um valor.', 'mau'); fazer(v); };
@@ -247,7 +247,7 @@ async function renderEmpresas(body) {
       tr('🧾 Ao sábado pagas as contas: renda, ajudantes, stock e impostos.'),
       tr('👥 Outros jogadores podem candidatar-se a trabalhar contigo.'),
       tr('⚔️ Outro negócio igual no bairro baixa as tuas vendas.'),
-      tr('🪙 Até 3 negócios pagas só em Kz. Do 4.º em diante, também {0} Ouro (filiais não contam).').replace('{0}', OURO_EMP_EXTRA),
+      tr('🪙 Até 3 negócios pagas só em MT. Do 4.º em diante, também {0} Ouro (filiais não contam).').replace('{0}', OURO_EMP_EXTRA),
       ...(minhas.length ? [] : [tr('🏦 Sem dinheiro? O banco empresta para o teu 1.º negócio.')]),
     ])}
     ${minhas.map(e => {
@@ -278,10 +278,10 @@ async function renderEmpresas(body) {
     <form id="fEmp"><label>Tipo</label><select class="inp" id="eTipo">${Object.entries(TIPOS_EMP).map(([k, t]) => { const falta = t.pede && !minhas.some(m => m.tipo === t.pede && !m.falida);
       return `<option value="${k}" ${falta ? 'disabled' : ''}>${t.e} ${t.nome} · ${fmtMt(t.custo)}${falta ? ` · ${tr('precisa de')} ${tr(TIPOS_EMP[t.pede].nome)}` : ''}</option>`; }).join('')}</select>
       <label>Nome</label><input class="inp" id="eNome" maxlength="40" required placeholder="ex: Cantina da Mãe Rosa">
-      <label class="maior"><input type="checkbox" id="eGasosa"> Gasosa de 40.000 Kz: licença na hora (25% de risco de multa)</label>
-      <small style="display:block;color:var(--dim);font-size:12px;margin-top:6px">+25.000 Kz de licença (demora 2 horas). Ajudantes incluídos.</small>
+      <label class="maior"><input type="checkbox" id="eGasosa"> Gasosa de 50.000 MT: licença na hora (25% de risco de multa)</label>
+      <small style="display:block;color:var(--dim);font-size:12px;margin-top:6px">+30.000 MT de licença (demora 2 horas). Ajudantes incluídos.</small>
       <button class="btn full" type="submit">Abrir</button>${minhas.length ? '' : `<p class="m credito-dica">🏦 ${tr('Sem dinheiro? O banco empresta para o teu 1.º negócio.')}</p>`}</form>`}
-    <div class="sub2">Negócios de Luanda <small style="color:var(--dim);font-weight:600" data-sem-traducao>(${outras.length})</small></div>
+    <div class="sub2">Negócios de Maputo <small style="color:var(--dim);font-weight:600" data-sem-traducao>(${outras.length})</small></div>
     ${outras.length ? `<input class="inp" id="empBusca" type="search" autocomplete="off" placeholder="${esc(tr('Pesquisar por nome, tipo, dono ou bairro'))}" style="margin-bottom:6px">
     <div class="chips" style="margin-bottom:8px"><button type="button" class="chip" data-fvaga aria-pressed="false">📢 ${tr('Só com vaga')}</button><button type="button" class="chip" data-faqui aria-pressed="false">📍 ${tr('Só neste bairro')}</button></div>` : ''}
     <div class="list" id="empOutras">${outras.length ? '' : '<div class="empty">Ainda ninguém abriu um negócio. Sê o primeiro!</div>'}</div>`;
@@ -338,7 +338,7 @@ async function renderEmpresas(body) {
     g('trabalhar')?.addEventListener('click', async () => { if (await acao('trabalhar_empresa', { p_id: e.id })) depois(); });
     g('injetar')?.addEventListener('click', () => pedirValor(`Pôr dinheiro em ${esc(e.nome)}`, 'Sai da tua carteira para a caixa da empresa (paga salários e evita a falência).', 10000, v => gerir('injetar', v)));
     g('levantar')?.addEventListener('click', () => levantarComIRT(e, v => gerir('levantar', v)));
-    g('vaga')?.addEventListener('click', () => pedirValor('Salário por turno para jogadores', 'Cada turno de um jogador fatura para a caixa e tu pagas-lhe isto. Entre 1.000 e 100.000 Kz.', e.vaga_salario || Math.min(30000, Math.max(3000, Math.round((TIPOS_EMP[e.tipo]?.receita || 35000) * 0.12 / 100) * 100)), v => gerir('vaga', v)));
+    g('vaga')?.addEventListener('click', () => pedirValor('Salário por turno para jogadores', 'Cada turno de um jogador fatura para a caixa e tu pagas-lhe isto. Entre 1.000 e 100.000 MT.', e.vaga_salario || Math.min(30000, Math.max(3000, Math.round((TIPOS_EMP[e.tipo]?.receita || 35000) * 0.12 / 100) * 100)), v => gerir('vaga', v)));
     g('fecharvaga')?.addEventListener('click', () => gerir('vaga', null));
     g('expandir')?.addEventListener('click', () => confirmar(`${e.tamanho === 'loja' ? 'Passar a plaza' : 'Passar a loja'}: ${esc(e.nome)}?`, `Custa ${fmtMt(Math.floor((TIPOS_EMP[e.tipo]?.custo || 0) * (e.tamanho === 'loja' ? 5 : 2) * 1.6))}. Mais clientes todos os dias, mas a renda e os ajudantes também sobem.`, 'Crescer', () => gerir('expandir')));
     mostrarContasEmp(e, el.querySelector(`[data-contas="${e.id}"]`));
@@ -355,7 +355,7 @@ async function renderEmpresas(body) {
     if (extra && (J.ouro || 0) < OURO_EMP_EXTRA && typeof sugerirOuro === 'function') return sugerirOuro(OURO_EMP_EXTRA);
     // 0fy (dono, 9 nov): sem dinheiro para o 1.º negócio → crédito do banco, pago com uma parte do que o negócio faturar
     const total = t.custo + 25000 + (gas ? 40000 : 0), falta = total - Math.max(0, J.kumbu || 0);
-    // 0gj (dono, 10 nov): também se pode pagar o que falta com Ouro (1 Ouro = 100 Kz), em qualquer negócio
+    // 0gj (dono, 10 nov): também se pode pagar o que falta com Ouro (1 Ouro = 100 MT), em qualquer negócio
     const podeCred = !minhas.length && t.custo <= 1000000;
     if (falta > 0) {
       const ouroF = Math.ceil(falta / 100), pct = (t.custo < 200000 ? 25 : t.custo < 400000 ? 30 : 35) + (gas ? 10 : 0);
