@@ -102,18 +102,18 @@ function ui2Banco(body, cr, irt, atraso, prazo) {
   const card = (op, ic, nome, sub, des) => `<button class="ui2-acao" data-b="${op}" ${des ? 'disabled' : ''}><span class="ui2-ic">${ic}</span><b>${esc(tr(nome))}</b><small>${sub}</small></button>`;
   const podePedir = cr ? fmtMt(Math.max(0, cr.limite - J.divida)) : '…';
   body.innerHTML = `<div class="ui2-saldo"><small>${esc(tr('Carteira'))}</small><b>${saldoMt()}</b>
-      <div class="ui2-tres"><span><small>${esc(tr('Poupança'))}</small><b style="color:var(--green)">${fmtMt(J.poupanca)}</b></span><span><small>${esc(tr('Dívida'))}</small><b style="color:${J.divida ? 'var(--red)' : 'inherit'}">${fmtMt(J.divida)}</b></span><span><small>${esc(tr('IRT esta semana'))}</small><b>${irt ? irt.taxa : 0}%</b></span></div>
+      <div class="ui2-tres"><span><small>${esc(tr('Poupança'))}</small><b style="color:var(--green)">${fmtMt(J.poupanca)}</b></span><span><small>${esc(tr('Dívida'))}</small><b style="color:${J.divida ? 'var(--red)' : 'inherit'}">${fmtMt(J.divida)}</b></span><span><small>${esc(tr('IRPS esta semana'))}</small><b>${irt ? irt.taxa : 0}%</b></span></div>
       ${J.divida ? `<small class="ui2-aviso${atraso ? ' mau' : ''}">${esc(atraso ? tr('📞 Em atraso! Os cobradores levam 30% da carteira por dia e, ao fim de 7 dias, penhoram um imóvel.') : tr('Prazo: {0} dias.').replace('{0}', prazo))}</small>` : ''}</div>
     <p class="ui2-q">${esc(tr('O que queres fazer?'))}</p>
     <div class="ui2-grid">
       ${card('depositar', '🐷', 'Pôr na poupança', esc(tr('Rende 0,5% por dia, até 1.000.000 MT')))}
       ${card('levantar', '🏧', 'Levantar', esc(tr('Volta para a carteira')))}
       ${J.divida ? card('pagar', '💳', 'Pagar dívida', fmtMt(J.divida)) : ''}
-      ${card('emprestar', '🏦', 'Pedir empréstimo', esc(tr('Até {0}').replace('{0}', podePedir)) + (J.bairro !== 'mutamba' ? ' · ' + esc(tr('só ao balcão, na Baixa')) : ''), J.bairro !== 'mutamba')}
+      ${card('emprestar', '🏦', 'Pedir empréstimo', esc(tr('Até {0}').replace('{0}', podePedir)) + (J.bairro !== 'baixa' ? ' · ' + esc(tr('só ao balcão, na Baixa')) : ''), J.bairro !== 'baixa')}
       ${cr ? `<div class="ui2-acao"><span class="ui2-ic">📊</span><b>${esc(tr('Património'))}</b><small>${fmtMt(cr.patrimonio)}</small></div>` : ''}
     </div>
     <p class="m">💡 ${esc(tr('Podes pedir até {0}. O limite sobe com a reputação, o estudo, o salário e os imóveis que tens. Comissão de 5% e 7 dias para pagar.').replace('{0}', podePedir))}</p>
-    <p class="m">🧾 ${esc(tr('IRT: o salário paga imposto por escalões da semana (segunda a domingo): até 70.000 MT não paga, depois 10%, 17% acima de 300.000 e 25% acima de 1.500.000. Retido em cada turno.'))}${irt ? ' ' + esc(tr('Salário da semana: {0}.').replace('{0}', fmtMt(irt.bruto))) : ''}</p>`;
+    <p class="m">🧾 ${esc(tr('IRPS: o salário paga imposto por escalões da semana (segunda a domingo): até 117.000 MT não paga, depois 10%, 17% acima de 350.000, 20% acima de 1.050.000 e 32% acima de 3.150.000. Retido em cada turno.'))}${irt ? ' ' + esc(tr('Salário da semana: {0}.').replace('{0}', fmtMt(irt.bruto))) : ''}</p>`;
   const NOMES = { depositar: 'Pôr na poupança', levantar: 'Levantar', pagar: 'Pagar dívida', emprestar: 'Pedir empréstimo' };
   body.querySelectorAll('[data-b]').forEach(b => b.onclick = () => {
     const op = b.dataset.b;

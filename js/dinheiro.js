@@ -19,7 +19,7 @@ async function renderBanco(body) {
       <div class="lbl" style="margin-top:8px"><span>🐷 Poupança · 0,5%/dia até 1.000.000 MT</span><span class="price" style="color:var(--green)">${fmtMt(J.poupanca)}</span></div>
       <div class="lbl" style="margin-top:8px"><span>💳 Dívida · 1,5%/dia</span><span class="price" style="color:${J.divida ? 'var(--red)' : 'var(--dim)'}">${fmtMt(J.divida)}</span></div>
       ${J.divida ? `<small style="display:block;margin-top:6px;color:${atraso ? '#ff9b9b' : 'var(--muted)'};font-size:12px">${atraso ? '📞 Em atraso! Os cobradores levam 30% da carteira por dia e, ao fim de 7 dias, penhoram um imóvel.' : `Prazo: ${prazo} dia${prazo === 1 ? '' : 's'}.`}</small>` : ''}
-      ${irt ? `<div class="lbl" style="margin-top:8px"><span>🧾 IRT desta semana · ${irt.taxa}%</span><span class="price" style="color:var(--dim)">${fmtMt(irt.imposto)}</span></div>
+      ${irt ? `<div class="lbl" style="margin-top:8px"><span>🧾 IRPS desta semana · ${irt.taxa}%</span><span class="price" style="color:var(--dim)">${fmtMt(irt.imposto)}</span></div>
       <small style="display:block;margin-top:4px;color:var(--muted);font-size:12px"><span>Salário da semana: ${fmtMt(irt.bruto)}</span> · <span>${irt.proximo ? `Próximo escalão a partir de ${fmtMt(irt.proximo)}` : 'Escalão máximo'}</span></small>` : ''}
       ${cr ? `<div class="lbl" style="margin-top:12px;font-weight:600;color:var(--muted)"><span>📊 Património</span><span>${fmtMt(cr.patrimonio)}</span></div>` : ''}
     </div>
@@ -28,10 +28,10 @@ async function renderBanco(body) {
       <button data-b="depositar"><span class="e">🐷</span><span>Pôr na poupança</span></button>
       <button data-b="levantar"><span class="e">🏧</span><span>Levantar</span></button>
       ${J.divida ? `<button data-b="pagar"><span class="e">💳</span><span>Pagar dívida</span></button>` : ''}
-      <button data-b="emprestar" ${J.bairro !== 'mutamba' ? 'disabled' : ''}><span class="e">🏦</span><span>Pedir empréstimo${J.bairro !== 'mutamba' ? '<small style="display:block;font-weight:600;color:var(--dim);font-size:11px">Só ao balcão, na Baixa</small>' : ''}</span></button>
+      <button data-b="emprestar" ${J.bairro !== 'baixa' ? 'disabled' : ''}><span class="e">🏦</span><span>Pedir empréstimo${J.bairro !== 'baixa' ? '<small style="display:block;font-weight:600;color:var(--dim);font-size:11px">Só ao balcão, na Baixa</small>' : ''}</span></button>
     </div>
     <p class="m" style="margin-top:12px">💡 Podes pedir até <b>${cr ? fmtMt(Math.max(0, cr.limite - J.divida)) : '…'}</b>. O limite sobe com a reputação, o estudo, o salário e os imóveis que tens. Comissão de 5% e 7 dias para pagar.</p>
-    <p class="m">🧾 IRT: o salário paga imposto por escalões da semana (segunda a domingo): até 70.000 MT não paga, depois 10%, 17% acima de 300.000 e 25% acima de 1.500.000. Retido em cada turno.</p>`;
+    <p class="m">🧾 IRPS: o salário paga imposto por escalões da semana (segunda a domingo): até 117.000 MT não paga, depois 10%, 17% acima de 350.000, 20% acima de 1.050.000 e 32% acima de 3.150.000. Retido em cada turno.</p>`;
   body.querySelectorAll('[data-b]').forEach(b => b.onclick = async () => {
     const v = parseInt(body.querySelector('#iBanco').value, 10);
     if (!v || v < 100) return toast('Escreve um valor (mínimo 100 MT).', 'mau');
