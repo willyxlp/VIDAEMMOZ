@@ -1824,8 +1824,8 @@ function carregar3D() {
   carregar3D._a = true;
   import('./mundo3d.js').catch(e => { console.warn('3D não carregou', e); m3dPedido = false; m3dFalhou = 'O mundo 3D não carregou neste aparelho.'; });
 }
-// interiores usam sempre o canvas 2D isométrico — o 3D não sabe desenhar móveis
-const m3dAtivo = () => m3dPedido && !!window.M3D && !!cena && (cena.tipo === 'bairro' || cena.tipo === 'casa') && !!eu;
+// interiores incluídos — mundo3d.js já sabe desenhar móveis (mesa, cadeira, balcão, etc.)
+const m3dAtivo = () => m3dPedido && !!window.M3D && !!cena && (cena.tipo === 'bairro' || cena.tipo === 'casa' || cena.tipo === 'interior') && !!eu;
 function desenhar3D(t) {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, CW, CH_);
   cv.style.background = 'transparent';

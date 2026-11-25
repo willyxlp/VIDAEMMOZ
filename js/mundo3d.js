@@ -339,6 +339,16 @@ function construir(cena) {
       } else if (o.kind === 'outdoor') {
         g = _makeOutdoor(o);
         if (g) { g.userData.obj = o; }
+      } else if (o.kind === 'movel') {
+        g = _makeMovel(o);
+        if (g) {
+          g.userData.obj = o;
+          // rot: 0=norte,1=este,2=sul,3=oeste — rotação aplicada antes de por()
+          const rot3d = (o.mb?.rot || 0) * Math.PI / 2;
+          g.rotation.z = rot3d;
+          por(g, o.x + (o.w || 1) / 2, o.y + (o.d || 1) / 2, 0, o);
+          g = null; // já colocado, não repor em por() abaixo
+        }
       }
       if (g) por(g, o.x, o.y, 0, o);
     } catch (e) {
@@ -445,6 +455,166 @@ function _makeOutdoor(o) {
   // face do outdoor (ligeiramente em frente)
   const face = new T.Mesh(new T.BoxGeometry(w - 0.1, 0.02, (w - 0.1) * 0.55), matPainelFace);
   face.position.set(w / 2, d / 2 - 0.06, 2.9); g.add(face);
+  return g;
+}
+
+/* ── móveis de interior ──────────────────────────────────────── */
+function _makeMovel(o) {
+  const mv = o.mv || {};
+  const tipo = mv.tipo || 'caixa';
+  const cor = mv.cor || '#8a5a32';
+  const w = o.w || 1, d = o.d || 1;
+  const g = new T.Group();
+  const mat = c => new T.MeshStandardMaterial({ color: c, roughness: 0.75 });
+  const matMet = c => new T.MeshStandardMaterial({ color: c, roughness: 0.35, metalness: 0.4 });
+  const caixa = (cx, cy, cz, bw, bd, bh, c) => {
+    const m = new T.Mesh(new T.BoxGeometry(bw, bd, bh), mat(c)); m.position.set(cx, cy, cz); m.castShadow = true; m.receiveShadow = true; g.add(m); return m;
+  };
+  // centrado em 0,0 — por() coloca na posição certa
+  const X = w / 2, Y = d / 2;
+  switch (tipo) {
+    case 'mesa': {
+      // tampo
+      caixa(0, 0, 0.72, w - 0.1, d - 0.1, 0.06, cor);
+      // pernas
+      const pLeg = 0.08, h = 0.72;
+      [[-X + 0.15, -Y + 0.15], [X - 0.15, -Y + 0.15], [-X + 0.15, Y - 0.15], [X - 0.15, Y - 0.15]].forEach(([lx, ly]) =>
+        caixa(lx, ly, h / 2 - 0.03, pLeg, pLeg, h, _shade(cor, -0.15)));
+      break;
+    }
+    case 'cadeira': {
+      // assento
+      caixa(0, 0, 0.44, 0.44, 0.44, 0.06, cor);
+      // encosto
+      caixa(0, -0.19, 0.72, 0.44, 0.06, 0.52, _shade(cor, -0.1));
+      // pernas
+      [[-0.17, -0.17], [0.17, -0.17], [-0.17, 0.17], [0.17, 0.17]].forEach(([lx, ly]) =>
+        caixa(lx, ly, 0.21, 0.07, 0.07, 0.42, _shade(cor, -0.2)));
+      break;
+    }
+    case 'balcao': {
+      caixa(0, 0, 0.5, w - 0.05, d - 0.05, 1.0, cor);
+      caixa(0, 0, 1.03, w + 0.05, d + 0.05, 0.06, _shade(cor, 0.1));
+      break;
+    }
+    case 'sofa': {
+      // assento
+      caixa(0, 0, 0.3, w - 0.1, d - 0.3, 0.3, cor);
+      // encosto traseiro
+      caixa(0, -d / 2 + 0.12, 0.6, w - 0.1, 0.22, 0.56, _shade(cor, -0.08));
+      // braços
+      caixa(-w / 2 + 0.1, 0, 0.5, 0.18, d - 0.1, 0.4, _shade(cor, -0.12));
+      caixa(w / 2 - 0.1, 0, 0.5, 0.18, d - 0.1, 0.4, _shade(cor, -0.12));
+      break;
+    }
+    case 'cama': {
+      // base
+      caixa(0, 0, 0.18, w - 0.08, d - 0.08, 0.36, _shade(cor, -0.2));
+      // colchão
+      caixa(0, 0, 0.42, w - 0.12, d - 0.12, 0.2, '#f0ede6');
+      // almofada
+      caixa(0, -d / 2 + 0.25, 0.56, w * 0.6, 0.35, 0.1, '#ffffffcc');
+      // cabeceira
+      caixa(0, -d / 2 + 0.07, 0.72, w - 0.08, 0.14, 0.72, cor);
+      break;
+    }
+    case 'estante': {
+      // estrutura
+      caixa(0, 0, 0.9, w - 0.08, 0.3, 1.8, cor);
+      // prateleiras
+      for (let s = 0; s < 4; s++) caixa(0, 0, 0.3 + s * 0.42, w - 0.1, 0.32, 0.03, _shade(cor, 0.1));
+      // livros coloridos
+      const cores = ['#c0392b', '#2c6fb0', '#f5b81c', '#2f8f5b', '#9b59b6'];
+      for (let s = 0; s < 4; s++) for (let b = 0; b < Math.floor(w * 2); b++) {
+        const bk = new T.Mesh(new T.BoxGeometry(0.08 + Math.random() * 0.06, 0.26, 0.28), mat(cores[(s * 3 + b) % cores.length]));
+        bk.position.set(-w / 2 + 0.12 + b * 0.14, 0, 0.3 + s * 0.42 + 0.17); bk.castShadow = true; g.add(bk);
+      }
+      break;
+    }
+    case 'fogao': {
+      caixa(0, 0, 0.44, 0.9, 0.9, 0.88, '#ddd');
+      // placa de aquecimento
+      caixa(0, 0, 0.9, 0.86, 0.86, 0.02, '#333');
+      [[-0.22, -0.22], [0.22, -0.22], [-0.22, 0.22], [0.22, 0.22]].forEach(([bx, by]) => {
+        const e = new T.Mesh(new T.CylinderGeometry(0.1, 0.1, 0.03, 10), mat('#111'));
+        e.rotation.x = Math.PI / 2; e.position.set(bx, by, 0.93); g.add(e);
+      });
+      break;
+    }
+    case 'frigorifico': {
+      caixa(0, 0, 0.9, 0.85, 0.75, 1.8, '#f0f0f0');
+      caixa(0, -0.38, 0.72, 0.83, 0.03, 0.6, '#e0e0e0');  // divisória
+      caixa(0.3, -0.42, 0.9, 0.06, 0.04, 0.12, matMet('#bbb').color.getHex ? '#bbb' : '#bbb');  // puxador
+      break;
+    }
+    case 'tapete': {
+      const m = new T.Mesh(new T.BoxGeometry(w - 0.2, d - 0.2, 0.03), mat(cor));
+      m.position.set(0, 0, 0.015); g.add(m);
+      const inner = new T.Mesh(new T.BoxGeometry(w - 0.5, d - 0.5, 0.032), mat(_shade(cor, 0.2)));
+      inner.position.set(0, 0, 0.016); g.add(inner);
+      break;
+    }
+    case 'tv': {
+      caixa(0, 0, 0.44, 0.3, w - 0.1, 0.5, '#3a2a1a');  // suporte
+      const matTela = new T.MeshStandardMaterial({ color: '#050505', roughness: 0.05, metalness: 0.3, emissive: 0x1a2a3a, emissiveIntensity: 0.4 });
+      const tela = new T.Mesh(new T.BoxGeometry(0.06, w - 0.15, d + 0.1), matTela);
+      tela.position.set(0, 0, 0.72); tela.castShadow = true; g.add(tela);
+      break;
+    }
+    case 'som': {
+      caixa(0, 0, 0.44, 0.65, 0.65, 0.88, '#1a1a1a');
+      const c2 = new T.Mesh(new T.CylinderGeometry(0.22, 0.22, 0.04, 16), mat('#333'));
+      c2.rotation.x = Math.PI / 2; c2.position.set(0, -0.33, 0.6); g.add(c2);
+      break;
+    }
+    case 'multibanco': {
+      caixa(0, 0, 0.9, 0.5, 0.35, 1.8, '#cc092f');
+      caixa(0, -0.19, 1.1, 0.4, 0.04, 0.4, '#111');  // ecrã
+      caixa(0, -0.19, 0.78, 0.3, 0.04, 0.12, '#888');  // teclado
+      break;
+    }
+    case 'passadeira': {
+      // passadeira de ginásio
+      caixa(0, 0, 0.1, w - 0.1, d - 0.1, 0.2, '#333');
+      caixa(0, -d / 2 + 0.1, 0.9, w - 0.15, 0.08, 1.4, '#555');  // barras de suporte
+      caixa(0, -d / 2 + 0.1, 1.6, 0.4, 0.06, 0.08, '#f5b81c');   // painel
+      break;
+    }
+    case 'halteres': {
+      for (let i = 0; i < 3; i++) {
+        const h = 0.3 + i * 0.08;
+        caixa(-w / 2 + 0.25 + i * 0.3, 0, h + 0.05, 0.08, d - 0.1, 0.1, '#555');
+        caixa(-w / 2 + 0.25 + i * 0.3 - 0.14, 0, h + 0.05, 0.12, 0.1, 0.18, '#333');
+        caixa(-w / 2 + 0.25 + i * 0.3 + 0.14, 0, h + 0.05, 0.12, 0.1, 0.18, '#333');
+      }
+      break;
+    }
+    case 'expositor': {
+      caixa(0, 0, 0.44, w - 0.1, d - 0.1, 0.88, _shade(cor, -0.1));
+      caixa(0, 0, 0.9, w + 0.05, d + 0.05, 0.04, cor);
+      break;
+    }
+    case 'quadro': {
+      caixa(0, -0.05, 0.9, w - 0.1, 0.06, d - 0.1, '#5a3a22');  // moldura
+      const matQuadro = new T.MeshStandardMaterial({ color: '#d4a853', roughness: 0.5, emissive: 0xc09030, emissiveIntensity: 0.05 });
+      const q = new T.Mesh(new T.BoxGeometry(w - 0.18, 0.04, d - 0.18), matQuadro);
+      q.position.set(0, -0.06, 0.9); g.add(q);
+      break;
+    }
+    case 'candeeiro': {
+      const p = new T.Mesh(new T.CylinderGeometry(0.03, 0.04, 1.4, 8), mat('#444'));
+      p.rotation.x = Math.PI / 2; p.position.set(0, 0, 0.7); g.add(p);
+      const ab = new T.Mesh(new T.ConeGeometry(0.22, 0.28, 10, 1, true), new T.MeshStandardMaterial({ color: cor, roughness: 0.5, side: T.DoubleSide }));
+      ab.rotation.x = Math.PI / 2; ab.position.set(0, 0, 1.3); g.add(ab);
+      const bulb = new T.Mesh(new T.SphereGeometry(0.06, 6, 5), new T.MeshStandardMaterial({ color: 0xfffde0, emissive: 0xffee88, emissiveIntensity: 1.5 }));
+      bulb.position.set(0, 0, 1.3); g.add(bulb);
+      break;
+    }
+    default: {
+      // fallback: caixa genérica na cor do móvel
+      caixa(0, 0, 0.44, (w || 1) - 0.1, (d || 1) - 0.1, 0.88, cor);
+    }
+  }
   return g;
 }
 
