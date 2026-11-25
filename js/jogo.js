@@ -1,4 +1,4 @@
-[Resource from github at repo://willyxlp/VIDAEMMOZ/sha/26c8478bb7a3e9fcff01eac5504246fd33612a64/contents/js/jogo.js] /* ============================================================
+/* ============================================================
    Vida em Moz — o jogo
    ============================================================ */
 const SUPA_URL = window.VEL_SUPA?.url || '';   // site de teste → base de teste (ver erros.js)
