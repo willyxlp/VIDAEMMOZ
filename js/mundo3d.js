@@ -445,56 +445,49 @@ function construir(cena) {
 
     // NOTA: raiz tem matrix x↔y (Three.js X = game Y, Three.js Y = game X).
     // BoxGeometry não precisa de rotation — position em coordenadas de jogo é suficiente.
-    // Câmara az=π/4 olha de +game_x +game_y → vê as paredes Norte (y=H) e Este (x=W).
-    // Sul (y=0) e Oeste (x=0) são as paredes frontais — omitidas para abrir a vista isométrica.
+    // Câmara vê o interior de baixo-esquerda → as paredes visíveis (de fundo) são Sul (y=0) e Oeste (x=0).
+    // Norte (y=H) e Este (x=W) são as paredes frontais — omitidas para abrir a vista isométrica.
 
-    // --- Parede NORTE (game y=H, parede de fundo visível) ---
+    // --- Parede SUL (game y=0, parede de fundo visível) ---
     { const m = new T.Mesh(new T.BoxGeometry(W, espessura, hSup), matSup(pCor));
-      m.receiveShadow = true; m.position.set(W/2, H, altDado + hSup/2); raiz.add(m); estaticos.push(m); }
+      m.receiveShadow = true; m.position.set(W/2, 0, altDado + hSup/2); raiz.add(m); estaticos.push(m); }
     { const m = new T.Mesh(new T.BoxGeometry(W, espessura, altDado), matDado(_texCapulana(W)));
-      m.receiveShadow = true; m.position.set(W/2, H, altDado/2); raiz.add(m); estaticos.push(m); }
+      m.receiveShadow = true; m.position.set(W/2, 0, altDado/2); raiz.add(m); estaticos.push(m); }
     { const m = new T.Mesh(new T.BoxGeometry(W, espessura, 0.06), matFriso(trim));
-      m.position.set(W/2, H, altDado + 0.03); m.castShadow = true; raiz.add(m); estaticos.push(m); }
+      m.position.set(W/2, 0, altDado + 0.03); m.castShadow = true; raiz.add(m); estaticos.push(m); }
     { const m = new T.Mesh(new T.BoxGeometry(W, espessura, 0.08), matFriso('#f5f2ee'));
-      m.position.set(W/2, H, altParede - 0.04); m.castShadow = true; raiz.add(m); estaticos.push(m); }
+      m.position.set(W/2, 0, altParede - 0.04); m.castShadow = true; raiz.add(m); estaticos.push(m); }
 
-    // --- Parede ESTE  (game x=W, parede lateral direita visível) ---
+    // --- Parede OESTE (game x=0, parede lateral esquerda visível) ---
     { const m = new T.Mesh(new T.BoxGeometry(espessura, H, hSup), matSup(pCor));
-      m.receiveShadow = true; m.position.set(W, H/2, altDado + hSup/2); raiz.add(m); estaticos.push(m); }
+      m.receiveShadow = true; m.position.set(0, H/2, altDado + hSup/2); raiz.add(m); estaticos.push(m); }
     { const m = new T.Mesh(new T.BoxGeometry(espessura, H, altDado), matDado(_texCapulana(H)));
-      m.receiveShadow = true; m.position.set(W, H/2, altDado/2); raiz.add(m); estaticos.push(m); }
+      m.receiveShadow = true; m.position.set(0, H/2, altDado/2); raiz.add(m); estaticos.push(m); }
     { const m = new T.Mesh(new T.BoxGeometry(espessura, H, 0.06), matFriso(trim));
-      m.position.set(W, H/2, altDado + 0.03); m.castShadow = true; raiz.add(m); estaticos.push(m); }
+      m.position.set(0, H/2, altDado + 0.03); m.castShadow = true; raiz.add(m); estaticos.push(m); }
     { const m = new T.Mesh(new T.BoxGeometry(espessura, H, 0.08), matFriso('#f5f2ee'));
-      m.position.set(W, H/2, altParede - 0.04); m.castShadow = true; raiz.add(m); estaticos.push(m); }
+      m.position.set(0, H/2, altParede - 0.04); m.castShadow = true; raiz.add(m); estaticos.push(m); }
 
-    // Sul (y=0) e Oeste (x=0) omitidas — são as paredes frontais que bloqueariam a câmara isométrica
+    // Norte (y=H) e Este (x=W) omitidas — são as paredes frontais que bloqueariam a câmara isométrica
 
-    // --- Janelas só na parede Norte (Sul está omitida) ---
+    // --- Janelas na parede Sul (y=0, a de fundo visível) ---
     // vidro como BoxGeometry fino — sem rotation, compatível com raiz x↔y
-    for (const wallY of [H]) {
-      if (W >= 4) {
-        const nJan = Math.min(3, Math.floor(W / 3));
-        const janW = 0.88, janH = 0.72, janZ = altDado + 0.32;
-        const passo = W / (nJan + 1);
-        for (let j = 0; j < nJan; j++) {
-          const jx = passo * (j + 1);
-          // vidro (BoxGeometry fino em vez de PlaneGeometry+rotation)
-          { const mv = new T.Mesh(new T.BoxGeometry(janW, espessura, janH), matVidro);
-            mv.position.set(jx, wallY, janZ + janH/2); raiz.add(mv); estaticos.push(mv); }
-          // caixilho horizontal superior
-          { const mc = new T.Mesh(new T.BoxGeometry(janW + 0.08, espessura, 0.05), matCaixilho);
-            mc.position.set(jx, wallY, janZ + janH + 0.025); raiz.add(mc); estaticos.push(mc); }
-          // caixilho horizontal inferior
-          { const mc = new T.Mesh(new T.BoxGeometry(janW + 0.08, espessura, 0.05), matCaixilho);
-            mc.position.set(jx, wallY, janZ - 0.025); raiz.add(mc); estaticos.push(mc); }
-          // caixilho vertical esquerdo
-          { const mc = new T.Mesh(new T.BoxGeometry(0.05, espessura, janH + 0.08), matCaixilho);
-            mc.position.set(jx - janW/2 - 0.025, wallY, janZ + janH/2); raiz.add(mc); estaticos.push(mc); }
-          // caixilho vertical direito
-          { const mc = new T.Mesh(new T.BoxGeometry(0.05, espessura, janH + 0.08), matCaixilho);
-            mc.position.set(jx + janW/2 + 0.025, wallY, janZ + janH/2); raiz.add(mc); estaticos.push(mc); }
-        }
+    if (W >= 4) {
+      const nJan = Math.min(3, Math.floor(W / 3));
+      const janW = 0.88, janH = 0.72, janZ = altDado + 0.32;
+      const passo = W / (nJan + 1);
+      for (let j = 0; j < nJan; j++) {
+        const jx = passo * (j + 1);
+        { const mv = new T.Mesh(new T.BoxGeometry(janW, espessura, janH), matVidro);
+          mv.position.set(jx, 0, janZ + janH/2); raiz.add(mv); estaticos.push(mv); }
+        { const mc = new T.Mesh(new T.BoxGeometry(janW + 0.08, espessura, 0.05), matCaixilho);
+          mc.position.set(jx, 0, janZ + janH + 0.025); raiz.add(mc); estaticos.push(mc); }
+        { const mc = new T.Mesh(new T.BoxGeometry(janW + 0.08, espessura, 0.05), matCaixilho);
+          mc.position.set(jx, 0, janZ - 0.025); raiz.add(mc); estaticos.push(mc); }
+        { const mc = new T.Mesh(new T.BoxGeometry(0.05, espessura, janH + 0.08), matCaixilho);
+          mc.position.set(jx - janW/2 - 0.025, 0, janZ + janH/2); raiz.add(mc); estaticos.push(mc); }
+        { const mc = new T.Mesh(new T.BoxGeometry(0.05, espessura, janH + 0.08), matCaixilho);
+          mc.position.set(jx + janW/2 + 0.025, 0, janZ + janH/2); raiz.add(mc); estaticos.push(mc); }
       }
     }
 
