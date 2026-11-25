@@ -434,90 +434,97 @@ function construir(cena) {
       const t = new T.CanvasTexture(cv); t.colorSpace = T.SRGBColorSpace; t.wrapS = T.RepeatWrapping; return t;
     }
 
-    // 4 paredes: Sul (y=0), Norte (y=H), Oeste (x=0), Este (x=W)
-    const paredes = [
-      { eixo: 'x', pos: [W / 2, 0, 0], rot: [Math.PI / 2, 0, 0], larg: W, flip: false },   // sul
-      { eixo: 'x', pos: [W / 2, H, 0], rot: [-Math.PI / 2, 0, 0], larg: W, flip: true },    // norte
-      { eixo: 'y', pos: [0, H / 2, 0], rot: [Math.PI / 2, 0, Math.PI / 2], larg: H, flip: false },  // oeste
-      { eixo: 'y', pos: [W, H / 2, 0], rot: [Math.PI / 2, 0, -Math.PI / 2], larg: H, flip: true },  // este
-    ];
+    // Materiais DoubleSide para que a câmara isométrica veja de dentro
+    const matSupDS  = c => new T.MeshStandardMaterial({ color: c, roughness: 0.9, side: T.DoubleSide });
+    const matDadoDS = tex => new T.MeshStandardMaterial({ map: tex, roughness: 0.75, side: T.DoubleSide });
+    const matFrisoDS = c => new T.MeshStandardMaterial({ color: c, roughness: 0.6 });
+    const matVidroDS = new T.MeshStandardMaterial({ color: '#aad8f0', roughness: 0.05, metalness: 0.1, transparent: true, opacity: 0.55, side: T.DoubleSide });
+    const matCaixilhoDS = new T.MeshStandardMaterial({ color: '#f5f2ee', roughness: 0.6 });
 
-    for (const pw of paredes) {
-      const L = pw.larg;
+    const hSup = altParede - altDado;
 
-      // --- zona superior (cima do dado até tecto) ---
-      const hSup = altParede - altDado;
-      const texSup = _texParede(pCor, L, hSup);
-      const matSup = new T.MeshStandardMaterial({ map: texSup, roughness: 0.9 });
-      const geoSup = new T.PlaneGeometry(L, hSup);
-      const mSup = new T.Mesh(geoSup, matSup);
-      mSup.receiveShadow = true;
-      // posicionar: centro em zMid = altDado + hSup/2
-      const zMid = altDado + hSup / 2;
-      mSup.position.set(...pw.pos); mSup.position.z = zMid;
-      mSup.rotation.set(...pw.rot);
-      raiz.add(mSup); estaticos.push(mSup);
+    // --- Parede SUL  (y = 0, normal +Y, paralela a X) ---
+    // zona superior
+    { const m = new T.Mesh(new T.PlaneGeometry(W, hSup), matSupDS(pCor));
+      m.receiveShadow = true; m.position.set(W/2, 0, altDado + hSup/2);
+      m.rotation.set(Math.PI/2, 0, 0); raiz.add(m); estaticos.push(m); }
+    // dado
+    { const m = new T.Mesh(new T.PlaneGeometry(W, altDado), matDadoDS(_texCapulana(W)));
+      m.receiveShadow = true; m.position.set(W/2, 0, altDado/2);
+      m.rotation.set(Math.PI/2, 0, 0); raiz.add(m); estaticos.push(m); }
+    // friso meio
+    { const m = new T.Mesh(new T.BoxGeometry(W, espessura, 0.06), matFrisoDS(trim));
+      m.position.set(W/2, 0, altDado + 0.03); m.castShadow = true; raiz.add(m); estaticos.push(m); }
+    // friso tecto
+    { const m = new T.Mesh(new T.BoxGeometry(W, espessura, 0.08), matFrisoDS('#f5f2ee'));
+      m.position.set(W/2, 0, altParede - 0.04); m.castShadow = true; raiz.add(m); estaticos.push(m); }
 
-      // --- dado / wainscot (zona inferior) ---
-      const texDado = _texCapulana(L);
-      const matDado = new T.MeshStandardMaterial({ map: texDado, roughness: 0.75 });
-      const geoDado = new T.PlaneGeometry(L, altDado);
-      const mDado = new T.Mesh(geoDado, matDado);
-      mDado.receiveShadow = true;
-      mDado.position.set(...pw.pos); mDado.position.z = altDado / 2;
-      mDado.rotation.set(...pw.rot);
-      raiz.add(mDado); estaticos.push(mDado);
+    // --- Parede NORTE (y = H, normal -Y, paralela a X) ---
+    { const m = new T.Mesh(new T.PlaneGeometry(W, hSup), matSupDS(pCor));
+      m.receiveShadow = true; m.position.set(W/2, H, altDado + hSup/2);
+      m.rotation.set(-Math.PI/2, 0, 0); raiz.add(m); estaticos.push(m); }
+    { const m = new T.Mesh(new T.PlaneGeometry(W, altDado), matDadoDS(_texCapulana(W)));
+      m.receiveShadow = true; m.position.set(W/2, H, altDado/2);
+      m.rotation.set(-Math.PI/2, 0, 0); raiz.add(m); estaticos.push(m); }
+    { const m = new T.Mesh(new T.BoxGeometry(W, espessura, 0.06), matFrisoDS(trim));
+      m.position.set(W/2, H, altDado + 0.03); m.castShadow = true; raiz.add(m); estaticos.push(m); }
+    { const m = new T.Mesh(new T.BoxGeometry(W, espessura, 0.08), matFrisoDS('#f5f2ee'));
+      m.position.set(W/2, H, altParede - 0.04); m.castShadow = true; raiz.add(m); estaticos.push(m); }
 
-      // --- friso de separação dado/parede ---
-      const matFriso = new T.MeshStandardMaterial({ color: trim, roughness: 0.6 });
-      const geoFriso = new T.BoxGeometry(L + 0.02, espessura, 0.06);
-      const mFriso = new T.Mesh(geoFriso, matFriso);
-      mFriso.position.set(...pw.pos); mFriso.position.z = altDado + 0.03;
-      mFriso.rotation.set(...pw.rot);
-      mFriso.castShadow = true; mFriso.receiveShadow = true;
-      raiz.add(mFriso); estaticos.push(mFriso);
+    // --- Parede OESTE (x = 0, normal +X, paralela a Y) ---
+    { const m = new T.Mesh(new T.PlaneGeometry(H, hSup), matSupDS(pCor));
+      m.receiveShadow = true; m.position.set(0, H/2, altDado + hSup/2);
+      m.rotation.set(Math.PI/2, 0, Math.PI/2); raiz.add(m); estaticos.push(m); }
+    { const m = new T.Mesh(new T.PlaneGeometry(H, altDado), matDadoDS(_texCapulana(H)));
+      m.receiveShadow = true; m.position.set(0, H/2, altDado/2);
+      m.rotation.set(Math.PI/2, 0, Math.PI/2); raiz.add(m); estaticos.push(m); }
+    { const m = new T.Mesh(new T.BoxGeometry(espessura, H, 0.06), matFrisoDS(trim));
+      m.position.set(0, H/2, altDado + 0.03); m.castShadow = true; raiz.add(m); estaticos.push(m); }
+    { const m = new T.Mesh(new T.BoxGeometry(espessura, H, 0.08), matFrisoDS('#f5f2ee'));
+      m.position.set(0, H/2, altParede - 0.04); m.castShadow = true; raiz.add(m); estaticos.push(m); }
 
-      // --- friso de tecto ---
-      const matTecto = new T.MeshStandardMaterial({ color: '#f5f2ee', roughness: 0.8 });
-      const geoTecto = new T.BoxGeometry(L + 0.02, espessura, 0.08);
-      const mTecto = new T.Mesh(geoTecto, matTecto);
-      mTecto.position.set(...pw.pos); mTecto.position.z = altParede - 0.04;
-      mTecto.rotation.set(...pw.rot);
-      mTecto.castShadow = true; mTecto.receiveShadow = true;
-      raiz.add(mTecto); estaticos.push(mTecto);
+    // --- Parede ESTE  (x = W, normal -X, paralela a Y) ---
+    { const m = new T.Mesh(new T.PlaneGeometry(H, hSup), matSupDS(pCor));
+      m.receiveShadow = true; m.position.set(W, H/2, altDado + hSup/2);
+      m.rotation.set(Math.PI/2, 0, -Math.PI/2); raiz.add(m); estaticos.push(m); }
+    { const m = new T.Mesh(new T.PlaneGeometry(H, altDado), matDadoDS(_texCapulana(H)));
+      m.receiveShadow = true; m.position.set(W, H/2, altDado/2);
+      m.rotation.set(Math.PI/2, 0, -Math.PI/2); raiz.add(m); estaticos.push(m); }
+    { const m = new T.Mesh(new T.BoxGeometry(espessura, H, 0.06), matFrisoDS(trim));
+      m.position.set(W, H/2, altDado + 0.03); m.castShadow = true; raiz.add(m); estaticos.push(m); }
+    { const m = new T.Mesh(new T.BoxGeometry(espessura, H, 0.08), matFrisoDS('#f5f2ee'));
+      m.position.set(W, H/2, altParede - 0.04); m.castShadow = true; raiz.add(m); estaticos.push(m); }
 
-      // --- janelas na parede Sul e Norte (apenas se a sala for larga o suficiente) ---
-      if ((pw.eixo === 'x') && L >= 4) {
-        const nJan = Math.min(3, Math.floor(L / 3));
-        const janW = 0.9, janH = 0.75, janZ = altDado + 0.3;
-        const passo = L / (nJan + 1);
-        const matVidroJan = new T.MeshStandardMaterial({ color: '#aad8f0', roughness: 0.05, metalness: 0.1, transparent: true, opacity: 0.55 });
-        const matCaixilho = new T.MeshStandardMaterial({ color: '#fffde0', roughness: 0.6 });
+    // --- Janelas na parede Sul e Norte (se L >= 4) ---
+    for (const [wallY, rotX] of [[0, Math.PI/2], [H, -Math.PI/2]]) {
+      if (W >= 4) {
+        const nJan = Math.min(3, Math.floor(W / 3));
+        const janW = 0.88, janH = 0.72, janZ = altDado + 0.32;
+        const passo = W / (nJan + 1);
         for (let j = 0; j < nJan; j++) {
-          const jx = -L / 2 + passo * (j + 1);
+          const jx = passo * (j + 1);  // posição x da janela
           // vidro
-          const geoVid = new T.PlaneGeometry(janW, janH);
-          const mVid = new T.Mesh(geoVid, matVidroJan);
-          mVid.position.set(...pw.pos); mVid.position.z = janZ + janH / 2;
-          if (pw.eixo === 'x') mVid.position.x += jx;
-          mVid.rotation.set(...pw.rot);
+          const mVid = new T.Mesh(new T.PlaneGeometry(janW, janH), matVidroDS);
+          mVid.position.set(jx, wallY, janZ + janH/2);
+          mVid.rotation.set(rotX, 0, 0);
           raiz.add(mVid); estaticos.push(mVid);
-          // caixilho (4 barras finas)
-          [[janW + 0.06, 0.05, janZ + janH / 2, jx], [janW + 0.06, 0.05, janZ + janH - 0.025, jx],
-           [0.05, janH + 0.06, janZ + janH / 2, jx - janW / 2], [0.05, janH + 0.06, janZ + janH / 2, jx + janW / 2]
-          ].forEach(([bw, bh, bz, bx]) => {
-            const geoCx = new T.BoxGeometry(bw, espessura * 0.6, bh);
-            const mCx = new T.Mesh(geoCx, matCaixilho);
-            mCx.position.set(...pw.pos); mCx.position.z = bz;
-            if (pw.eixo === 'x') mCx.position.x += bx;
-            mCx.rotation.set(...pw.rot);
-            raiz.add(mCx); estaticos.push(mCx);
-          });
+          // caixilho horizontal superior
+          { const mc = new T.Mesh(new T.BoxGeometry(janW + 0.08, espessura, 0.05), matCaixilhoDS);
+            mc.position.set(jx, wallY, janZ + janH + 0.025); raiz.add(mc); estaticos.push(mc); }
+          // caixilho horizontal inferior
+          { const mc = new T.Mesh(new T.BoxGeometry(janW + 0.08, espessura, 0.05), matCaixilhoDS);
+            mc.position.set(jx, wallY, janZ - 0.025); raiz.add(mc); estaticos.push(mc); }
+          // caixilho vertical esquerdo
+          { const mc = new T.Mesh(new T.BoxGeometry(0.05, espessura, janH + 0.08), matCaixilhoDS);
+            mc.position.set(jx - janW/2 - 0.025, wallY, janZ + janH/2); raiz.add(mc); estaticos.push(mc); }
+          // caixilho vertical direito
+          { const mc = new T.Mesh(new T.BoxGeometry(0.05, espessura, janH + 0.08), matCaixilhoDS);
+            mc.position.set(jx + janW/2 + 0.025, wallY, janZ + janH/2); raiz.add(mc); estaticos.push(mc); }
         }
       }
     }
 
-    // --- tecto (plano branco a altParede) ---
+    // --- tecto (plano branco a altParede, BackSide) ---
     const matTectoPl = new T.MeshStandardMaterial({ color: '#f5f2ee', roughness: 0.95, side: T.BackSide });
     const geoTectoPl = new T.PlaneGeometry(W, H);
     const mTectoPl = new T.Mesh(geoTectoPl, matTectoPl);
