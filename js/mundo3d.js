@@ -445,23 +445,10 @@ function construir(cena) {
 
     // NOTA: raiz tem matrix x↔y (Three.js X = game Y, Three.js Y = game X).
     // BoxGeometry não precisa de rotation — position em coordenadas de jogo é suficiente.
-    // PlaneGeometry + rotation estava a produzir planos horizontais (chão) em vez de paredes verticais.
+    // Câmara az=π/4 olha de +game_x +game_y → vê as paredes Norte (y=H) e Este (x=W).
+    // Sul (y=0) e Oeste (x=0) são as paredes frontais — omitidas para abrir a vista isométrica.
 
-    // --- Parede SUL  (game y=0, corre ao longo de X, largura=W) ---
-    // zona superior
-    { const m = new T.Mesh(new T.BoxGeometry(W, espessura, hSup), matSup(pCor));
-      m.receiveShadow = true; m.position.set(W/2, 0, altDado + hSup/2); raiz.add(m); estaticos.push(m); }
-    // dado (capulana)
-    { const m = new T.Mesh(new T.BoxGeometry(W, espessura, altDado), matDado(_texCapulana(W)));
-      m.receiveShadow = true; m.position.set(W/2, 0, altDado/2); raiz.add(m); estaticos.push(m); }
-    // friso meio
-    { const m = new T.Mesh(new T.BoxGeometry(W, espessura, 0.06), matFriso(trim));
-      m.position.set(W/2, 0, altDado + 0.03); m.castShadow = true; raiz.add(m); estaticos.push(m); }
-    // friso tecto
-    { const m = new T.Mesh(new T.BoxGeometry(W, espessura, 0.08), matFriso('#f5f2ee'));
-      m.position.set(W/2, 0, altParede - 0.04); m.castShadow = true; raiz.add(m); estaticos.push(m); }
-
-    // --- Parede NORTE (game y=H, corre ao longo de X, largura=W) ---
+    // --- Parede NORTE (game y=H, parede de fundo visível) ---
     { const m = new T.Mesh(new T.BoxGeometry(W, espessura, hSup), matSup(pCor));
       m.receiveShadow = true; m.position.set(W/2, H, altDado + hSup/2); raiz.add(m); estaticos.push(m); }
     { const m = new T.Mesh(new T.BoxGeometry(W, espessura, altDado), matDado(_texCapulana(W)));
@@ -471,17 +458,7 @@ function construir(cena) {
     { const m = new T.Mesh(new T.BoxGeometry(W, espessura, 0.08), matFriso('#f5f2ee'));
       m.position.set(W/2, H, altParede - 0.04); m.castShadow = true; raiz.add(m); estaticos.push(m); }
 
-    // --- Parede OESTE (game x=0, corre ao longo de Y, largura=H) ---
-    { const m = new T.Mesh(new T.BoxGeometry(espessura, H, hSup), matSup(pCor));
-      m.receiveShadow = true; m.position.set(0, H/2, altDado + hSup/2); raiz.add(m); estaticos.push(m); }
-    { const m = new T.Mesh(new T.BoxGeometry(espessura, H, altDado), matDado(_texCapulana(H)));
-      m.receiveShadow = true; m.position.set(0, H/2, altDado/2); raiz.add(m); estaticos.push(m); }
-    { const m = new T.Mesh(new T.BoxGeometry(espessura, H, 0.06), matFriso(trim));
-      m.position.set(0, H/2, altDado + 0.03); m.castShadow = true; raiz.add(m); estaticos.push(m); }
-    { const m = new T.Mesh(new T.BoxGeometry(espessura, H, 0.08), matFriso('#f5f2ee'));
-      m.position.set(0, H/2, altParede - 0.04); m.castShadow = true; raiz.add(m); estaticos.push(m); }
-
-    // --- Parede ESTE  (game x=W, corre ao longo de Y, largura=H) ---
+    // --- Parede ESTE  (game x=W, parede lateral direita visível) ---
     { const m = new T.Mesh(new T.BoxGeometry(espessura, H, hSup), matSup(pCor));
       m.receiveShadow = true; m.position.set(W, H/2, altDado + hSup/2); raiz.add(m); estaticos.push(m); }
     { const m = new T.Mesh(new T.BoxGeometry(espessura, H, altDado), matDado(_texCapulana(H)));
@@ -491,9 +468,11 @@ function construir(cena) {
     { const m = new T.Mesh(new T.BoxGeometry(espessura, H, 0.08), matFriso('#f5f2ee'));
       m.position.set(W, H/2, altParede - 0.04); m.castShadow = true; raiz.add(m); estaticos.push(m); }
 
-    // --- Janelas na parede Sul e Norte (se W >= 4) ---
+    // Sul (y=0) e Oeste (x=0) omitidas — são as paredes frontais que bloqueariam a câmara isométrica
+
+    // --- Janelas só na parede Norte (Sul está omitida) ---
     // vidro como BoxGeometry fino — sem rotation, compatível com raiz x↔y
-    for (const wallY of [0, H]) {
+    for (const wallY of [H]) {
       if (W >= 4) {
         const nJan = Math.min(3, Math.floor(W / 3));
         const janW = 0.88, janH = 0.72, janZ = altDado + 0.32;
