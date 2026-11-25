@@ -1,4 +1,4 @@
-/* ============================================================
+[Resource from github at repo://willyxlp/VIDAEMMOZ/sha/26c8478bb7a3e9fcff01eac5504246fd33612a64/contents/js/jogo.js] /* ============================================================
    Vida em Moz — o jogo
    ============================================================ */
 const SUPA_URL = window.VEL_SUPA?.url || '';   // site de teste → base de teste (ver erros.js)
@@ -3252,7 +3252,7 @@ function hud() {
   if (typeof vozBotao === 'function') vozBotao();   // 9 nov: botão da voz só nas salas privadas
   if (!J) return;
   $('#hNome').textContent = J.nome;
-  const onde = cena?.tipo === 'interior' ? tr(cena.lugar.spec.nome) : cena?.tipo === 'casa' ? (ehMeuLar(cena.dono.id) ? 'Em casa' : String(cena.dono.id).startsWith('imovel-') ? 'A tua casa · não moras aqui' : 'Casa de ' + cena.dono.nome) + (cena.andar ? ' · 1.º andar' : '') : bairro(J.bairro)?.nome;
+  const onde = cena?.tipo === 'interior' ? tr(cena.lugar.spec.nome) + ' · ' + (bairro(cena.voltar?.bairro)?.nome || bairro(J.bairro)?.nome || '') : cena?.tipo === 'casa' ? (ehMeuLar(cena.dono.id) ? 'Em casa' : String(cena.dono.id).startsWith('imovel-') ? 'A tua casa · não moras aqui' : 'Casa de ' + cena.dono.nome) + (cena.andar ? ' · 1.º andar' : '') : bairro(J.bairro)?.nome;
   const gente = outros.size;
   const prov = cena?.tipo === 'bairro' ? bairro(J.bairro)?.provincia : null;
   $('#hLoc').textContent = `📍 ${onde}${cena?.tipo === 'bairro' && typeof salaAtiva !== 'undefined' && salaAtiva ? ' · ' + (typeof nomeSala === 'function' ? nomeSala(salaAtual) : tr('Sala {0}').replace('{0}', salaAtual)) : ''}${prov && prov !== onde ? ' · ' + prov : ''}${gente ? ` · 👥 ${gente + 1}` : ''} · ${cena?.tipo === 'bairro' ? tempoEmoji() : ''}${semLuzAqui() ? '🕯️' : ''}${humor()[0]} ${preso() ? '⛓️ Preso/a · ' + tempoFalta(J.preso_ate) : J.detencao ? '🚔 Detido/a!' : J.emprego ? (emprego(J.emprego)?.nome || J.emprego) : 'Desempregado'}`;

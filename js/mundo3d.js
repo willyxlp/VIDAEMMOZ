@@ -434,102 +434,96 @@ function construir(cena) {
       const t = new T.CanvasTexture(cv); t.colorSpace = T.SRGBColorSpace; t.wrapS = T.RepeatWrapping; return t;
     }
 
-    // Materiais DoubleSide para que a câmara isométrica veja de dentro
-    const matSupDS  = c => new T.MeshStandardMaterial({ color: c, roughness: 0.9, side: T.DoubleSide });
-    const matDadoDS = tex => new T.MeshStandardMaterial({ map: tex, roughness: 0.75, side: T.DoubleSide });
-    const matFrisoDS = c => new T.MeshStandardMaterial({ color: c, roughness: 0.6 });
-    const matVidroDS = new T.MeshStandardMaterial({ color: '#aad8f0', roughness: 0.05, metalness: 0.1, transparent: true, opacity: 0.55, side: T.DoubleSide });
-    const matCaixilhoDS = new T.MeshStandardMaterial({ color: '#f5f2ee', roughness: 0.6 });
+    // Materiais — sem DoubleSide: BoxGeometry tem faces para todos os lados
+    const matSup   = c   => new T.MeshStandardMaterial({ color: c, roughness: 0.9 });
+    const matDado  = tex => new T.MeshStandardMaterial({ map: tex, roughness: 0.75 });
+    const matFriso = c   => new T.MeshStandardMaterial({ color: c, roughness: 0.6 });
+    const matVidro = new T.MeshStandardMaterial({ color: '#aad8f0', roughness: 0.05, metalness: 0.1, transparent: true, opacity: 0.55 });
+    const matCaixilho = new T.MeshStandardMaterial({ color: '#f5f2ee', roughness: 0.6 });
 
     const hSup = altParede - altDado;
 
-    // --- Parede SUL  (y = 0, normal +Y, paralela a X) ---
+    // NOTA: raiz tem matrix x↔y (Three.js X = game Y, Three.js Y = game X).
+    // BoxGeometry não precisa de rotation — position em coordenadas de jogo é suficiente.
+    // PlaneGeometry + rotation estava a produzir planos horizontais (chão) em vez de paredes verticais.
+
+    // --- Parede SUL  (game y=0, corre ao longo de X, largura=W) ---
     // zona superior
-    { const m = new T.Mesh(new T.PlaneGeometry(W, hSup), matSupDS(pCor));
-      m.receiveShadow = true; m.position.set(W/2, 0, altDado + hSup/2);
-      m.rotation.set(Math.PI/2, 0, 0); raiz.add(m); estaticos.push(m); }
-    // dado
-    { const m = new T.Mesh(new T.PlaneGeometry(W, altDado), matDadoDS(_texCapulana(W)));
-      m.receiveShadow = true; m.position.set(W/2, 0, altDado/2);
-      m.rotation.set(Math.PI/2, 0, 0); raiz.add(m); estaticos.push(m); }
+    { const m = new T.Mesh(new T.BoxGeometry(W, espessura, hSup), matSup(pCor));
+      m.receiveShadow = true; m.position.set(W/2, 0, altDado + hSup/2); raiz.add(m); estaticos.push(m); }
+    // dado (capulana)
+    { const m = new T.Mesh(new T.BoxGeometry(W, espessura, altDado), matDado(_texCapulana(W)));
+      m.receiveShadow = true; m.position.set(W/2, 0, altDado/2); raiz.add(m); estaticos.push(m); }
     // friso meio
-    { const m = new T.Mesh(new T.BoxGeometry(W, espessura, 0.06), matFrisoDS(trim));
+    { const m = new T.Mesh(new T.BoxGeometry(W, espessura, 0.06), matFriso(trim));
       m.position.set(W/2, 0, altDado + 0.03); m.castShadow = true; raiz.add(m); estaticos.push(m); }
     // friso tecto
-    { const m = new T.Mesh(new T.BoxGeometry(W, espessura, 0.08), matFrisoDS('#f5f2ee'));
+    { const m = new T.Mesh(new T.BoxGeometry(W, espessura, 0.08), matFriso('#f5f2ee'));
       m.position.set(W/2, 0, altParede - 0.04); m.castShadow = true; raiz.add(m); estaticos.push(m); }
 
-    // --- Parede NORTE (y = H, normal -Y, paralela a X) ---
-    { const m = new T.Mesh(new T.PlaneGeometry(W, hSup), matSupDS(pCor));
-      m.receiveShadow = true; m.position.set(W/2, H, altDado + hSup/2);
-      m.rotation.set(-Math.PI/2, 0, 0); raiz.add(m); estaticos.push(m); }
-    { const m = new T.Mesh(new T.PlaneGeometry(W, altDado), matDadoDS(_texCapulana(W)));
-      m.receiveShadow = true; m.position.set(W/2, H, altDado/2);
-      m.rotation.set(-Math.PI/2, 0, 0); raiz.add(m); estaticos.push(m); }
-    { const m = new T.Mesh(new T.BoxGeometry(W, espessura, 0.06), matFrisoDS(trim));
+    // --- Parede NORTE (game y=H, corre ao longo de X, largura=W) ---
+    { const m = new T.Mesh(new T.BoxGeometry(W, espessura, hSup), matSup(pCor));
+      m.receiveShadow = true; m.position.set(W/2, H, altDado + hSup/2); raiz.add(m); estaticos.push(m); }
+    { const m = new T.Mesh(new T.BoxGeometry(W, espessura, altDado), matDado(_texCapulana(W)));
+      m.receiveShadow = true; m.position.set(W/2, H, altDado/2); raiz.add(m); estaticos.push(m); }
+    { const m = new T.Mesh(new T.BoxGeometry(W, espessura, 0.06), matFriso(trim));
       m.position.set(W/2, H, altDado + 0.03); m.castShadow = true; raiz.add(m); estaticos.push(m); }
-    { const m = new T.Mesh(new T.BoxGeometry(W, espessura, 0.08), matFrisoDS('#f5f2ee'));
+    { const m = new T.Mesh(new T.BoxGeometry(W, espessura, 0.08), matFriso('#f5f2ee'));
       m.position.set(W/2, H, altParede - 0.04); m.castShadow = true; raiz.add(m); estaticos.push(m); }
 
-    // --- Parede OESTE (x = 0, normal +X, paralela a Y) ---
-    { const m = new T.Mesh(new T.PlaneGeometry(H, hSup), matSupDS(pCor));
-      m.receiveShadow = true; m.position.set(0, H/2, altDado + hSup/2);
-      m.rotation.set(Math.PI/2, 0, Math.PI/2); raiz.add(m); estaticos.push(m); }
-    { const m = new T.Mesh(new T.PlaneGeometry(H, altDado), matDadoDS(_texCapulana(H)));
-      m.receiveShadow = true; m.position.set(0, H/2, altDado/2);
-      m.rotation.set(Math.PI/2, 0, Math.PI/2); raiz.add(m); estaticos.push(m); }
-    { const m = new T.Mesh(new T.BoxGeometry(espessura, H, 0.06), matFrisoDS(trim));
+    // --- Parede OESTE (game x=0, corre ao longo de Y, largura=H) ---
+    { const m = new T.Mesh(new T.BoxGeometry(espessura, H, hSup), matSup(pCor));
+      m.receiveShadow = true; m.position.set(0, H/2, altDado + hSup/2); raiz.add(m); estaticos.push(m); }
+    { const m = new T.Mesh(new T.BoxGeometry(espessura, H, altDado), matDado(_texCapulana(H)));
+      m.receiveShadow = true; m.position.set(0, H/2, altDado/2); raiz.add(m); estaticos.push(m); }
+    { const m = new T.Mesh(new T.BoxGeometry(espessura, H, 0.06), matFriso(trim));
       m.position.set(0, H/2, altDado + 0.03); m.castShadow = true; raiz.add(m); estaticos.push(m); }
-    { const m = new T.Mesh(new T.BoxGeometry(espessura, H, 0.08), matFrisoDS('#f5f2ee'));
+    { const m = new T.Mesh(new T.BoxGeometry(espessura, H, 0.08), matFriso('#f5f2ee'));
       m.position.set(0, H/2, altParede - 0.04); m.castShadow = true; raiz.add(m); estaticos.push(m); }
 
-    // --- Parede ESTE  (x = W, normal -X, paralela a Y) ---
-    { const m = new T.Mesh(new T.PlaneGeometry(H, hSup), matSupDS(pCor));
-      m.receiveShadow = true; m.position.set(W, H/2, altDado + hSup/2);
-      m.rotation.set(Math.PI/2, 0, -Math.PI/2); raiz.add(m); estaticos.push(m); }
-    { const m = new T.Mesh(new T.PlaneGeometry(H, altDado), matDadoDS(_texCapulana(H)));
-      m.receiveShadow = true; m.position.set(W, H/2, altDado/2);
-      m.rotation.set(Math.PI/2, 0, -Math.PI/2); raiz.add(m); estaticos.push(m); }
-    { const m = new T.Mesh(new T.BoxGeometry(espessura, H, 0.06), matFrisoDS(trim));
+    // --- Parede ESTE  (game x=W, corre ao longo de Y, largura=H) ---
+    { const m = new T.Mesh(new T.BoxGeometry(espessura, H, hSup), matSup(pCor));
+      m.receiveShadow = true; m.position.set(W, H/2, altDado + hSup/2); raiz.add(m); estaticos.push(m); }
+    { const m = new T.Mesh(new T.BoxGeometry(espessura, H, altDado), matDado(_texCapulana(H)));
+      m.receiveShadow = true; m.position.set(W, H/2, altDado/2); raiz.add(m); estaticos.push(m); }
+    { const m = new T.Mesh(new T.BoxGeometry(espessura, H, 0.06), matFriso(trim));
       m.position.set(W, H/2, altDado + 0.03); m.castShadow = true; raiz.add(m); estaticos.push(m); }
-    { const m = new T.Mesh(new T.BoxGeometry(espessura, H, 0.08), matFrisoDS('#f5f2ee'));
+    { const m = new T.Mesh(new T.BoxGeometry(espessura, H, 0.08), matFriso('#f5f2ee'));
       m.position.set(W, H/2, altParede - 0.04); m.castShadow = true; raiz.add(m); estaticos.push(m); }
 
-    // --- Janelas na parede Sul e Norte (se L >= 4) ---
-    for (const [wallY, rotX] of [[0, Math.PI/2], [H, -Math.PI/2]]) {
+    // --- Janelas na parede Sul e Norte (se W >= 4) ---
+    // vidro como BoxGeometry fino — sem rotation, compatível com raiz x↔y
+    for (const wallY of [0, H]) {
       if (W >= 4) {
         const nJan = Math.min(3, Math.floor(W / 3));
         const janW = 0.88, janH = 0.72, janZ = altDado + 0.32;
         const passo = W / (nJan + 1);
         for (let j = 0; j < nJan; j++) {
-          const jx = passo * (j + 1);  // posição x da janela
-          // vidro
-          const mVid = new T.Mesh(new T.PlaneGeometry(janW, janH), matVidroDS);
-          mVid.position.set(jx, wallY, janZ + janH/2);
-          mVid.rotation.set(rotX, 0, 0);
-          raiz.add(mVid); estaticos.push(mVid);
+          const jx = passo * (j + 1);
+          // vidro (BoxGeometry fino em vez de PlaneGeometry+rotation)
+          { const mv = new T.Mesh(new T.BoxGeometry(janW, espessura, janH), matVidro);
+            mv.position.set(jx, wallY, janZ + janH/2); raiz.add(mv); estaticos.push(mv); }
           // caixilho horizontal superior
-          { const mc = new T.Mesh(new T.BoxGeometry(janW + 0.08, espessura, 0.05), matCaixilhoDS);
+          { const mc = new T.Mesh(new T.BoxGeometry(janW + 0.08, espessura, 0.05), matCaixilho);
             mc.position.set(jx, wallY, janZ + janH + 0.025); raiz.add(mc); estaticos.push(mc); }
           // caixilho horizontal inferior
-          { const mc = new T.Mesh(new T.BoxGeometry(janW + 0.08, espessura, 0.05), matCaixilhoDS);
+          { const mc = new T.Mesh(new T.BoxGeometry(janW + 0.08, espessura, 0.05), matCaixilho);
             mc.position.set(jx, wallY, janZ - 0.025); raiz.add(mc); estaticos.push(mc); }
           // caixilho vertical esquerdo
-          { const mc = new T.Mesh(new T.BoxGeometry(0.05, espessura, janH + 0.08), matCaixilhoDS);
+          { const mc = new T.Mesh(new T.BoxGeometry(0.05, espessura, janH + 0.08), matCaixilho);
             mc.position.set(jx - janW/2 - 0.025, wallY, janZ + janH/2); raiz.add(mc); estaticos.push(mc); }
           // caixilho vertical direito
-          { const mc = new T.Mesh(new T.BoxGeometry(0.05, espessura, janH + 0.08), matCaixilhoDS);
+          { const mc = new T.Mesh(new T.BoxGeometry(0.05, espessura, janH + 0.08), matCaixilho);
             mc.position.set(jx + janW/2 + 0.025, wallY, janZ + janH/2); raiz.add(mc); estaticos.push(mc); }
         }
       }
     }
 
-    // --- tecto (plano branco a altParede, BackSide) ---
-    const matTectoPl = new T.MeshStandardMaterial({ color: '#f5f2ee', roughness: 0.95, side: T.BackSide });
-    const geoTectoPl = new T.PlaneGeometry(W, H);
-    const mTectoPl = new T.Mesh(geoTectoPl, matTectoPl);
-    mTectoPl.position.set(W / 2, H / 2, altParede);
-    raiz.add(mTectoPl); estaticos.push(mTectoPl);
+    // --- tecto (BoxGeometry fino a altParede) ---
+    // PlaneGeometry+BackSide também produzia chão; Box resolve sem rotation
+    { const m = new T.Mesh(new T.BoxGeometry(W, H, 0.02),
+        new T.MeshStandardMaterial({ color: '#f5f2ee', roughness: 0.95 }));
+      m.position.set(W/2, H/2, altParede); raiz.add(m); estaticos.push(m); }
   }
 
   // objetos (edifícios, móveis, árvores…)
@@ -1248,3 +1242,4 @@ window.M3D = {
 
 window.dispatchEvent(new Event('m3d-pronto'));
 console.log('[mundo3d] carregado — Vida em Moz');
+
