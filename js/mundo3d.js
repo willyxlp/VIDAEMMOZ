@@ -559,7 +559,8 @@ function construir(cena) {
 
   // nevoeiro adaptado ao contexto
   if (dentroAgora) {
-    cena3.fog = new T.Fog(0xbdd5dd, 140, 320);
+    // interior: sem nevoeiro — salas são pequenas e o nevoeiro azulado distorce as cores
+    cena3.fog = null;
   } else {
     cena3.fog = new T.Fog(0x9db8c4, 80, 180);
   }
@@ -673,12 +674,65 @@ function _makeMovel(o) {
   const X = w / 2, Y = d / 2;
   switch (tipo) {
     case 'mesa': {
-      // tampo
-      caixa(0, 0, 0.72, w - 0.1, d - 0.1, 0.06, cor);
-      // pernas
-      const pLeg = 0.08, h = 0.72;
-      [[-X + 0.15, -Y + 0.15], [X - 0.15, -Y + 0.15], [-X + 0.15, Y - 0.15], [X - 0.15, Y - 0.15]].forEach(([lx, ly]) =>
-        caixa(lx, ly, h / 2 - 0.03, pLeg, pLeg, h, _shade(cor, -0.15)));
+      const mvId = mv.id || '';
+      if (mvId === 'int_dj') {
+        // Cabine de DJ: consola larga em L com monitores e mixer
+        const matDj = new T.MeshStandardMaterial({ color: '#1e1e24', roughness: 0.6, metalness: 0.15 });
+        const matLed = new T.MeshStandardMaterial({ color: '#00e5ff', emissive: '#00e5ff', emissiveIntensity: 1.2, roughness: 0.1 });
+        const matEcra = new T.MeshStandardMaterial({ color: '#050a0f', roughness: 0.1, emissive: '#0a2040', emissiveIntensity: 0.5 });
+        // bancada principal
+        caixa(0, 0, 0.44, w - 0.08, d - 0.08, 0.88, '#1e1e24');
+        caixa(0, 0, 0.9, w + 0.04, d + 0.04, 0.06, '#14141a');
+        // mixer central (caixa mais alta)
+        { const mx = new T.Mesh(new T.BoxGeometry(0.6, d - 0.2, 0.22), matDj); mx.position.set(0, 0, 1.0); mx.castShadow = true; g.add(mx); }
+        // ecrã do mixer
+        { const ec = new T.Mesh(new T.BoxGeometry(0.5, 0.06, 0.16), matEcra); ec.position.set(0, -(d/2 - 0.1), 1.1); g.add(ec); }
+        // faders — 4 barrinhas LED
+        for (let f = 0; f < 4; f++) {
+          const fx = -0.22 + f * 0.15;
+          caixa(fx, -(d/2 - 0.08), 0.97, 0.04, 0.04, 0.12, '#888');
+          const led = new T.Mesh(new T.BoxGeometry(0.06, 0.04, 0.03), matLed); led.position.set(fx, -(d/2 - 0.08), 1.04); g.add(led);
+        }
+        // 2 pratos de vinil (CDJs)
+        for (const sx of [-1, 1]) {
+          const disk = new T.Mesh(new T.CylinderGeometry(0.22, 0.22, 0.04, 16), new T.MeshStandardMaterial({ color: '#2a2a2a', roughness: 0.4, metalness: 0.2 }));
+          disk.rotation.x = Math.PI / 2; disk.position.set(sx * (w / 2 - 0.35), 0, 0.97); disk.castShadow = true; g.add(disk);
+          const label = new T.Mesh(new T.CylinderGeometry(0.1, 0.1, 0.045, 12), new T.MeshStandardMaterial({ color: '#d21034' }));
+          label.rotation.x = Math.PI / 2; label.position.set(sx * (w / 2 - 0.35), 0, 0.99); g.add(label);
+        }
+        // 2 monitores de estúdio
+        for (const sx of [-1, 1]) {
+          caixa(sx * (w / 2 - 0.18), -(d/2 - 0.14), 1.22, 0.28, 0.24, 0.36, '#111');
+          const tw = new T.Mesh(new T.CylinderGeometry(0.07, 0.07, 0.04, 10), new T.MeshStandardMaterial({ color: '#888' }));
+          tw.rotation.x = Math.PI / 2; tw.position.set(sx * (w / 2 - 0.18), -(d/2 - 0.26), 1.3); g.add(tw);
+        }
+        // aro LED na frente da bancada
+        { const led = new T.Mesh(new T.BoxGeometry(w - 0.12, 0.03, 0.04), matLed); led.position.set(0, d/2 - 0.02, 0.6); g.add(led); }
+      } else if (mvId === 'int_secretaria' || mvId === 'int_mesa_rest') {
+        // Secretária de escritório com monitor + teclado; mesa de restaurante simples
+        const isEsc = mvId === 'int_secretaria';
+        caixa(0, 0, 0.72, w - 0.1, d - 0.1, 0.05, cor);
+        const pLeg2 = 0.07, hL = 0.72;
+        [[-X + 0.14, -Y + 0.14], [X - 0.14, -Y + 0.14], [-X + 0.14, Y - 0.14], [X - 0.14, Y - 0.14]].forEach(([lx, ly]) =>
+          caixa(lx, ly, hL / 2 - 0.03, pLeg2, pLeg2, hL, _shade(cor, -0.2)));
+        if (isEsc) {
+          // monitor (ecrã fino + base)
+          caixa(X - 0.3, 0, 1.08, 0.04, 0.42, 0.3, '#111');   // ecrã
+          caixa(X - 0.3, 0, 0.78, 0.12, 0.08, 0.06, '#333');   // base
+          caixa(X - 0.3, 0, 0.84, 0.03, 0.03, 0.24, '#555');   // pé
+          // teclado
+          caixa(0, -(Y - 0.2), 0.75, w * 0.55, 0.22, 0.03, '#c8c8c8');
+          // rato
+          const rato = new T.Mesh(new T.SphereGeometry(0.055, 8, 5), new T.MeshStandardMaterial({ color: '#d8d8d8', roughness: 0.6 }));
+          rato.scale.z = 0.6; rato.position.set(-X + 0.5, -(Y - 0.2), 0.75); g.add(rato);
+        }
+      } else {
+        // tampo genérico
+        caixa(0, 0, 0.72, w - 0.1, d - 0.1, 0.06, cor);
+        const pLeg = 0.08, h = 0.72;
+        [[-X + 0.15, -Y + 0.15], [X - 0.15, -Y + 0.15], [-X + 0.15, Y - 0.15], [X - 0.15, Y - 0.15]].forEach(([lx, ly]) =>
+          caixa(lx, ly, h / 2 - 0.03, pLeg, pLeg, h, _shade(cor, -0.15)));
+      }
       break;
     }
     case 'cadeira': {
@@ -707,14 +761,42 @@ function _makeMovel(o) {
       break;
     }
     case 'cama': {
-      // base
-      caixa(0, 0, 0.18, w - 0.08, d - 0.08, 0.36, _shade(cor, -0.2));
-      // colchão
-      caixa(0, 0, 0.42, w - 0.12, d - 0.12, 0.2, '#f0ede6');
-      // almofada
-      caixa(0, -d / 2 + 0.25, 0.56, w * 0.6, 0.35, 0.1, '#ffffffcc');
-      // cabeceira
-      caixa(0, -d / 2 + 0.07, 0.72, w - 0.08, 0.14, 0.72, cor);
+      const isHosp = (mv.id || '').includes('simples') || cor === '#bfe3f2';
+      if (isHosp) {
+        // cama de hospital: estrutura metálica branca, lençol azul claro, grades laterais
+        const matMetal = new T.MeshStandardMaterial({ color: '#d8dde0', roughness: 0.4, metalness: 0.5 });
+        // estrutura
+        caixa(0, 0, 0.3, w - 0.06, d - 0.06, 0.08, '#d8dde0');
+        // pernas metálicas (4)
+        [[-w/2+0.1, -d/2+0.1], [w/2-0.1, -d/2+0.1], [-w/2+0.1, d/2-0.1], [w/2-0.1, d/2-0.1]].forEach(([lx, ly]) => {
+          const p = new T.Mesh(new T.CylinderGeometry(0.025, 0.025, 0.3, 6), matMetal);
+          p.rotation.x = Math.PI / 2; p.position.set(lx, ly, 0.15); g.add(p);
+        });
+        // colchão
+        caixa(0, 0, 0.44, w - 0.1, d - 0.1, 0.16, '#f0f7ff');
+        // lençol
+        caixa(0, d * 0.1, 0.52, w - 0.14, d * 0.72, 0.06, '#bfe3f2');
+        // almofada
+        caixa(0, -d/2 + 0.2, 0.55, w * 0.7, 0.28, 0.08, '#f8f8ff');
+        // grades laterais (barras metálicas)
+        for (const sx of [-1, 1]) {
+          const gr = new T.Mesh(new T.BoxGeometry(0.015, d - 0.3, 0.22), matMetal);
+          gr.position.set(sx * (w/2 - 0.06), 0, 0.52); g.add(gr);
+          for (let b = 0; b < 3; b++) {
+            const bar = new T.Mesh(new T.BoxGeometry(0.015, 0.015, 0.22), matMetal);
+            bar.position.set(sx * (w/2 - 0.06), -d/2 + 0.25 + b * ((d-0.4)/3), 0.52); g.add(bar);
+          }
+        }
+        // cabeceira metálica
+        const cab = new T.Mesh(new T.BoxGeometry(w - 0.08, 0.06, 0.52), matMetal);
+        cab.position.set(0, -d/2 + 0.04, 0.78); g.add(cab);
+      } else {
+        // cama normal
+        caixa(0, 0, 0.18, w - 0.08, d - 0.08, 0.36, _shade(cor, -0.2));
+        caixa(0, 0, 0.42, w - 0.12, d - 0.12, 0.2, '#f0ede6');
+        caixa(0, -d / 2 + 0.25, 0.56, w * 0.6, 0.35, 0.1, '#ffffffcc');
+        caixa(0, -d / 2 + 0.07, 0.72, w - 0.08, 0.14, 0.72, cor);
+      }
       break;
     }
     case 'estante': {
