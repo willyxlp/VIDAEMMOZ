@@ -519,11 +519,7 @@ function construir(cena) {
       }
     }
 
-    // --- tecto (BoxGeometry fino a altParede) ---
-    // PlaneGeometry+BackSide também produzia chão; Box resolve sem rotation
-    { const m = new T.Mesh(new T.BoxGeometry(W, H, 0.02),
-        new T.MeshStandardMaterial({ color: '#f5f2ee', roughness: 0.95 }));
-      m.position.set(W/2, H/2, altParede); raiz.add(m); estaticos.push(m); }
+    // tecto omitido — câmara isométrica vê de cima, tecto taparia toda a vista
   }
 
   // objetos (edifícios, móveis, árvores…)
