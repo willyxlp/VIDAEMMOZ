@@ -214,6 +214,8 @@ function setJogador(j) {
   // mudou de bairro sem viajar (ex.: hospital) → muda de cena
   if (cena && cena.tipo === 'bairro' && cena.id !== J.bairro) irParaBairro(J.bairro, true);
   if (cena && cena.tipo === 'casa' && (cena.casa.bairro !== J.bairro || (cena.dono.id === uid && !J.casa))) irParaBairro(J.bairro, true);
+  // interior: se J.bairro mudou enquanto estava dentro de um edifício, sai e vai para o bairro certo
+  if (cena && cena.tipo === 'interior' && cena.voltar && cena.voltar.bairro !== J.bairro) sairDeCasa();
 }
 
 /* ============================================================

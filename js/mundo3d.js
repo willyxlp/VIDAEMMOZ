@@ -202,9 +202,94 @@ function instanciarRepetidos() {
   repetidos = new Map();
 }
 
-/* ── chão com textura canvas ───────────────────────────────────── */
+/* ── chão interior com textura canvas (tipo string) ──────────────── */
+function texturaChaoInterior(W, H, tipo) {
+  const S = 32;
+  const c = document.createElement('canvas');
+  c.width = W * S; c.height = H * S;
+  const g = c.getContext('2d');
+  const r = () => Math.random();
+
+  if (tipo === 'tijoleira') {
+    // terracotta tile com juntas brancas
+    g.fillStyle = '#c9704a';
+    g.fillRect(0, 0, c.width, c.height);
+    const tW = S * 0.92, tH = S * 0.92;
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const offset = (y % 2 === 0) ? 0 : S / 2;
+      const lum = 0.85 + r() * 0.3;
+      const r_ = Math.min(255, Math.round(201 * lum)), g_ = Math.min(255, Math.round(112 * lum)), b = Math.min(255, Math.round(74 * lum));
+      g.fillStyle = `rgb(${r_},${g_},${b})`;
+      g.fillRect((x * S + offset) % (W * S), y * S, tW, tH);
+    }
+  } else if (tipo === 'madeira') {
+    // tábuas de madeira horizontais
+    for (let y = 0; y < H * 2; y++) {
+      const lum = 0.8 + r() * 0.4;
+      g.fillStyle = `hsl(28,${Math.round(55 + r() * 20)}%,${Math.round(38 * lum)}%)`;
+      g.fillRect(0, y * S / 2, c.width, S / 2 - 1);
+      // veio da madeira
+      for (let v = 0; v < 3; v++) {
+        g.strokeStyle = `rgba(0,0,0,${0.04 + r() * 0.06})`;
+        g.lineWidth = 0.8;
+        g.beginPath(); g.moveTo(r() * c.width, y * S / 2); g.lineTo(r() * c.width, (y + 1) * S / 2); g.stroke();
+      }
+    }
+  } else if (tipo === 'mosaico') {
+    // mosaico cerâmico branco com juntas
+    g.fillStyle = '#d8d4cd';
+    g.fillRect(0, 0, c.width, c.height);
+    const tS = S * 0.46;
+    for (let y = 0; y < H * 2; y++) for (let x = 0; x < W * 2; x++) {
+      const lum = 0.92 + r() * 0.1;
+      g.fillStyle = `hsl(40,10%,${Math.round(88 * lum)}%)`;
+      g.fillRect(x * tS + 1, y * tS + 1, tS - 2, tS - 2);
+    }
+  } else if (tipo === 'alcatifa') {
+    // carpete — textura granulada
+    g.fillStyle = '#8b6a4a';
+    g.fillRect(0, 0, c.width, c.height);
+    for (let i = 0; i < W * H * 60; i++) {
+      const lum = 0.6 + r() * 0.6;
+      g.fillStyle = `rgba(${Math.round(139 * lum)},${Math.round(106 * lum)},${Math.round(74 * lum)},0.4)`;
+      g.fillRect(r() * c.width, r() * c.height, 1.5, 1.5);
+    }
+  } else if (tipo === 'xadrez') {
+    // xadrez preto e branco (discoteca / bar)
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      g.fillStyle = (x + y) % 2 === 0 ? '#1a1a1a' : '#e8e8e8';
+      g.fillRect(x * S, y * S, S, S);
+    }
+  } else if (tipo === 'cimento') {
+    // cimento cinzento (ginásio)
+    g.fillStyle = '#b0b8b8';
+    g.fillRect(0, 0, c.width, c.height);
+    for (let i = 0; i < W * H * 20; i++) {
+      g.fillStyle = `rgba(0,0,0,${0.03 + r() * 0.05})`;
+      g.fillRect(r() * c.width, r() * c.height, 2 + r() * 4, 1 + r() * 2);
+    }
+    // juntas de dilatação
+    for (let y = 1; y < H; y++) { g.strokeStyle = 'rgba(0,0,0,0.12)'; g.lineWidth = 1; g.beginPath(); g.moveTo(0, y * S); g.lineTo(c.width, y * S); g.stroke(); }
+    for (let x = 1; x < W; x++) { g.beginPath(); g.moveTo(x * S, 0); g.lineTo(x * S, c.height); g.stroke(); }
+  } else {
+    // fallback neutro
+    g.fillStyle = '#c8bfb0';
+    g.fillRect(0, 0, c.width, c.height);
+  }
+
+  const tex = new T.CanvasTexture(c);
+  tex.flipY = false; tex.colorSpace = T.SRGBColorSpace; tex.anisotropy = 4;
+  return tex;
+}
+
+/* ── chão com textura canvas (exterior/bairro — array numérico) ─── */
 function texturaChao(cena) {
   const { W, H, chao } = cena;
+  // interior usa tipo string
+  if (cena.tipo === 'interior' || cena.tipo === 'casa') {
+    if (typeof chao === 'string') return texturaChaoInterior(W, H, chao);
+    if (!chao || typeof chao !== 'object' || !chao.length) return texturaChaoInterior(W, H, 'mosaico');
+  }
   if (!chao || !chao.length) return null;
   const S = 24;
   const c = document.createElement('canvas');
@@ -300,6 +385,144 @@ function construir(cena) {
     chaoMesh.position.set(W / 2, H / 2, 0);
     chaoMesh.receiveShadow = true;
     raiz.add(chaoMesh); estaticos.push(chaoMesh);
+  }
+
+  // paredes de interior com dado (wainscot) + janelas + identidade moçambicana
+  if (cena.tipo === 'interior' || cena.tipo === 'casa') {
+    const pCor = cena.parede || '#f3d36b';
+    const dadoCor = _shade(pCor, -0.18);   // zona inferior mais escura
+    const trim = _shade(pCor, 0.12);        // friso de topo mais claro
+    const altParede = 2.6;
+    const altDado = 0.72;   // wainscot vai até 0.72 m
+    const espessura = 0.07;
+
+    // textura de tinta para a parede superior (canvas 2×2)
+    function _texParede(cor, larg, alt) {
+      const sc = 48;
+      const cv = document.createElement('canvas'); cv.width = Math.round(larg * sc); cv.height = Math.round(alt * sc);
+      const gx = cv.getContext('2d');
+      gx.fillStyle = cor; gx.fillRect(0, 0, cv.width, cv.height);
+      // variação subtil de tinta (pinceladas)
+      for (let i = 0; i < 120; i++) {
+        const alpha = 0.015 + Math.random() * 0.025;
+        gx.fillStyle = `rgba(255,255,255,${alpha})`;
+        gx.fillRect(Math.random() * cv.width, Math.random() * cv.height, 2 + Math.random() * 60, 1 + Math.random() * 3);
+      }
+      const t = new T.CanvasTexture(cv); t.colorSpace = T.SRGBColorSpace; t.wrapS = t.wrapT = T.RepeatWrapping; return t;
+    }
+
+    // capulana moçambicana no friso inferior — padrão geométrico azul/vermelho/verde
+    function _texCapulana(larg) {
+      const sc = 32, rep = Math.max(1, Math.round(larg));
+      const cv = document.createElement('canvas'); cv.width = rep * sc; cv.height = sc;
+      const gx = cv.getContext('2d');
+      // bandas de fundo (cores da bandeira moçambicana: verde, preto, amarelo, vermelho)
+      const mzCores = ['#009a44', '#000000', '#ffd100', '#d21034'];
+      for (let i = 0; i < rep; i++) {
+        const faixaW = sc / 4;
+        mzCores.forEach((c, ci) => { gx.fillStyle = c; gx.fillRect(i * sc + ci * faixaW, 0, faixaW, sc); });
+        // triângulo da bandeira (estrela/faixa branca)
+        gx.fillStyle = 'rgba(255,255,255,0.7)';
+        gx.beginPath(); gx.moveTo(i * sc, 0); gx.lineTo(i * sc + sc * 0.28, sc / 2); gx.lineTo(i * sc, sc); gx.closePath(); gx.fill();
+        // losangos geométricos capulana
+        gx.strokeStyle = 'rgba(255,255,255,0.5)'; gx.lineWidth = 1.2;
+        for (let d = 0; d < 3; d++) {
+          const dx = i * sc + sc * 0.35 + d * sc * 0.22, dy = sc / 2, ds = sc * 0.09;
+          gx.beginPath(); gx.moveTo(dx, dy - ds); gx.lineTo(dx + ds, dy); gx.lineTo(dx, dy + ds); gx.lineTo(dx - ds, dy); gx.closePath(); gx.stroke();
+        }
+      }
+      const t = new T.CanvasTexture(cv); t.colorSpace = T.SRGBColorSpace; t.wrapS = T.RepeatWrapping; return t;
+    }
+
+    // 4 paredes: Sul (y=0), Norte (y=H), Oeste (x=0), Este (x=W)
+    const paredes = [
+      { eixo: 'x', pos: [W / 2, 0, 0], rot: [Math.PI / 2, 0, 0], larg: W, flip: false },   // sul
+      { eixo: 'x', pos: [W / 2, H, 0], rot: [-Math.PI / 2, 0, 0], larg: W, flip: true },    // norte
+      { eixo: 'y', pos: [0, H / 2, 0], rot: [Math.PI / 2, 0, Math.PI / 2], larg: H, flip: false },  // oeste
+      { eixo: 'y', pos: [W, H / 2, 0], rot: [Math.PI / 2, 0, -Math.PI / 2], larg: H, flip: true },  // este
+    ];
+
+    for (const pw of paredes) {
+      const L = pw.larg;
+
+      // --- zona superior (cima do dado até tecto) ---
+      const hSup = altParede - altDado;
+      const texSup = _texParede(pCor, L, hSup);
+      const matSup = new T.MeshStandardMaterial({ map: texSup, roughness: 0.9 });
+      const geoSup = new T.PlaneGeometry(L, hSup);
+      const mSup = new T.Mesh(geoSup, matSup);
+      mSup.receiveShadow = true;
+      // posicionar: centro em zMid = altDado + hSup/2
+      const zMid = altDado + hSup / 2;
+      mSup.position.set(...pw.pos); mSup.position.z = zMid;
+      mSup.rotation.set(...pw.rot);
+      raiz.add(mSup); estaticos.push(mSup);
+
+      // --- dado / wainscot (zona inferior) ---
+      const texDado = _texCapulana(L);
+      const matDado = new T.MeshStandardMaterial({ map: texDado, roughness: 0.75 });
+      const geoDado = new T.PlaneGeometry(L, altDado);
+      const mDado = new T.Mesh(geoDado, matDado);
+      mDado.receiveShadow = true;
+      mDado.position.set(...pw.pos); mDado.position.z = altDado / 2;
+      mDado.rotation.set(...pw.rot);
+      raiz.add(mDado); estaticos.push(mDado);
+
+      // --- friso de separação dado/parede ---
+      const matFriso = new T.MeshStandardMaterial({ color: trim, roughness: 0.6 });
+      const geoFriso = new T.BoxGeometry(L + 0.02, espessura, 0.06);
+      const mFriso = new T.Mesh(geoFriso, matFriso);
+      mFriso.position.set(...pw.pos); mFriso.position.z = altDado + 0.03;
+      mFriso.rotation.set(...pw.rot);
+      mFriso.castShadow = true; mFriso.receiveShadow = true;
+      raiz.add(mFriso); estaticos.push(mFriso);
+
+      // --- friso de tecto ---
+      const matTecto = new T.MeshStandardMaterial({ color: '#f5f2ee', roughness: 0.8 });
+      const geoTecto = new T.BoxGeometry(L + 0.02, espessura, 0.08);
+      const mTecto = new T.Mesh(geoTecto, matTecto);
+      mTecto.position.set(...pw.pos); mTecto.position.z = altParede - 0.04;
+      mTecto.rotation.set(...pw.rot);
+      mTecto.castShadow = true; mTecto.receiveShadow = true;
+      raiz.add(mTecto); estaticos.push(mTecto);
+
+      // --- janelas na parede Sul e Norte (apenas se a sala for larga o suficiente) ---
+      if ((pw.eixo === 'x') && L >= 4) {
+        const nJan = Math.min(3, Math.floor(L / 3));
+        const janW = 0.9, janH = 0.75, janZ = altDado + 0.3;
+        const passo = L / (nJan + 1);
+        const matVidroJan = new T.MeshStandardMaterial({ color: '#aad8f0', roughness: 0.05, metalness: 0.1, transparent: true, opacity: 0.55 });
+        const matCaixilho = new T.MeshStandardMaterial({ color: '#fffde0', roughness: 0.6 });
+        for (let j = 0; j < nJan; j++) {
+          const jx = -L / 2 + passo * (j + 1);
+          // vidro
+          const geoVid = new T.PlaneGeometry(janW, janH);
+          const mVid = new T.Mesh(geoVid, matVidroJan);
+          mVid.position.set(...pw.pos); mVid.position.z = janZ + janH / 2;
+          if (pw.eixo === 'x') mVid.position.x += jx;
+          mVid.rotation.set(...pw.rot);
+          raiz.add(mVid); estaticos.push(mVid);
+          // caixilho (4 barras finas)
+          [[janW + 0.06, 0.05, janZ + janH / 2, jx], [janW + 0.06, 0.05, janZ + janH - 0.025, jx],
+           [0.05, janH + 0.06, janZ + janH / 2, jx - janW / 2], [0.05, janH + 0.06, janZ + janH / 2, jx + janW / 2]
+          ].forEach(([bw, bh, bz, bx]) => {
+            const geoCx = new T.BoxGeometry(bw, espessura * 0.6, bh);
+            const mCx = new T.Mesh(geoCx, matCaixilho);
+            mCx.position.set(...pw.pos); mCx.position.z = bz;
+            if (pw.eixo === 'x') mCx.position.x += bx;
+            mCx.rotation.set(...pw.rot);
+            raiz.add(mCx); estaticos.push(mCx);
+          });
+        }
+      }
+    }
+
+    // --- tecto (plano branco a altParede) ---
+    const matTectoPl = new T.MeshStandardMaterial({ color: '#f5f2ee', roughness: 0.95, side: T.BackSide });
+    const geoTectoPl = new T.PlaneGeometry(W, H);
+    const mTectoPl = new T.Mesh(geoTectoPl, matTectoPl);
+    mTectoPl.position.set(W / 2, H / 2, altParede);
+    raiz.add(mTectoPl); estaticos.push(mTectoPl);
   }
 
   // objetos (edifícios, móveis, árvores…)
@@ -596,7 +819,31 @@ function _makeMovel(o) {
     }
     case 'quadro': {
       caixa(0, -0.05, 0.9, w - 0.1, 0.06, d - 0.1, '#5a3a22');  // moldura
-      const matQuadro = new T.MeshStandardMaterial({ color: '#d4a853', roughness: 0.5, emissive: 0xc09030, emissiveIntensity: 0.05 });
+      // arte moçambicana — capulana geométrica ou bandeira
+      const _cvQ = document.createElement('canvas'); _cvQ.width = 128; _cvQ.height = 128;
+      const _gQ = _cvQ.getContext('2d');
+      // fundo bandeira MZ: verde, preto, amarelo, vermelho
+      _gQ.fillStyle = '#009a44'; _gQ.fillRect(0, 0, 128, 51);
+      _gQ.fillStyle = '#000000'; _gQ.fillRect(0, 51, 128, 26);
+      _gQ.fillStyle = '#d21034'; _gQ.fillRect(0, 77, 128, 51);
+      _gQ.fillStyle = '#ffd100'; _gQ.strokeStyle = '#ffd100'; _gQ.lineWidth = 3;
+      _gQ.beginPath(); _gQ.moveTo(0, 0); _gQ.lineTo(0, 128); _gQ.lineTo(50, 64); _gQ.closePath(); _gQ.fill();
+      // estrela AK+livro — simplificado como estrela de 5 pontas
+      _gQ.fillStyle = '#000000';
+      _gQ.save(); _gQ.translate(18, 64); _gQ.rotate(-Math.PI / 10);
+      for (let si = 0; si < 5; si++) {
+        _gQ.rotate((Math.PI * 2) / 5);
+        _gQ.beginPath(); _gQ.moveTo(0, -11); _gQ.lineTo(2.5, -4); _gQ.lineTo(10, -4); _gQ.lineTo(4, 1); _gQ.lineTo(6.5, 8);
+        _gQ.lineTo(0, 4); _gQ.lineTo(-6.5, 8); _gQ.lineTo(-4, 1); _gQ.lineTo(-10, -4); _gQ.lineTo(-2.5, -4); _gQ.closePath(); _gQ.fill();
+      }
+      _gQ.restore();
+      // losangos capulana no lado direito
+      _gQ.strokeStyle = 'rgba(255,215,0,0.7)'; _gQ.lineWidth = 2;
+      [[80, 40], [100, 64], [80, 88], [60, 64]].forEach(([cx, cy]) => {
+        _gQ.beginPath(); _gQ.moveTo(cx, cy - 20); _gQ.lineTo(cx + 20, cy); _gQ.lineTo(cx, cy + 20); _gQ.lineTo(cx - 20, cy); _gQ.closePath(); _gQ.stroke();
+      });
+      const _texQ = new T.CanvasTexture(_cvQ); _texQ.colorSpace = T.SRGBColorSpace;
+      const matQuadro = new T.MeshStandardMaterial({ map: _texQ, roughness: 0.5 });
       const q = new T.Mesh(new T.BoxGeometry(w - 0.18, 0.04, d - 0.18), matQuadro);
       q.position.set(0, -0.06, 0.9); g.add(q);
       break;
@@ -608,6 +855,30 @@ function _makeMovel(o) {
       ab.rotation.x = Math.PI / 2; ab.position.set(0, 0, 1.3); g.add(ab);
       const bulb = new T.Mesh(new T.SphereGeometry(0.06, 6, 5), new T.MeshStandardMaterial({ color: 0xfffde0, emissive: 0xffee88, emissiveIntensity: 1.5 }));
       bulb.position.set(0, 0, 1.3); g.add(bulb);
+      break;
+    }
+    case 'planta': {
+      // vaso de terracotta + folhagem — estilo Moçambique: planta tropical
+      const corVaso = cor || '#a0522d';
+      // vaso (cone truncado)
+      const vaso = new T.Mesh(new T.CylinderGeometry(0.17, 0.12, 0.28, 10), mat(corVaso));
+      vaso.rotation.x = Math.PI / 2; vaso.position.set(0, 0, 0.14); vaso.castShadow = true; g.add(vaso);
+      // terra no topo do vaso
+      const terra = new T.Mesh(new T.CylinderGeometry(0.17, 0.17, 0.04, 10), mat('#4a3220'));
+      terra.rotation.x = Math.PI / 2; terra.position.set(0, 0, 0.3); g.add(terra);
+      // caule
+      const caule = new T.Mesh(new T.CylinderGeometry(0.025, 0.035, 0.45, 6), mat('#2d5a1b'));
+      caule.rotation.x = Math.PI / 2; caule.position.set(0, 0, 0.55); caule.castShadow = true; g.add(caule);
+      // folhagem principal (esfera achatada)
+      const folhaCor = mv.cor2 || '#2f8f5b';
+      const folha1 = new T.Mesh(new T.SphereGeometry(0.3, 8, 6), new T.MeshStandardMaterial({ color: folhaCor, roughness: 0.9 }));
+      folha1.scale.z = 0.72; folha1.position.set(0, 0, 0.9); folha1.castShadow = true; g.add(folha1);
+      // folhas laterais para dar volume tropical
+      const folhaLat = new T.Mesh(new T.SphereGeometry(0.18, 6, 5), new T.MeshStandardMaterial({ color: _shade(folhaCor, 0.08), roughness: 0.9 }));
+      folhaLat.scale.set(1.2, 0.8, 0.5);
+      [[-0.22, 0, 0.78], [0.22, 0, 0.78], [0, -0.2, 0.84], [0, 0.2, 0.84]].forEach(([fx, fy, fz]) => {
+        const f = folhaLat.clone(); f.position.set(fx, fy, fz); g.add(f);
+      });
       break;
     }
     default: {
