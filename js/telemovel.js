@@ -143,7 +143,7 @@ async function renderTempo(body) {
   body.innerHTML = `<div class="rel" style="margin-top:0;text-align:center;padding:18px">
       <div style="font-size:56px;line-height:1">${aqui ? ver(aqui)[0] : '…'}</div>
       <div style="font-weight:800;font-size:20px;margin-top:6px">${aqui ? ver(aqui)[1] : ''}</div>${(() => { const j = J && janelaChuva(regiaoDe(J.bairro)); return j ? `<div class="m">${esc((climaHoje.regioes[regiaoDe(J.bairro)] === 'tempestade' ? tr('Tempestade das {0}h às {1}h') : tr('Chuva das {0}h às {1}h')).replace('{0}', j[0]).replace('{1}', j[1]))}</div>` : ''; })()}
-      <div class="m" style="color:var(--muted)">${esc(bairro(J.bairro)?.nome || '')} · ${String(Math.floor(horaLuanda())).padStart(2, '0')}:${String(Math.floor(horaLuanda() % 1 * 60)).padStart(2, '0')} · ${noite ? 'noite' : 'dia'}</div></div>
+      <div class="m" style="color:var(--muted)">${esc(bairro(J.bairro)?.nome || '')} · ${String(Math.floor(horaMaputo())).padStart(2, '0')}:${String(Math.floor(horaMaputo() % 1 * 60)).padStart(2, '0')} · ${noite ? 'noite' : 'dia'}</div></div>
     <p class="m" style="margin-top:12px">${climaHoje?.epoca === 'chuvas' ? '🌧️ Época das chuvas (outubro a abril): cuidado com as tempestades, as estradas e as inundações. Boa altura para as lavras.' : '🌫️ Cacimbo (maio a setembro): céu cinzento, noites frescas, quase sem chuva. Rega as lavras!'}</p>
     <div class="list">${Object.entries(nomes).filter(([k]) => r[k]).map(([k, n]) => { const t = tempoEm(k), j = janelaChuva(k);
       const quando = j ? (r[k] === 'tempestade' ? tr('Tempestade das {0}h às {1}h') : tr('Chuva das {0}h às {1}h')).replace('{0}', j[0]).replace('{1}', j[1]) : '';

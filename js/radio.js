@@ -53,8 +53,8 @@ function batida(est) {
   const agendar = () => { while (prox < ac.currentTime + 0.25) { tocarPasso(prox, k, Math.floor(k / 16)); prox += passo; k++; } };
   return {
     ativo: true, get paused() { return ac.state !== 'running'; },
-    play() { ac.resume(); if (!tid) { prox = ac.currentTime + 0.08; tid = setInterval(agendar, 60); } miniRadio(); return Promise.resolve(); },
-    pause() { clearInterval(tid); tid = null; ac.suspend(); miniRadio(); },
+    play() { ac.resume(); if (!tid) { prox = ac.currentTime + 0.08; tid = setInterval(agendar, 60); } miniRadio(); document.dispatchEvent(new Event('radiostate')); return Promise.resolve(); },
+    pause() { clearInterval(tid); tid = null; ac.suspend(); miniRadio(); document.dispatchEvent(new Event('radiostate')); },
     fechar() { clearInterval(tid); tid = null; this.ativo = false; ac.close().catch(() => { }); },
   };
 }
@@ -81,7 +81,8 @@ function tocarMusica(id, lista) {
   if (!radio.audio) {
     radio.audio = new Audio(); radio.audio.preload = 'none';
     radio.audio.addEventListener('ended', () => proximaMusica());
-    radio.audio.addEventListener('play', miniRadio); radio.audio.addEventListener('pause', miniRadio);
+    const dispRadio = () => { miniRadio(); document.dispatchEvent(new Event('radiostate')); };
+    radio.audio.addEventListener('play', dispRadio); radio.audio.addEventListener('pause', dispRadio);
   }
   const m = radio.lista[radio.i]; if (!m) return;
   radio.audio.src = m.audio;
@@ -159,7 +160,12 @@ function renderRadio(body) {
     <p class="m">Põe a tua música a tocar na Rádio Maputo e nos bares e discotecas do jogo.</p>
     <a class="btn full ghost" href="mailto:${CONTACTO_MUSICA}?subject=${encodeURIComponent('Promover música no Vida em Moz')}">Quero promover a minha música</a>`;
   const atualizar = () => { if (telSub === 'radio' && body.isConnected) renderRadio(body); };
+  // escutar estado do audio real e das estações sintéticas (CustomEvent 'radiostate')
   if (radio.audio) { radio.audio.onplay = atualizar; radio.audio.onpause = atualizar; }
+  const onRadioState = () => atualizar();
+  document.addEventListener('radiostate', onRadioState);
+  // limpar listener quando o body sair do DOM
+  new MutationObserver((_, obs) => { if (!body.isConnected) { document.removeEventListener('radiostate', onRadioState); obs.disconnect(); } }).observe(document.body, { childList: true, subtree: true });
   body.querySelectorAll('[data-musica]').forEach(b => b.addEventListener('click', () => setTimeout(atualizar, 120)));
 }
 
