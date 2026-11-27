@@ -785,7 +785,7 @@ async function blocoSugar(body) {
 
 /* ---------- 🔎 procurar pessoas pelo nome ---------- */
 function procurarHTML() {
-  return `<div class="procurar" style="margin-bottom:10px"><input class="inp" id="pqNome" type="search" placeholder="Procurar pelo nome ou email…" autocomplete="off" style="margin:0" maxlength="80"><div id="pqRes"></div></div>`;
+  return `<div class="procurar" style="margin-bottom:10px"><input class="inp" id="pqNome" type="search" placeholder="Procurar pelo nome, @ ou email…" autocomplete="off" style="margin:0" maxlength="80"><div id="pqRes"></div></div>`;
 }
 function ligarProcurar(raiz, extra) {
   const inp = raiz.querySelector('#pqNome'), res = raiz.querySelector('#pqRes'); if (!inp) return;
@@ -793,17 +793,17 @@ function ligarProcurar(raiz, extra) {
   inp.oninput = () => { clearTimeout(t); t = setTimeout(async () => {
     const bruto = inp.value.trim(), meu = ++seq;
     // email: não se procura (não revelamos quem tem conta) — envia-se um pedido de amizade "às cegas"
-    if (bruto.includes('@')) {
+    if (/\S@\S/.test(bruto)) {
       res.innerHTML = `<div class="list" style="margin-top:6px"><div class="row"><span class="e">📨</span><div class="t"><b>Pedir amizade por email</b><small>Por privacidade não mostramos se o email tem conta: se tiver, a pessoa recebe o teu pedido.</small></div><button class="btn sm" id="pqEmail">Enviar</button></div></div>`;
       res.querySelector('#pqEmail').onclick = async () => { const { data, error } = await sb.rpc('pedir_amizade_email', { p_email: bruto }); if (error) return toast(limparErro(error.message), 'mau'); toast(data.msg, 'info', 6000); inp.value = ''; res.innerHTML = ''; };
       return;
     }
     const q = bruto.replace(/[%_,()\\]/g, '').slice(0, 20);
     if (q.length < 2) { res.innerHTML = ''; return; }
-    const { data } = await sb.from('jogadores').select('id,nome,bairro,aparencia').ilike('nome', q + '%').neq('id', uid).order('nome').limit(8);
+    const { data } = await sb.from('jogadores').select('id,nome,handle,bairro,aparencia').or('nome.ilike.' + q.replace(/^@/, '') + '%,handle.ilike.' + q.replace(/^@/, '') + '%').neq('id', uid).order('nome').limit(8);
     if (meu !== seq) return;
     const lista = (data || []).filter(x => !bloqueados.has(x.id));
-    res.innerHTML = lista.length ? `<div class="list" style="margin-top:6px">${lista.map(x => `<div class="row"><div class="t"><b data-sem-traducao>${esc(x.nome)}</b><small>${esc(bairro(x.bairro)?.nome || '')}</small></div>
+    res.innerHTML = lista.length ? `<div class="list" style="margin-top:6px">${lista.map(x => `<div class="row"><div class="t"><b data-sem-traducao>${esc(x.nome)}</b><small>${x.handle ? '@' + esc(x.handle) + ' · ' : ''}${esc(bairro(x.bairro)?.nome || '')}</small></div>
       ${extra ? extra(x) : ''}<button class="btn sm ghost" data-amz="${x.id}" title="Pedir amizade">🤝</button><button class="btn sm ghost" data-pq="${x.id}">Ver</button></div>`).join('')}</div>` : '<div class="empty">Ninguém com esse nome.</div>';
     res.querySelectorAll('[data-amz]').forEach(b => b.onclick = async () => { b.disabled = true; if (!await acao('pedir', { p_alvo: b.dataset.amz, p_tipo: 'amizade' })) b.disabled = false; });
     res.querySelectorAll('[data-pq]').forEach(b => b.onclick = () => { const x = lista.find(y => y.id === b.dataset.pq); tocarPessoa({ id: x.id, nome: x.nome, ap: x.aparencia }); });

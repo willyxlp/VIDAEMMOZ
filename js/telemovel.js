@@ -6,7 +6,7 @@
 let telAberto = false;
 const APPS = [
   { id: 'objetivos', ic: 'objetivos', tom: 'g', n: 'Objetivos', e: '⭐', c: ['#ffd56b', '#e08a1c'] },
-  { id: 'muxima', ic: 'muxima', tom: 'r', n: 'Muxima', e: '💛', c: ['#ff9ad5', '#a03fd0'] },
+  { id: 'muxima', ic: 'muxima', tom: 'r', n: 'Mbilu', e: '💛', c: ['#ff9ad5', '#a03fd0'] },
   { id: 'jornal', ic: 'jornal', tom: 'k', n: 'Jornal', e: '📰', c: ['#efe6cf', '#7a6a48'] },
   { id: 'eu', ic: 'eu', tom: 'k', n: 'Perfil', e: '👤', c: ['#6f8cff', '#3b4fb0'] },
   { id: 'social', ic: 'social', tom: 'r', n: 'Social', e: '💞', c: ['#ff7aa8', '#c7306b'] },

@@ -157,7 +157,7 @@ function ui2Perfil(body) {
   lista.before(sec('Definições'));
 }
 
-/* ================= grupo 2 (dono 8 nov 12:47 «yes»): Social, Mensagens, Família, Muxima, Grupos ================= */
+/* ================= grupo 2 (dono 8 nov 12:47 «yes»): Social, Mensagens, Família, Mbilu, Grupos ================= */
 const _ui2Retratos = new Map();
 function ui2Retrato(j) {
   const ap = typeof apVisivel === 'function' ? apVisivel(j.aparencia || {}, j.idade ?? idadeDe(j)) : (j.aparencia || {});
@@ -241,7 +241,7 @@ function ui2Grupos(body, gs, fundou, formHTML, aoFundar) {
   ui2Como(body, 'Como funcionam os grupos');
 }
 
-// 📸 Muxima (e onde houver o compositor): fechado numa linha; abre ao tocar
+// 📸 Mbilu (e onde houver o compositor): fechado numa linha; abre ao tocar
 document.addEventListener('focusin', e => { if (e.target?.id === 'mTxt' && e.target.closest('.ui2')) e.target.closest('.compor')?.classList.add('aberto'); });
 
 /* ================= grupo 3 (dono 8 nov 14:03 «yes / do that»): Objetivos, Notícias, Jornal, Canal, Ricos, Tempo ================= */
@@ -339,7 +339,7 @@ function ui2Jornal(body, noticias, coroas, virais) {
     const agora = COROAS.map(([t, e, nome]) => { const l = (coroas?.agora || {})[t] || []; return l.length ? `<div class="nota"><span>${e}</span><div><b>${nome}</b><small>${l.map((p, i) => `${i + 1}. ${esc(p.nome)} — ${t === 'rico' ? fmtMt(p.valor) : fmtN(p.valor)}`).join(' · ')}</small></div></div>` : ''; }).join('');
     h = voltar('Esta semana') + (agora || `<div class="empty">${esc(tr('Ainda ninguém pontuou esta semana.'))}</div>`) + `<p class="m">${esc(tr('Fecha domingo à meia-noite. Quem ganhar leva a coroa e +5 de reputação.'))}</p>`;
   } else if (jornalSec === 'fofocas') {
-    h = voltar('Fofocas') + (virais.length ? `<div class="sub2">🔥 ${esc(tr('Viral no Muxima'))}</div>${virais.map(p => `<div class="row"><span class="e">${p.foto || '🔥'}</span><div class="t"><b>"${esc(p.texto.slice(0, 70))}"</b><small>${esc(p.nome)} · ${fmtN(gostosDe(p))} gostos</small></div></div>`).join('')}<div class="sub2">${esc(tr('Últimas'))}</div>` : '')
+    h = voltar('Fofocas') + (virais.length ? `<div class="sub2">🔥 ${esc(tr('Viral no Mbilu'))}</div>${virais.map(p => `<div class="row"><span class="e">${p.foto || '🔥'}</span><div class="t"><b>"${esc(p.texto.slice(0, 70))}"</b><small>${esc(p.nome)} · ${fmtN(gostosDe(p))} gostos</small></div></div>`).join('')}<div class="sub2">${esc(tr('Últimas'))}</div>` : '')
       + (noticias.length ? noticias.map(nota).join('') : `<div class="empty">${esc(tr('Dia calmo em Maputo. Nada a reportar.'))}</div>`);
   } else {
     const fof24 = noticias.filter(n => Date.now() - new Date(n.criado_em) < 864e5).length;
