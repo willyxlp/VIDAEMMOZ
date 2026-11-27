@@ -317,7 +317,7 @@ const BAIRROS_MAPA = {
     lotes: [
       { s: 0, nome: 'Mercado de Polana Caniço', emoji: '🧺', w: 5, d: 4, h: 18, cor: '#f07c2a', telhado: 'zinco', toldo: '#2f8f5b', acao: [{ t: 'lazer', id: 'mercado' }, { t: 'comida', ids: CANTINA }, { t: 'emprego', id: 'vendedor_mercado' }] },
       { s: 1, nome: 'Terminal de Chapas', emoji: '🚐', w: 3, d: 4, h: 22, cor: '#3d7cc9', telhado: 'zinco', acao: [{ t: 'emprego', id: 'motorista_chapa' }, { t: 'emprego', id: 'cobrador_chapa' }] },
-      { s: 2, nome: 'Quintal', emoji: '🛖', w: 4, d: 4, h: 24, cor: '#d9cbb0', telhado: 'zinco', acao: [{ t: 'casa', id: 'quintal_polana' }] },
+      { s: 2, nome: 'Quintal', emoji: '🛖', w: 4, d: 4, h: 24, cor: '#d9cbb0', telhado: 'zinco', acao: [{ t: 'casa', id: 'quarto_polana_canico' }, { t: 'casa', id: 'quintal_polana' }] },
       { s: 3, nome: 'Campo de Futebol', emoji: '⚽', w: 4, d: 3, h: 5, cor: '#4f9a3c', telhado: 'plano', acao: [{ t: 'grupos', tipo: 'clube' }] },
       { s: 4, nome: 'Igreja', emoji: '⛪', w: 4, d: 4, h: 46, cor: '#f2efe8', telhado: 'telha', acao: [{ t: 'grupos', tipo: 'igreja' }] },
       { s: 5, nome: 'Centro de Saúde', emoji: '🏥', w: 3, d: 4, h: 30, cor: '#f2f2f2', telhado: 'plano', toldo: '#2f8f5b', acao: [{ t: 'saude', txt: 'Centro de saúde público e farmácia.' }] },
@@ -331,7 +331,7 @@ const BAIRROS_MAPA = {
     lotes: [
       { s: 0, nome: 'Mercado do Maxaquene', emoji: '🧺', w: 5, d: 4, h: 18, cor: '#f07c2a', telhado: 'zinco', toldo: '#2f8f5b', acao: [{ t: 'lazer', id: 'mercado' }, { t: 'comida', ids: CANTINA }] },
       { s: 1, nome: 'Paragem dos Chapas', emoji: '🚐', w: 3, d: 4, h: 22, cor: '#3d7cc9', telhado: 'zinco', acao: [{ t: 'emprego', id: 'motorista_chapa' }, { t: 'emprego', id: 'cobrador_chapa' }] },
-      { s: 2, nome: 'Casas de Madeira e Zinco', emoji: '🛖', w: 4, d: 4, h: 24, cor: '#c9b89a', telhado: 'zinco', acao: [{ t: 'casa', id: 'quintal_polana' }] },
+      { s: 2, nome: 'Casas de Madeira e Zinco', emoji: '🛖', w: 4, d: 4, h: 24, cor: '#c9b89a', telhado: 'zinco', acao: [{ t: 'casa', id: 'barraca_maxaquene' }, { t: 'casa', id: 'casa_bloco_maxaquene' }] },
       { s: 4, nome: 'Igreja Assembleias de Deus', emoji: '⛪', w: 4, d: 4, h: 46, cor: '#f2efe8', telhado: 'telha', acao: [{ t: 'grupos', tipo: 'igreja' }] },
       { s: 5, nome: 'Farmácia Maxaquene', emoji: '💊', w: 3, d: 4, h: 28, cor: '#d4efd4', telhado: 'plano', toldo: '#2f8f5b', acao: [{ t: 'saude', txt: 'Farmácia e pequeno consultório.' }] },
       { s: 6, nome: 'Cantina da Fatima', emoji: '🍲', w: 4, d: 3, h: 24, cor: '#e8c547', telhado: 'zinco', toldo: '#e0313f', acao: [{ t: 'comida', ids: CANTINA }, { t: 'lazer', id: 'bola' }] },
@@ -350,6 +350,7 @@ const BAIRROS_MAPA = {
       { s: 6, nome: 'Pastelaria Rosa', emoji: '☕', w: 3, d: 3, h: 24, cor: '#f2c6a0', telhado: 'plano', toldo: '#e86aa6', acao: [{ t: 'comida', ids: CANTINA }] },
       { s: 10, nome: 'Universidade Eduardo Mondlane', emoji: '🎓', w: 5, d: 4, h: 48, cor: '#e9dcc4', telhado: 'plano', toldo: '#8a1c2b', acao: [{ t: 'univ', id: 'uem' }] },
       { s: 8, nome: 'Tribunal Judicial', emoji: '⚖️', w: 4, d: 4, h: 46, cor: '#d8d0c0', telhado: 'plano', acao: [{ t: 'info', txt: 'Onde se decide quem tem razão — e quem paga.' }, { t: 'governo' }, { t: 'emprego', id: 'advogado' }] },
+      { s: 7, nome: 'Prédio de Apartamentos', emoji: '🏢', w: 4, d: 4, h: 56, cor: '#e8dcc0', telhado: 'plano', toldo: '#8a1c2b', acao: [{ t: 'casa', id: 'apartamento_baixa' }] },
     ]
   },
   sommerschield: {
@@ -357,7 +358,7 @@ const BAIRROS_MAPA = {
     lotes: [
       { s: 0, nome: 'Restaurante Polana', emoji: '🍽️', w: 4, d: 3, h: 28, cor: '#1f1f1f', telhado: 'plano', toldo: '#d4af37', acao: [{ t: 'comida', ids: ['massala', 'galinha_caril', 'frango_grelhado', ...CANTINA] }] },
       { s: 1, nome: 'Embaixada', emoji: '🏛️', w: 3, d: 4, h: 44, cor: '#e8dcc0', telhado: 'plano', toldo: '#c0392b', acao: [{ t: 'info', txt: 'Bandeiras internacionais, seguranças na porta e limusines.' }] },
-      { s: 2, nome: 'Condomínio Sommerschield', emoji: '🏡', w: 5, d: 4, h: 34, cor: '#f5f1e8', telhado: 'telha', acao: [{ t: 'casa', id: 'vivenda_talatona' }, { t: 'emprego', id: 'seguranca' }] },
+      { s: 2, nome: 'Condomínio Sommerschield', emoji: '🏡', w: 5, d: 4, h: 34, cor: '#f5f1e8', telhado: 'telha', acao: [{ t: 'casa', id: 'vivenda_sommerschield' }, { t: 'casa', id: 'flat_sommerschield' }, { t: 'emprego', id: 'seguranca' }] },
       { s: 3, nome: 'Ginásio', emoji: '🏋️', w: 3, d: 4, h: 36, cor: '#1f1f1f', telhado: 'plano', toldo: '#e0313f', acao: [{ t: 'treino', onde: 'ginasio' }] },
       { s: 4, nome: 'Boutique Luxo', emoji: '👗', w: 4, d: 4, h: 34, cor: '#1f1f1f', telhado: 'plano', toldo: '#d4af37', acao: [{ t: 'itens', cats: ['moda', 'telemovel'] }, { t: 'moda' }] },
       { s: 5, nome: 'Clínica Privada', emoji: '🩺', w: 3, d: 5, h: 40, cor: '#f5f8fa', telhado: 'plano', toldo: '#2c6fb0', acao: [{ t: 'saude', txt: 'Clínica privada: rápida, cara e discreta.' }, { t: 'emprego', id: 'medico' }] },
@@ -374,6 +375,7 @@ const BAIRROS_MAPA = {
       { s: 4, nome: 'Ministério da Educação', emoji: '🏛️', w: 4, d: 4, h: 60, cor: '#e8dcc0', telhado: 'plano', toldo: '#c0392b', acao: [{ t: 'governo' }, { t: 'emprego', id: 'professor' }] },
       { s: 5, nome: 'Escola Secundária', emoji: '📚', w: 3, d: 4, h: 32, cor: '#f2f2f2', telhado: 'plano', toldo: '#2c6fb0', acao: [{ t: 'univ', id: 'uem' }, { t: 'emprego', id: 'professor' }] },
       { s: 6, nome: 'Restaurante Típico', emoji: '🍲', w: 4, d: 3, h: 26, cor: '#c47a2c', telhado: 'telha', toldo: '#e0313f', acao: [{ t: 'comida', ids: CANTINA }] },
+      { s: 7, nome: 'Vivendas do Bairro Central', emoji: '🏡', w: 5, d: 4, h: 36, cor: '#f5f1e8', telhado: 'telha', acao: [{ t: 'casa', id: 'vivenda_central' }, { t: 'casa', id: 'penthouse_marginal' }] },
     ]
   },
   costa_do_sol: {
@@ -381,7 +383,7 @@ const BAIRROS_MAPA = {
     lotes: [
       { s: 0, nome: 'Restaurante da Costa do Sol', emoji: '🦐', w: 5, d: 4, h: 28, cor: '#f5b81c', telhado: 'zinco', toldo: '#e0313f', acao: [{ t: 'comida', ids: ['caril_camarao', 'galinha_caril', ...CANTINA] }, { t: 'emprego', id: 'cozinheiro' }] },
       { s: 1, nome: 'Bar da Costa', emoji: '🍺', w: 3, d: 4, h: 22, cor: '#2f8f5b', telhado: 'zinco', toldo: '#f5b81c', acao: [{ t: 'comida', ids: [...BAR, 'amendoim_torr'] }, { t: 'lazer', id: 'praia' }] },
-      { s: 2, nome: 'Casas de Praia', emoji: '🏠', w: 5, d: 4, h: 26, cor: '#d8d0c0', telhado: 'telha', acao: [{ t: 'casa', id: 'apart_novavida' }] },
+      { s: 2, nome: 'Casas de Praia', emoji: '🏠', w: 5, d: 4, h: 26, cor: '#d8d0c0', telhado: 'telha', acao: [{ t: 'casa', id: 'casa_praia_costa_do_sol' }, { t: 'casa', id: 'vivenda_vip_costa_do_sol' }] },
       { s: 4, nome: 'Hotel Cardoso', emoji: '🏨', w: 4, d: 4, h: 70, cor: '#f2efe8', telhado: 'plano', antena: true, acao: [{ t: 'comida', ids: CANTINA }, { t: 'emprego', id: 'rececionista' }] },
       { s: 5, nome: 'Desportos Aquáticos', emoji: '🤿', w: 3, d: 3, h: 12, cor: '#8fc4e8', telhado: 'zinco', toldo: '#2c6fb0', acao: [{ t: 'lazer', id: 'praia' }] },
       { s: 6, nome: 'Mercado de Peixe', emoji: '🐟', w: 4, d: 3, h: 16, cor: '#c0d8f0', telhado: 'zinco', toldo: '#3d7cc9', acao: [{ t: 'comida', ids: CANTINA }, { t: 'emprego', id: 'vendedor_mercado' }] },
@@ -392,7 +394,7 @@ const BAIRROS_MAPA = {
     lotes: [
       { s: 0, nome: 'Machamba Comunitária', emoji: '🌿', w: 5, d: 4, h: 10, cor: '#6f9b4a', telhado: 'plano', acao: [{ t: 'lavras' }] },
       { s: 1, nome: 'Terminal de Chapas', emoji: '🚐', w: 3, d: 4, h: 22, cor: '#3d7cc9', telhado: 'zinco', acao: [{ t: 'emprego', id: 'motorista_chapa' }] },
-      { s: 2, nome: 'Casas de Bloco', emoji: '🏠', w: 4, d: 4, h: 24, cor: '#d8d0c0', telhado: 'zinco', acao: [{ t: 'casa', id: 'quintal_polana' }] },
+      { s: 2, nome: 'Casas de Bloco', emoji: '🏠', w: 4, d: 4, h: 24, cor: '#d8d0c0', telhado: 'zinco', acao: [{ t: 'casa', id: 'casa_magoanine' }] },
       { s: 4, nome: 'Igreja Universal', emoji: '⛪', w: 4, d: 4, h: 44, cor: '#f2efe8', telhado: 'telha', acao: [{ t: 'grupos', tipo: 'igreja' }] },
       { s: 5, nome: 'Centro de Saúde', emoji: '🏥', w: 3, d: 4, h: 30, cor: '#f2f2f2', telhado: 'plano', toldo: '#2f8f5b', acao: [{ t: 'saude', txt: 'Centro de saúde básico.' }, { t: 'emprego', id: 'enfermeiro' }] },
       { s: 6, nome: 'Mercado Local', emoji: '🧺', w: 4, d: 3, h: 18, cor: '#f07c2a', telhado: 'zinco', toldo: '#2f8f5b', acao: [{ t: 'comida', ids: CANTINA }, { t: 'lazer', id: 'mercado' }] },
@@ -409,6 +411,7 @@ const BAIRROS_MAPA = {
       { s: 4, nome: 'Prédios do Governo', emoji: '🏢', w: 4, d: 4, h: 60, cor: '#e8eef5', telhado: 'plano', antena: true, acao: [{ t: 'emprego', id: 'funcionario_pub' }] },
       { s: 6, nome: 'Restaurante Chinês', emoji: '🍜', w: 3, d: 3, h: 24, cor: '#c0392b', telhado: 'plano', toldo: '#d4af37', acao: [{ t: 'comida', ids: CANTINA }] },
       { s: 8, nome: 'Escritório de Advocacia', emoji: '⚖️', w: 4, d: 3, h: 40, cor: '#1d3c5e', telhado: 'plano', acao: [{ t: 'emprego', id: 'advogado' }] },
+      { s: 5, nome: 'Prédios do Alto Maé', emoji: '🏢', w: 4, d: 4, h: 44, cor: '#d8d0c0', telhado: 'plano', toldo: '#2c6fb0', acao: [{ t: 'casa', id: 'apart_alto_mae' }, { t: 'casa', id: 'quarto_alto_mae' }] },
     ]
   },
   catembe: {
@@ -416,7 +419,7 @@ const BAIRROS_MAPA = {
     lotes: [
       { s: 0, nome: 'Terminal do Ferry', emoji: '⛴️', w: 4, d: 4, h: 20, cor: '#3d7cc9', telhado: 'zinco', acao: [{ t: 'info', txt: 'De 20 em 20 minutos, o ferry para Maputo cidade.' }, { t: 'estacao' }] },
       { s: 1, nome: 'Peixaria da Catembe', emoji: '🐟', w: 4, d: 3, h: 18, cor: '#c0d8f0', telhado: 'zinco', toldo: '#3d7cc9', acao: [{ t: 'comida', ids: CANTINA }, { t: 'emprego', id: 'vendedor_mercado' }] },
-      { s: 2, nome: 'Casas de Pescador', emoji: '🛖', w: 4, d: 4, h: 22, cor: '#c9b89a', telhado: 'zinco', acao: [{ t: 'casa', id: 'quintal_polana' }] },
+      { s: 2, nome: 'Casas de Pescador', emoji: '🛖', w: 4, d: 4, h: 22, cor: '#c9b89a', telhado: 'zinco', acao: [{ t: 'casa', id: 'casa_catembe' }] },
       { s: 4, nome: 'Bar Vista Baía', emoji: '🍺', w: 4, d: 3, h: 20, cor: '#2f8f5b', telhado: 'zinco', toldo: '#f5b81c', acao: [{ t: 'comida', ids: [...BAR, 'amendoim_torr'] }, { t: 'lazer', id: 'praia' }] },
       { s: 5, nome: 'Centro de Saúde', emoji: '🏥', w: 3, d: 4, h: 28, cor: '#f2f2f2', telhado: 'plano', toldo: '#2f8f5b', acao: [{ t: 'saude', txt: 'O único centro de saúde da Catembe.' }] },
     ]
@@ -426,7 +429,7 @@ const BAIRROS_MAPA = {
     lotes: [
       { s: 0, nome: 'Mercado do Mussequene', emoji: '🧺', w: 5, d: 4, h: 18, cor: '#f07c2a', telhado: 'zinco', toldo: '#2f8f5b', acao: [{ t: 'lazer', id: 'mercado' }, { t: 'comida', ids: CANTINA }, { t: 'emprego', id: 'vendedor_mercado' }] },
       { s: 1, nome: 'Terminal de Chapas', emoji: '🚐', w: 3, d: 4, h: 22, cor: '#3d7cc9', telhado: 'zinco', acao: [{ t: 'emprego', id: 'cobrador_chapa' }] },
-      { s: 2, nome: 'Quintal Comunitário', emoji: '🛖', w: 4, d: 4, h: 24, cor: '#d9cbb0', telhado: 'zinco', acao: [{ t: 'casa', id: 'quintal_polana' }] },
+      { s: 2, nome: 'Quintal Comunitário', emoji: '🛖', w: 4, d: 4, h: 24, cor: '#d9cbb0', telhado: 'zinco', acao: [{ t: 'casa', id: 'casa_mussequene' }] },
       { s: 3, nome: 'Campo de Terra', emoji: '⚽', w: 4, d: 3, h: 5, cor: '#4f9a3c', telhado: 'plano', acao: [{ t: 'grupos', tipo: 'clube' }] },
       { s: 4, nome: 'Igreja Zion', emoji: '⛪', w: 4, d: 4, h: 46, cor: '#f2efe8', telhado: 'telha', acao: [{ t: 'grupos', tipo: 'igreja' }] },
       { s: 5, nome: 'Posto de Saúde', emoji: '🏥', w: 3, d: 3, h: 24, cor: '#f2f2f2', telhado: 'plano', toldo: '#2f8f5b', acao: [{ t: 'saude', txt: 'Posto básico de saúde.' }] },

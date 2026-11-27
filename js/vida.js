@@ -501,6 +501,7 @@ async function tocarPessoa(p, el) {
       ${(data.maior !== false) === (J.maior !== false) ? botao('sair', '🎉', 'Sair juntos') : ''}${botao('presente', '🎁', 'Presente · 2.000 MT')}${botao('ola', '👋', 'Cumprimentar')}${botao('kumbu', '💸', 'Enviar kumbu')}
       ${c && c.bairro === J.bairro && cena.tipo === 'bairro' ? botao('visitar', '🏠', 'Visitar a casa') : ''}
       ${J.casa && (n >= 40 || r?.familia || rom === 'namoro' || rom === 'casados') ? botao('convidarCasa', '🏡', 'Convidar para a minha casa') : ''}
+      ${J.casa && (r?.familia || rom === 'namoro' || rom === 'casados') ? botao('chamarMorar', '🏠', 'Chamar para morar comigo') : ''}
     </div>
     <div class="sub2">Jogar juntos</div>
     <div class="grelha">${botao('desafioJetski', '🌊', 'Corrida de jet ski')}${botao('desafioKart', '🏎️', 'Corrida de kart')}${botao('ludoAmigos', '🎲', 'Ludo')}</div>
@@ -548,6 +549,7 @@ async function tocarPessoa(p, el) {
   });
   de('ola')?.addEventListener('click', async () => { fecharSheets(); if (cena.tipo === 'casa') { $('#iMsg').value = `Olá ${p.nome}! 👋`; $('#fChat').requestSubmit(); } else await sb.rpc('enviar_mensagem', { p_texto: `Olá ${p.nome}! 👋` }); });
   de('visitar')?.addEventListener('click', () => { fecharSheets(); irParaCasa(data); });
+  de('chamarMorar')?.addEventListener('click', () => confirmar(`Chamar ${esc(p.nome)} para morar contigo? 🏠`, 'A pessoa tem de aceitar. Se aceitar, deixa a casa dela e passa a viver na tua.', 'Chamar', async () => { if (await acao('chamar_morar', { p_alvo: p.id })) fecharSheets(); }));
   de('convidarCasa')?.addEventListener('click', async () => { if (await acao('pedir', { p_alvo: p.id, p_tipo: 'visita' })) fecharSheets(); });
   de('kumbu')?.addEventListener('click', () => abrirTelemovel('kumbu', p.nome));
   de('maior')?.addEventListener('click', pedirMaioridade);

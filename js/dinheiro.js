@@ -58,18 +58,19 @@ async function renderImoveis(body) {
   if (typeof ui2 === 'function' && ui2() && !meus.length) return ui2ImoveisVazio(body);   // 8 nov: redesenho (teste)
   const total = meus.reduce((s, p) => s + precoCasa(p.c), 0);
   const rendas = meus.filter(p => p.inquilino).reduce((s, p) => s + p.renda, 0);
-  body.innerHTML = `<p class="m">Comprar uma casa custa 60 dias de renda — e depois nunca mais pagas renda. As casas que não usas podes arrendar a outros jogadores ou vender.</p>
+  body.innerHTML = `<p class="m">Comprar uma casa custa 60 dias de renda — e depois nunca mais pagas renda. As casas que não usas podes arrendar a outros jogadores (tu defines a renda), a qualquer pessoa (renda fixa mais baixa, sem esperar) ou vender.</p>
     ${meus.length ? `<div class="chips"><span class="chip">🏘️ ${meus.length} imóve${meus.length === 1 ? 'l' : 'is'} · ${fmtMt(total)}</span>${rendas ? `<span class="chip">💵 Recebes ${fmtMt(rendas)}/dia</span>` : ''}</div>` : ''}
     ${meus.length ? meus.map(p => {
       const moro = J.propriedade === p.id;
-      const estado = moro ? '🏠 Moras aqui' : p.inquilino ? `🔑 Arrendada a ${esc(p.inqNome || '?')} · ${fmtMt(p.renda)}/dia` : p.a_venda ? `🪧 À venda por ${fmtMt(p.preco_venda)}` : p.renda ? `🪧 Para arrendar a ${fmtMt(p.renda)}/dia` : '🚪 Vazia';
+      const estado = moro ? '🏠 Moras aqui' : p.npc ? `🧑 Arrendada a qualquer pessoa · ${fmtMt(p.renda)}/dia` : p.inquilino ? `🔑 Arrendada a ${esc(p.inqNome || '?')} · ${fmtMt(p.renda)}/dia` : p.a_venda ? `🪧 À venda por ${fmtMt(p.preco_venda)}` : p.renda ? `🪧 Para arrendar a ${fmtMt(p.renda)}/dia` : '🚪 Vazia';
       return `<div class="rel" data-p="${p.id}"><div class="lbl"><span>${p.c.emoji} ${esc(p.c.nome)}</span><span style="color:var(--dim);font-weight:600">📍 ${esc(bairro(p.bairro)?.nome || '')}</span></div>
         <p class="m" style="margin:6px 0 0">${estado}</p>
         <div class="grelha">
           ${!moro && p.bairro === J.bairro ? `<button data-x="entrar"><span class="e">🚪</span><span>Entrar</span></button>` : ''}
           ${!moro && !p.inquilino ? `<button data-x="morar"><span class="e">🏠</span><span>Morar aqui</span></button>` : ''}
+          ${!moro && !p.inquilino && !p.a_venda && !p.npc ? `<button data-x="npc"><span class="e">🧑</span><span>Arrendar a qualquer pessoa · ${fmtMt(Math.max(Math.floor(p.c.renda * 0.4), 300))}/dia</span></button>` : ''}
           ${!moro && !p.inquilino && !p.a_venda ? `<button data-x="arrendar"><span class="e">🪧</span><span>${p.renda ? 'Mudar a renda' : 'Arrendar a jogadores'}</span></button>` : ''}
-          ${p.renda && !p.inquilino ? `<button data-x="retirar"><span class="e">✋</span><span>Tirar do mercado</span></button>` : ''}
+          ${(p.renda && !p.inquilino) || p.npc ? `<button data-x="retirar"><span class="e">✋</span><span>Tirar do mercado</span></button>` : ''}
           ${!p.a_venda ? `<button data-x="anunciar"><span class="e">💰</span><span>Pôr à venda</span></button>` : `<button data-x="retirar"><span class="e">✋</span><span>Tirar de venda</span></button>`}
           <button data-x="vender" class="perigo"><span class="e">🏢</span><span>Vender à imobiliária · ${fmtMt(Math.floor(precoCasa(p.c) * 0.85))}</span></button>
         </div></div>`;
@@ -84,6 +85,7 @@ async function renderImoveis(body) {
       async v => { if (await acao('anunciar_imovel', { p_prop: p.id, p_renda: v, p_preco: null })) depois(); }));
     x('anunciar')?.addEventListener('click', () => pedirValor(`Vender ${esc(p.c.nome)} a outro jogador`, `Entre ${fmtMt(precoCasa(p.c) / 2)} e ${fmtMt(precoCasa(p.c) * 5)}. Novo custa ${fmtMt(precoCasa(p.c))}.${p.inquilino ? ' O inquilino fica com o novo dono.' : ''}`, precoCasa(p.c),
       async v => { if (await acao('anunciar_imovel', { p_prop: p.id, p_renda: p.inquilino ? p.renda : null, p_preco: v })) depois(); }));
+    x('npc')?.addEventListener('click', async () => { if (await acao('anunciar_imovel', { p_prop: p.id, p_renda: null, p_preco: null, p_npc: true })) depois(); });
     x('retirar')?.addEventListener('click', async () => { if (await acao('anunciar_imovel', { p_prop: p.id, p_renda: p.inquilino ? p.renda : null, p_preco: null })) depois(); });
     x('vender')?.addEventListener('click', () => confirmar(`Vender ${esc(p.c.nome)} à imobiliária?`, `Recebes já ${fmtMt(Math.floor(precoCasa(p.c) * 0.85))}.${p.inquilino ? ' O inquilino vai ter de sair.' : ''}${J.propriedade === p.id ? ' Ficas sem casa.' : ''}`, 'Vender',
       async () => { if (await acao('vender_imovel', { p_prop: p.id })) { await carregarMinhaMobilia(); depois(); } }));
@@ -104,7 +106,7 @@ async function imoveisNoLugar(div, casaId, depois) {
   const notaK = pk ? ` · ${tr('preço de kota')} +${pk}%` : '';
   if (!div.isConnected) return;
   const jaTenho = (minhas || []).length > 0 || J.casa === casaId;
-  const livres = (ps || []).filter(p => (p.renda && !p.inquilino) || p.a_venda);
+  const livres = (ps || []).filter(p => (p.renda && !p.inquilino && !p.npc) || p.a_venda);
   // #1/#2: as tuas casas aqui onde não moras (vazias ou arrendadas) — podes sempre entrar
   const outras = (minhas || []).filter(p => p.id !== J.propriedade);
   div.innerHTML = (outras.length ? `<div class="sec"><h4>As tuas casas aqui</h4></div><div class="list">${outras.map(p => `<div class="row mine"><span class="e">🔑</span><div class="t"><b>A tua casa · ${esc(c.nome)}</b><small>${p.inquilino ? `Arrendada a ${esc(p.inqNome || '?')} · ${fmtMt(p.renda)}/dia` : 'Não moras aqui'}</small></div><button class="btn sm" data-ent-imovel="${p.id}">Entrar</button>${p.inquilino ? '' : `<button class="btn sm ghost" data-morar-imovel="${p.id}">Morar aqui</button>`}</div>`).join('')}</div>` : '') + `<div class="sec"><h4>Comprar</h4><span>Sem renda para sempre</span></div>

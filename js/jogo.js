@@ -1626,6 +1626,7 @@ async function pulsar() {
   if (error || !p || !J) return;
   if (p.jogador) setJogador(p.jogador);
   if (Array.isArray(p.avisos)) p.avisos.slice(0, 5).forEach((x, i) => setTimeout(() => toast(x.texto, x.tipo || 'info', 7000), i * 900));   // 27 nov: ganhos e perdas da Sorte (lotaria, apostas) chegam como aviso
+  if (J.lar_convite && !_conviteMorar) verConviteMorar();
   verManutencao(p.manut ?? null);
   verSessao(p.sessao);
   const sms = JSON.stringify(p.sms || null);
@@ -1635,6 +1636,16 @@ async function pulsar() {
   _pulsoDil = p.dil ?? null;
   if (typeof vidaBoaPulso === 'function') vidaBoaPulso(p.vb ?? null);
   if (Array.isArray(p.fof) && typeof fofocasDoPulso === 'function') fofocasDoPulso(p.fof.slice().reverse());   // 9 nov: fofocas pelo pulso   // 9 nov: Pacote Vida Boa (o estado vem no pulso — sem pedido novo)
+}
+let _conviteMorar = false;
+async function verConviteMorar() {
+  _conviteMorar = true;
+  try {
+    const nome = (await nomesDe([J.lar_convite]))[J.lar_convite] || 'Alguém';
+    const sim = await perguntar(`${nome} convidou-te para morar lá em casa. Se aceitares, deixas a tua casa e passas a viver na dele/dela.`, 'Aceitar');
+    await acao('aceitar_morar', { p_sim: !!sim });
+    if (sim) { await carregarMinhaMobilia(); if (cena?.tipo === 'casa') irParaBairro(J.bairro, true); }
+  } finally { _conviteMorar = false; }
 }
 setInterval(pulsar, 60000);
 // 8 nov (0fe-6): atualização automática. De 5 em 5 min compara /versao.json (do site, não da base) com a versão desta página;
