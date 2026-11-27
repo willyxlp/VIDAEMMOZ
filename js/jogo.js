@@ -1379,9 +1379,9 @@ function adicionarChatLog(nome, texto, t) {
   renderChatLog(); renderChatHist();
 }
 function ligarChatCtl() {
-  if (document.getElementById('chatCtl')) return;
-  const log = $('#chatLog'); if (!log) return;
-  const barra = $('#bFalar'); if (!barra) return;
+  if (ligarChatCtl._f || document.getElementById('chatOcultar')) return;
+  ligarChatCtl._f = true;   // evita recursão (renderChatLog ↔ ligarChatCtl)
+  const log = $('#chatLog'), barra = $('#bFalar'); if (!log || !barra) { ligarChatCtl._f = false; return; }
   const oc = document.createElement('button'); oc.id = 'chatOcultar'; oc.type = 'button';
   const ex = document.createElement('button'); ex.id = 'chatExp'; ex.type = 'button'; ex.title = 'Mensagens da última hora';
   const hist = document.createElement('div'); hist.id = 'chatHist'; hist.className = 'hide'; hist.setAttribute('data-sem-traducao', '');
