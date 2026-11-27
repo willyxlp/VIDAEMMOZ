@@ -1381,10 +1381,11 @@ function adicionarChatLog(nome, texto, t) {
 function ligarChatCtl() {
   if (document.getElementById('chatCtl')) return;
   const log = $('#chatLog'); if (!log) return;
-  const ctl = document.createElement('div'); ctl.id = 'chatCtl';
-  ctl.innerHTML = '<button type="button" id="chatOcultar"></button><button type="button" id="chatExp" title="Mensagens da última hora">⤢ 1 h</button>';
+  const barra = $('#bFalar'); if (!barra) return;
+  const oc = document.createElement('button'); oc.id = 'chatOcultar'; oc.type = 'button';
+  const ex = document.createElement('button'); ex.id = 'chatExp'; ex.type = 'button'; ex.title = 'Mensagens da última hora';
   const hist = document.createElement('div'); hist.id = 'chatHist'; hist.className = 'hide'; hist.setAttribute('data-sem-traducao', '');
-  log.after(ctl); ctl.after(hist);
+  barra.after(oc); oc.after(ex); log.after(hist);
   $('#chatOcultar').onclick = () => { chatOculto = !chatOculto; try { localStorage.setItem('chatOculto', chatOculto ? '1' : '0'); } catch { } if (!chatOculto) chatNaoLidas = 0; if (chatOculto) chatAberto = false; renderChatLog(); renderChatHist(); };
   $('#chatExp').onclick = async () => { chatAberto = !chatAberto; if (chatAberto) { chatNaoLidas = 0; await recarregarHoraChat(); } renderChatLog(); renderChatHist(); };
   renderChatLog(); renderChatHist();
@@ -1395,9 +1396,8 @@ function renderChatLog() {
   const html = vis.map(m => { const idade = agora - m.t, op = idade < 15000 ? 1 : Math.max(0, 1 - (idade - 15000) / 15000); return `<div style="animation:none;opacity:${op.toFixed(2)}"><b>${esc(m.nome)}:</b> ${esc(m.texto)}</div>`; }).join('');
   if (html !== _chatSig) { _chatSig = html; el.innerHTML = html; }
   const o = $('#chatOcultar'), e = $('#chatExp');
-  if (o) o.textContent = chatOculto ? '💬 Mostrar chat' + (chatNaoLidas ? ' (' + chatNaoLidas + ')' : '') : '🙈 Esconder';
-  if (e) e.style.display = chatOculto ? 'none' : '';
-  if (e) e.textContent = chatAberto ? '✕ Fechar' : '⤢ 1 h';
+  if (o) o.innerHTML = chatOculto ? '<span class="e">💬</span>Mostrar' + (chatNaoLidas ? ' (' + chatNaoLidas + ')' : '') : '<span class="e">🙈</span>Esconder';
+  if (e) { e.style.display = chatOculto ? 'none' : ''; e.innerHTML = chatAberto ? '<span class="e">✕</span>Fechar' : '<span class="e">🕑</span>1 hora'; e.classList.toggle('on', chatAberto); }
 }
 function renderChatHist() {
   const h = $('#chatHist'); if (!h) return;
