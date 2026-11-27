@@ -335,6 +335,10 @@
       bottom: calc(116px + env(safe-area-inset-bottom))
     }
 
+    #chatBox {
+      bottom: var(--kb, 0px) !important
+    }
+
     #chatDock {
       position: absolute;
       left: 10px;
@@ -349,7 +353,7 @@
     }
 
     #chatDock:has(~ #chatBox:not(.hide)) {
-      bottom: calc(66px + env(safe-area-inset-bottom))
+      bottom: calc(66px + var(--kb, 0px) + env(safe-area-inset-bottom)) !important
     }
 
     #chatDock #chatLog,
@@ -6968,7 +6972,7 @@
   <script src="js/tempo_real.js?v=cc62d88"></script>
   <script src="js/salas.js?v=8ad8389d"></script>
   <script src="js/voz.js?v=ba6a093d"></script>
-  <script src="js/jogo.js?v=49f276e"></script>
+  <script src="js/jogo.js?v=99724aa"></script>
   <script src="js/vida.js?v=06e1e08"></script>
   <script src="js/janelas.js?v=df26d1ae"></script>
   <script src="js/dinheiro.js?v=c156e97"></script>
@@ -6985,7 +6989,7 @@
   <script src="js/minijogos.js?v=cc62d88"></script>
   <script src="js/mesa.js?v=cc62d88"></script>
   <script src="js/ludo.js?v=cc62d88"></script>
-  <script src="js/media.js?v=826d1af"></script>
+  <script src="js/media.js?v=76983ec"></script>
   <script src="js/ui2.js?v=ed5b2cd"></script>
   <script src="js/posses.js?v=f0057df"></script>
   <script src="js/vida_boa.js?v=1180f23c"></script>

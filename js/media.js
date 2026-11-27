@@ -11,7 +11,7 @@ const FOTO_COR = { '🌅': ['#ff9a5c', '#c4467a'], '🏖️': ['#5ec8e0', '#e9d3
   st.textContent = `.mbav{width:40px;height:40px;border-radius:50%;overflow:hidden;background:linear-gradient(140deg,#ff9ad5,#a03fd0);display:inline-flex;align-items:flex-end;justify-content:center;flex:none;color:#fff;font-weight:800;font-size:18px;align-items:center;cursor:pointer}
   .mbav img{width:100%;height:100%;object-fit:cover;object-position:50% 20%;background:#f6e3ee}.mbav.g{width:84px;height:84px;font-size:34px}
   .mbst{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 10px;margin-bottom:6px}.mbst button{background:none;border:0;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:inherit;min-width:58px;cursor:pointer}
-  .mbst .ring{padding:2px;border-radius:50%;background:linear-gradient(45deg,#f5b81c,#e0313f,#a03fd0)}.mbst .ring.eu{background:#bbb}.mbst .ring .mbav{border:2px solid var(--bg,#fff);width:50px;height:50px}
+  .mbst .novo{width:54px;height:54px;border-radius:50%;border:2px dashed #a03fd0;display:grid;place-items:center;font-size:30px;font-weight:300;color:#a03fd0;line-height:1}.mbst .ring{padding:2px;border-radius:50%;background:linear-gradient(45deg,#f5b81c,#e0313f,#a03fd0)}.mbst .ring.eu{background:#bbb}.mbst .ring .mbav{border:2px solid var(--bg,#fff);width:50px;height:50px}
   .mbgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin-top:8px}.mbtile{aspect-ratio:1;border:0;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:30px;color:#fff;padding:4px;cursor:pointer;overflow:hidden;position:relative}
   .mbtile small{font-size:10px;line-height:1.2;display:block;margin-top:2px;max-height:3.6em;overflow:hidden}.mbtile i{position:absolute;right:4px;bottom:2px;font-size:10px;font-style:normal}
   .mbpop{position:absolute;left:50%;top:40%;font-size:64px;transform:translate(-50%,-50%);pointer-events:none;animation:mbpop .8s ease-out forwards}@keyframes mbpop{0%{opacity:0;transform:translate(-50%,-50%) scale(.3)}30%{opacity:1;transform:translate(-50%,-50%) scale(1.2)}100%{opacity:0;transform:translate(-50%,-80%) scale(1)}}
@@ -32,7 +32,8 @@ const fmtN = n => n >= 1e6 ? (n / 1e6).toFixed(1).replace('.0', '') + 'M' : n >=
 const gostosDe = p => p.gostos + Math.round(p.npc * Math.min(1, (Date.now() - new Date(p.criado_em)) / 7200e3));
 
 async function renderMuxima(body) {
-  const abas = [['feed', '🏠 Para ti'], ['explorar', '🔥 Explorar'], ['seguir', '👥 A seguir'], ['eu', '🤳 Eu']];
+  if (muxAba === 'seguir') muxAba = 'feed';
+  const abas = [['feed', '🏠 Para ti'], ['explorar', '🔥 Explorar'], ['eu', '🤳 Eu']];
   body.innerHTML = `<div class="abas">${abas.map(([k, n]) => `<button class="${muxAba === k ? 'on' : ''}" data-aba="${k}">${n}</button>`).join('')}</div><div id="muxC"><div class="empty">A carregar…</div></div>`;
   body.querySelectorAll('[data-aba]').forEach(b => b.onclick = () => { muxAba = b.dataset.aba; renderMuxima(body); });
   const c = body.querySelector('#muxC');
@@ -42,6 +43,7 @@ async function renderMuxima(body) {
   meusGostos = new Set((g.data || []).map(x => x.post_id)); aSeguir = new Set((s.data || []).map(x => x.alvo));
   if (muxAba === 'eu') return renderMuxEu(c, body);
   let q = sb.from('mbilu_posts').select('*').order('criado_em', { ascending: false }).limit(40);
+  if (muxAba === 'feed') q = q.in('autor', [...aSeguir, uid]);   // só quem sigo e eu
   if (muxAba === 'explorar') q = sb.from('mbilu_posts').select('*').gte('criado_em', new Date(Date.now() - 7 * 864e5).toISOString()).order('gostos', { ascending: false }).limit(30);
   if (muxAba === 'seguir') { if (!aSeguir.size) { c.innerHTML = compositorHTML() + '<div class="empty">Ainda não segues ninguém. No "Para ti", toca em <b>Seguir</b> nas pessoas de que gostas.</div>'; ligarCompositor(c, body); return; } q = q.in('autor', [...aSeguir]); }
   const { data } = await q;
@@ -49,7 +51,7 @@ async function renderMuxima(body) {
   const { data: sts } = await sb.from('mbilu_stories').select('*').order('criado_em', { ascending: false }).limit(150);
   const stories = (sts || []).filter(x => !bloqueados.has(x.autor));
   await carregarPerfisMbilu([...posts.map(p => p.autor), ...stories.map(x => x.autor)]);
-  c.innerHTML = procurarHTML() + storiesHTML(stories) + (muxAba === 'explorar' ? '<p class="m" style="margin:0 0 8px">🔥 Os posts com mais gostos da semana.</p>' : compositorHTML()) + (posts.length ? posts.map(postHTML).join('') : '<div class="empty">Ainda não há posts. Sê o primeiro!</div>');
+  c.innerHTML = procurarHTML() + storiesHTML(stories) + (muxAba === 'explorar' ? '<p class="m" style="margin:0 0 8px">🔥 Os posts com mais gostos da semana.</p>' : compositorHTML()) + (posts.length ? posts.map(postHTML).join('') : (muxAba === 'feed' ? '<div class="empty">Ainda não há posts de quem segues. Publica o teu primeiro ou segue pessoas no <b>Explorar</b>.</div>' : '<div class="empty">Ainda não há posts. Sê o primeiro!</div>'));
   ligarCompositor(c, body); ligarPosts(c, posts, body); ligarStories(c, stories, body);
   ligarProcurar(c, x => `<button class="btn sm ${aSeguir.has(x.id) ? 'ghost' : ''}" data-seg-pq="${x.id}">${aSeguir.has(x.id) ? 'A seguir' : 'Seguir'}</button>`);
   c.addEventListener('procurou', () => c.querySelectorAll('[data-seg-pq]').forEach(b => b.onclick = async () => {
@@ -153,7 +155,7 @@ function editarBio(atual, depois) {
 function storiesHTML(stories) {
   const grupos = []; for (const x of stories) { let g = grupos.find(y => y.autor === x.autor); if (!g) grupos.push(g = { autor: x.autor, handle: x.handle, nome: x.nome, itens: [] }); g.itens.push(x); }
   grupos.sort((a, b) => (a.autor === uid ? -1 : b.autor === uid ? 1 : 0)); window._mbGrupos = grupos;
-  return `<div class="mbst"><button id="stNovo"><span class="ring eu">${rostoMb(uid, J.nome, J.handle)}</span>➕ O teu story</button>${grupos.map((g, i) => `<button data-st="${i}"><span class="ring">${rostoMb(g.autor, g.nome, g.handle)}</span><span data-sem-traducao>@${esc((g.handle || g.nome).slice(0, 9))}</span></button>`).join('')}</div>`;
+  return `<div class="mbst"><button id="stNovo"><span class="novo">+</span>Criar story</button>${grupos.map((g, i) => `<button data-st="${i}"><span class="ring">${rostoMb(g.autor, g.nome, g.handle)}</span><span data-sem-traducao>${g.autor === uid ? 'O teu story' : '@' + esc((g.handle || g.nome).slice(0, 9))}</span></button>`).join('')}</div>`;
 }
 function ligarStories(c, stories, body) {
   c.querySelector('#stNovo')?.addEventListener('click', ev => { ev.stopPropagation(); novoStory(() => renderMuxima(body)); });

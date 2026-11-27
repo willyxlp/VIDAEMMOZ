@@ -207,7 +207,6 @@ function setJogador(j) {
   const antes = J?.kumbu, gerAntes = J?.geracao, doenteAntes = J ? J.doenca : undefined; J = j;
   if (doenteAntes === null && j?.doenca) setTimeout(() => avisoDoente(j.doenca), 400);   // FILA 0dn-12: ficaste doente → janela que explica
   if (j?.nome_forcado_motivo) setTimeout(pedirNomeNovo, 0);
-  if (j && j.handle_definido === false && !j.nome_forcado_motivo && !setJogador._hd) { setJogador._hd = true; setTimeout(() => { if (typeof mudarHandle === 'function' && !document.getElementById('hdIn')) mudarHandle(null, true); }, 6000); }   // 27 nov: escolher o @ do Mbilu logo no início
   else if (j?.cfb_em && !j.cfb_recurso_em) talvezRecursoCfb();   // 6 nov: «their appeal thing isn't working» — abre sozinho   // (6 nov: tinha ficado dentro do comentário acima)
   if (gerAntes && j.geracao > gerAntes) setTimeout(aoMudarGeracao, 300);
   if (antes != null && antes !== j.kumbu && eu) floats.push({ x: eu.x, y: eu.y, txt: (j.kumbu > antes ? '+' : '−') + fmtMt(Math.abs(j.kumbu - antes)), cor: j.kumbu > antes ? '#7ee39b' : '#ff9b9b', t: 0 });
@@ -1369,6 +1368,10 @@ function mostrarFala(p, texto, nome) {
   if (nome) adicionarChatLog(nome, texto);
 }
 // 27 nov: mini chat — as linhas esmorecem sozinhas (30 s), dá para esconder e para ver a última hora
+// 27 nov: a caixa de escrever acompanha o teclado do telemóvel (visualViewport)
+(function () { const vv = window.visualViewport; if (!vv) return;
+  const f = () => { const kb = Math.max(0, Math.round(window.innerHeight - vv.height - vv.offsetTop)); document.documentElement.style.setProperty('--kb', kb + 'px'); };
+  vv.addEventListener('resize', f); vv.addEventListener('scroll', f); f(); })();
 let chatHist = [], chatModo = 'mini', _chatSig = '';   // 'mini': as mensagens aparecem uma a uma e esmorecem · 'cheio': chat expandido (última hora)
 const CHAT_VISIVEL = 30000, CHAT_HORA = 3600000;
 const chatHora = t => new Date(t).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit', timeZone: 'Africa/Maputo' });
