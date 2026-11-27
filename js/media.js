@@ -155,12 +155,11 @@ function editarBio(atual, depois) {
 function storiesHTML(stories) {
   const grupos = []; for (const x of stories) { let g = grupos.find(y => y.autor === x.autor); if (!g) grupos.push(g = { autor: x.autor, handle: x.handle, nome: x.nome, itens: [] }); g.itens.push(x); }
   grupos.sort((a, b) => (a.autor === uid ? -1 : b.autor === uid ? 1 : 0)); window._mbGrupos = grupos;
-  return `<div class="mbst"><button id="stNovo"><span class="novo">+</span>Criar story</button>${grupos.map((g, i) => `<button data-st="${i}"><span class="ring">${rostoMb(g.autor, g.nome, g.handle)}</span><span data-sem-traducao>${g.autor === uid ? 'O teu story' : '@' + esc((g.handle || g.nome).slice(0, 9))}</span></button>`).join('')}</div>`;
+  return `<div class="mbst"><button id="stNovo"><span class="novo">+</span>Criar story</button>${grupos.map((g, i) => `<button data-st="${i}"><span class="ring">${rostoMb(g.autor, g.nome, g.handle).replace('data-perfil', 'data-p')}</span><span data-sem-traducao>${g.autor === uid ? 'O teu story' : '@' + esc((g.handle || g.nome).slice(0, 9))}</span></button>`).join('')}</div>`;
 }
 function ligarStories(c, stories, body) {
   c.querySelector('#stNovo')?.addEventListener('click', ev => { ev.stopPropagation(); novoStory(() => renderMuxima(body)); });
   c.querySelectorAll('[data-st]').forEach(b => b.onclick = ev => { ev.stopPropagation(); abrirStory(window._mbGrupos[+b.dataset.st], 0); });
-  c.querySelectorAll('.mbst [data-perfil]').forEach(x => x.onclick = ev => ev.stopPropagation());
 }
 function abrirStory(g, k) {
   const x = g.itens[g.itens.length - 1 - k]; if (!x) return fecharSheets();
