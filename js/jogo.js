@@ -1625,6 +1625,7 @@ async function pulsar() {
   });
   if (error || !p || !J) return;
   if (p.jogador) setJogador(p.jogador);
+  if (Array.isArray(p.avisos)) p.avisos.slice(0, 5).forEach((x, i) => setTimeout(() => toast(x.texto, x.tipo || 'info', 7000), i * 900));   // 27 nov: ganhos e perdas da Sorte (lotaria, apostas) chegam como aviso
   verManutencao(p.manut ?? null);
   verSessao(p.sessao);
   const sms = JSON.stringify(p.sms || null);
@@ -3083,11 +3084,11 @@ async function abrirTelemovel(sub, extra) {
         ? `<div class="row mine">${arteListaHTML('emprego', e.id, e.emoji)}<div class="t"><b>${esc(tr('O teu trabalho'))}: ${esc(tr(e.nome))}</b><small>${esc(bairro(e.bairro).nome)} · +${fmtMt(e.salario)}</small></div><button class="btn sm red" data-a="trabalhar">${esc(tr('Trabalhar'))}</button></div>`
         : `<div class="row">${arteListaHTML('emprego', e.id, e.emoji)}<div class="t"><b>${esc(tr('O teu trabalho'))}: ${esc(tr(e.nome))}</b><small>${esc(tr('Fica em {0}.').replace('{0}', bairro(e.bairro).nome))}</small></div><button class="btn sm" data-irtrab>🚐 ${esc(tr('Ir para {0}').replace('{0}', bairro(e.bairro).nome))}</button></div>`) : ''}
         ${(() => {
-        const rico = J.classe === 'rica' && idadeDe(J) < 30, hoje = J.familia_dia === new Date(Date.now() + 3600e3).toISOString().slice(0, 10);
+        const rico = J.classe === 'rica' && idadeDe(J) < 30, hoje = J.familia_dia === hojeMaputo();
         return `<div class="row"><span class="e">📞</span><div class="t"><b>${esc(tr(rico ? 'Ligar ao Papá' : 'Ligar à família'))}</b><small>${esc(tr(hoje ? 'Já ligaste hoje — amanhã há mais.' : rico ? 'Mesada diária (enquanto fores novo/a).' : 'Uma chamada por dia: menos solidão, mais humor.'))}</small></div><button class="btn sm ${hoje ? 'ghost' : ''}" id="bFamilia" ${hoje ? 'disabled' : ''}>${esc(tr('Ligar'))}</button></div>`;
       })()}
         ${(() => {
-        const feito = J.pais_dia === new Date(Date.now() + 3600e3).toISOString().slice(0, 10);   // 0ch: 1× por dia; quanto mandam depende do berço (servidor: pedir_dinheiro_pais)
+        const feito = J.pais_dia === hojeMaputo();   // 0ch: 1× por dia; quanto mandam depende do berço (servidor: pedir_dinheiro_pais)
         return `<div class="row"><span class="e">💸</span><div class="t"><b>${esc(tr('Pedir dinheiro aos pais'))}</b><small>${esc(tr(feito ? 'Já pediste hoje. Amanhã podes pedir outra vez.' : 'Uma vez por dia. Quanto mandam depende da família onde nasceste.'))}</small></div><button class="btn sm ${feito ? 'ghost' : ''}" id="bPais" ${feito ? 'disabled' : ''}>${esc(tr('Pedir'))}</button></div>`;
       })()}
         <button class="row hide" data-instalar style="text-align:left"><span class="e">${icone('telefone', 22)}</span><div class="t"><b>Instalar a app</b><small>Abre o jogo direto do ecrã do telemóvel</small></div></button>

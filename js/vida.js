@@ -1236,7 +1236,7 @@ async function renderFamilia(body) {
   // botão pedir dinheiro aos pais no ecrã de família
   const paisWrap = body.querySelector('#bPaisWrap');
   if (paisWrap) {
-    const feito = J.pais_dia === new Date(Date.now() + 3600e3).toISOString().slice(0, 10);
+    const feito = J.pais_dia === hojeMaputo();
     paisWrap.innerHTML = `<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
       <button class="btn sm ${feito ? 'ghost' : ''}" id="bPaisPedir" ${feito ? 'disabled' : ''}>💸 Pedir ajuda</button>
       <button class="btn sm ghost" id="bPaisLigar">📞 Ligar</button>
@@ -1246,7 +1246,7 @@ async function renderFamilia(body) {
       if (r) volta();
     });
     body.querySelector('#bPaisLigar')?.addEventListener('click', async () => {
-      const hoje = J.familia_dia === new Date(Date.now() + 3600e3).toISOString().slice(0, 10);
+      const hoje = J.familia_dia === hojeMaputo();
       if (hoje) return toast('Já ligaste hoje. Amanhã há mais.', 'info');
       const r = await acao('ligar_familia');
       if (r) volta();

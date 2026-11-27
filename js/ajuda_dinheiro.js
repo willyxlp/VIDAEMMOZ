@@ -12,7 +12,7 @@ const SEM_DINHEIRO_KZ = 23000;
 const GUIA_DINHEIRO = { pt: 'https://www.vidanabanda.com/guia/dinheiro.html', en: 'https://www.vidanabanda.com/guia/en/dinheiro.html', fr: 'https://www.vidanabanda.com/guia/fr/dinheiro.html' };
 const guiaDinheiroUrl = () => GUIA_DINHEIRO[typeof lingua !== 'undefined' && GUIA_DINHEIRO[lingua] ? lingua : 'pt'];
 const milhar = n => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, typeof lingua !== 'undefined' && lingua === 'en' ? ',' : '.');
-const hojeMaputo = () => new Date(Date.now() + 3600e3).toISOString().slice(0, 10);
+const hojeMaputo = () => new Date(Date.now() + 7200e3).toISOString().slice(0, 10);
 
 // o melhor emprego que já podes ter, e o melhor que o estudo abre a seguir
 function empregosParaMim() {
