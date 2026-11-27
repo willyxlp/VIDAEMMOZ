@@ -320,7 +320,7 @@
     #chatLog {
       position: absolute;
       left: 10px;
-      bottom: calc(118px + env(safe-area-inset-bottom));
+      bottom: calc(134px + env(safe-area-inset-bottom));
       max-width: min(78vw, 380px);
       max-height: 38vh;
       overflow: hidden;
@@ -332,13 +332,13 @@
     }
     #chatLog:has(~ #chatBox:not(.hide)),
     #chatBox:not(.hide)~#chatHist {
-      bottom: calc(106px + env(safe-area-inset-bottom))
+      bottom: calc(116px + env(safe-area-inset-bottom))
     }
 
     #chatBtn {
       position: absolute;
       left: 10px;
-      bottom: calc(78px + env(safe-area-inset-bottom));
+      bottom: calc(72px + env(safe-area-inset-bottom));
       z-index: 6;
       font-size: 12px;
       font-weight: 700;
@@ -381,7 +381,7 @@
     #chatHist {
       position: absolute;
       left: 10px;
-      bottom: calc(118px + env(safe-area-inset-bottom));
+      bottom: calc(134px + env(safe-area-inset-bottom));
       width: min(86vw, 380px);
       max-height: 45vh;
       overflow-y: auto;
@@ -6118,12 +6118,12 @@
 
       #chatLog,
       #chatHist {
-        bottom: 138px;
+        bottom: 150px;
         left: 14px
       }
 
       #chatBtn {
-        bottom: 96px;
+        bottom: 90px;
         left: 14px
       }
     }
