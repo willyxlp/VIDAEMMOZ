@@ -675,7 +675,7 @@ async function carregarDados() {
   t.forEach((n, i) => D[n] = r[i]);
   D.pacotes = pOuro.data || [];
   D.pacotesMt = pKz.data || [];   // 7 nov 22:33 (dono): «add the buy kz to the live site»   // 6 nov: 1,99 · 9,99 (melhor valor) · 29,99
-  D.colegios = cols.data || [];
+  D.colegios = (cols.data || []).filter(c => c.propina > 0);   // 27 nov: só colégios de crianças (as universidades têm propina 0 aqui)
   D.pagaKz = !!pagaKz.data;
   D.bairros.sort((a, z) => a.ordem - z.ordem); D.empregos.sort((a, z) => a.ordem - z.ordem);
   D.comidas.sort((a, z) => a.preco - z.preco); D.moveis.sort((a, z) => a.ordem - z.ordem);
