@@ -1382,7 +1382,7 @@ function ligarChatCtl() {
   const log = $('#chatLog'); if (!log) { ligarChatCtl._f = false; return; }
   const btn = document.createElement('button'); btn.id = 'chatBtn'; btn.type = 'button';
   const hist = document.createElement('div'); hist.id = 'chatHist'; hist.className = 'hide'; hist.setAttribute('data-sem-traducao', '');
-  log.after(btn); btn.after(hist);
+  const dock = document.createElement('div'); dock.id = 'chatDock'; log.before(dock); dock.append(hist, log, btn);   // tudo numa coluna: o espaço entre mensagens e botão é sempre o mesmo
   btn.onclick = async () => {
     if (chatModo === 'cheio') chatModo = 'mini'; else { chatModo = 'cheio'; await recarregarHoraChat(); }
     renderChatLog(); renderChatHist();

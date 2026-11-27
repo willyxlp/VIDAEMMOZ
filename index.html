@@ -335,6 +335,39 @@
       bottom: calc(116px + env(safe-area-inset-bottom))
     }
 
+    #chatDock {
+      position: absolute;
+      left: 10px;
+      bottom: calc(72px + env(safe-area-inset-bottom));
+      z-index: 6;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+      pointer-events: none;
+      max-width: min(86vw, 380px)
+    }
+
+    #chatDock:has(~ #chatBox:not(.hide)) {
+      bottom: calc(66px + env(safe-area-inset-bottom))
+    }
+
+    #chatDock #chatLog,
+    #chatDock #chatHist,
+    #chatDock #chatBtn {
+      position: static !important;
+      bottom: auto !important;
+      left: auto !important
+    }
+
+    #chatDock #chatBtn {
+      pointer-events: auto
+    }
+
+    #chatDock #chatHist {
+      pointer-events: auto
+    }
+
     #chatBtn {
       position: absolute;
       left: 10px;
@@ -6122,7 +6155,7 @@
         left: 14px
       }
 
-      #chatBtn {
+      #chatDock {
         bottom: 90px;
         left: 14px
       }
@@ -6935,7 +6968,7 @@
   <script src="js/tempo_real.js?v=cc62d88"></script>
   <script src="js/salas.js?v=8ad8389d"></script>
   <script src="js/voz.js?v=ba6a093d"></script>
-  <script src="js/jogo.js?v=974effc"></script>
+  <script src="js/jogo.js?v=49f276e"></script>
   <script src="js/vida.js?v=06e1e08"></script>
   <script src="js/janelas.js?v=df26d1ae"></script>
   <script src="js/dinheiro.js?v=c156e97"></script>
