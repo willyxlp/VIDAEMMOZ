@@ -870,7 +870,7 @@ async function entrarNoJogo(session) {
     const pend = ls.get('vel_ap_pendente'); if (pend) { ls.set('vel_ap_' + uid, pend); localStorage.removeItem('vel_ap_pendente'); }
     const pe = pre('eventos');
     const [{ data: ev }] = await Promise.all([pe ? { data: pe.v } : sb.from('eventos').select('*').order('criado_em', { ascending: false }).limit(20), carregarMinhaMobilia()]);
-    eventos = ev || [];
+    eventos = (ev || []).filter(e => e && typeof e.texto === 'string' && e.texto);   // 27 nov: linhas sem texto partiam a lista das Notícias
     if (!J) return;   // 6 nov: saíste a meio do arranque
     pararEntrada3D(); $('#entrada').classList.add('hide'); $('#hud').classList.remove('hide'); $('#carregar').classList.remove('hide');   // (fica até a arte estar pronta)
     cancelAnimationFrame(previewAnim); previewAnim = 0;
