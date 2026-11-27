@@ -320,7 +320,7 @@
     #chatLog {
       position: absolute;
       left: 10px;
-      bottom: calc(78px + env(safe-area-inset-bottom));
+      bottom: calc(112px + env(safe-area-inset-bottom));
       max-width: min(78vw, 380px);
       max-height: 38vh;
       overflow: hidden;
@@ -330,9 +330,64 @@
       gap: 3px;
       pointer-events: none
     }
-    #chatBox:not(.hide)~#chatLog,
-    #chatLog:has(~ #chatBox:not(.hide)) {
+    #chatLog:has(~ #chatBox:not(.hide)),
+    #chatBox:not(.hide)~#chatHist {
+      bottom: calc(100px + env(safe-area-inset-bottom))
+    }
+
+    #chatCtl {
+      position: absolute;
+      left: 10px;
+      bottom: calc(78px + env(safe-area-inset-bottom));
+      z-index: 6;
+      display: flex;
+      gap: 6px
+    }
+
+    #chatBox:not(.hide)~#chatCtl {
       bottom: calc(66px + env(safe-area-inset-bottom))
+    }
+
+    #chatCtl button {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #fff;
+      background: rgba(14, 11, 9, .7);
+      border: 1px solid rgba(255, 255, 255, .2);
+      border-radius: 999px;
+      padding: 4px 10px;
+      cursor: pointer
+    }
+
+    #chatHist {
+      position: absolute;
+      left: 10px;
+      bottom: calc(112px + env(safe-area-inset-bottom));
+      width: min(86vw, 380px);
+      max-height: 45vh;
+      overflow-y: auto;
+      background: rgba(14, 11, 9, .86);
+      color: #fff;
+      border-radius: 14px;
+      padding: 8px 10px;
+      font-size: 12.5px;
+      z-index: 6;
+      display: flex;
+      flex-direction: column;
+      gap: 4px
+    }
+
+    #chatHist.hide {
+      display: none
+    }
+
+    #chatHist b {
+      color: var(--gold)
+    }
+
+    #chatHist small {
+      opacity: .6;
+      margin-right: 4px
     }
 
     #chatLog div {
@@ -6042,7 +6097,13 @@
         padding-top: 12px
       }
 
-      #chatLog {
+      #chatLog,
+      #chatHist {
+        bottom: 130px;
+        left: 14px
+      }
+
+      #chatCtl {
         bottom: 96px;
         left: 14px
       }
@@ -6855,7 +6916,7 @@
   <script src="js/tempo_real.js?v=cc62d88"></script>
   <script src="js/salas.js?v=8ad8389d"></script>
   <script src="js/voz.js?v=ba6a093d"></script>
-  <script src="js/jogo.js?v=8818db8"></script>
+  <script src="js/jogo.js?v=c5b4302"></script>
   <script src="js/vida.js?v=06e1e08"></script>
   <script src="js/janelas.js?v=df26d1ae"></script>
   <script src="js/dinheiro.js?v=c156e97"></script>
