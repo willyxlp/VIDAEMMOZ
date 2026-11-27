@@ -1221,7 +1221,7 @@ function atualizarPersonagem(p, dt) {
   p.andando = true;
   if (dist <= v) {
     p.x = gx; p.y = gy; p.path.shift();
-    if (!p.path.length) { p.andando = false; const f = p.aoChegar; p.aoChegar = null; if (p.eu) presencaAgora(); f && f(); }
+    if (!p.path.length) { p.andando = false; const f = p.aoChegar; p.aoChegar = null; if (p.eu) { anunciarMovimento(true); presencaAgora(); } f && f(); }
   } else { p.x += dx / dist * v; p.y += dy / dist * v; }
 }
 
@@ -1241,9 +1241,11 @@ function entrarNoCanal(nome) {
   if (!canal._rt && chatPeloRt && chatBairro) { chatPeloRt = false; setTimeout(() => ligarChat(chatBairro), 0); }   // 9 nov: o servidor próprio falhou → chat volta à Supabase
   canal.on('presence', { event: 'sync' }, sincronizarPresenca)
     .on('broadcast', { event: 'anda' }, ({ payload }) => {
-      const o = outros.get(payload.id); if (!o) return;
-      if (Math.hypot(o.x - payload.de[0] - 0.5, o.y - payload.de[1] - 0.5) > 2) { o.x = payload.de[0] + 0.5; o.y = payload.de[1] + 0.5; }
-      o.path = payload.path;
+      const o = outros.get(payload.id); if (!o || !Array.isArray(payload.path)) return;
+      const px = typeof payload.x === 'number' ? payload.x : payload.de[0] + 0.5, py = typeof payload.y === 'number' ? payload.y : payload.de[1] + 0.5;
+      if (!payload.path.length || Math.hypot(o.x - px, o.y - py) > 1.2) { o.x = px; o.y = py; }   // parou, ou está longe: põe-no onde ele/a realmente está
+      o.path = payload.path; if (!o.path.length) o.andando = false;
+      o.vistoEm = Date.now();
     })
     .on('broadcast', { event: 'fala' }, ({ payload }) => { if (bloqueados.has(payload.id)) return; const o = outros.get(payload.id); if (o) mostrarFala(o, filtrarTexto(payload.texto), payload.nome); })
     .on('broadcast', { event: 'boleia' }, ({ payload }) => { if (Array.isArray(payload?.para) && payload.para.includes(uid) && !bloqueados.has(payload.de)) verificarBoleias(); })
@@ -1285,6 +1287,7 @@ async function verificarBoleias() {
     if (sim && r) {
       fecharSheets();
       const fp = viagemPrimeiraPessoa(b.meio === 'privado' ? 'privado' : 'boleia', dest);
+      sairDoCanal();
       await fp.promessa;
       await irParaBairro(b.destino, true); toast(r.msg, 'bom', 4500);
     }
@@ -1294,17 +1297,17 @@ function sairDoCanal() { clearTimeout(canalReligar); canalTentativas = 0; if (ca
 let ultimaPresenca = 0;
 function presencaAgora(forcar) {   // 6 nov: no máximo 1 vez a cada 8 s (a posição ao andar já vai pelo broadcast «anda»)
   if (!canal || !J) return;
-  if (!forcar && Date.now() - ultimaPresenca < 60000) return;   // 8 nov: 8 s → 60 s (quem já está na sala vê-te andar pelo «anda»; só quem chega usa esta posição)
+  if (!forcar && Date.now() - ultimaPresenca < 15000) return;   // 27 nov: 15 s (a posição real vai pelo «anda») (quem já está na sala vê-te andar pelo «anda»; só quem chega usa esta posição)
   ultimaPresenca = Date.now(); canal.track(estadoPresenca()).catch(() => { });
 }
 // 6 nov (poupar mensagens do Realtime): toques seguidos ao andar → no máximo 1 mensagem por segundo; a última segue sempre (os outros veem o destino certo)
 let movUltimo = 0, movPendente = 0;
-function anunciarMovimento() {
+function anunciarMovimento(forcar) {   // 27 nov: manda a posição EXATA (x,y) e, ao chegar, uma paragem forçada — assim ninguém fica a ver-te parado/a andar noutro sítio
   if (!canal || !eu) return;
-  const falta = 1000 - (Date.now() - movUltimo);
-  if (falta > 0) { clearTimeout(movPendente); movPendente = setTimeout(anunciarMovimento, falta); return; }
-  movUltimo = Date.now();
-  canal.send({ type: 'broadcast', event: 'anda', payload: { id: uid, de: [Math.floor(eu.x), Math.floor(eu.y)], path: eu.path } }).catch(() => { });
+  const falta = 700 - (Date.now() - movUltimo);
+  if (!forcar && falta > 0) { clearTimeout(movPendente); movPendente = setTimeout(anunciarMovimento, falta); return; }
+  clearTimeout(movPendente); movUltimo = Date.now();
+  canal.send({ type: 'broadcast', event: 'anda', payload: { id: uid, x: +eu.x.toFixed(2), y: +eu.y.toFixed(2), de: [Math.floor(eu.x), Math.floor(eu.y)], path: eu.path.slice(0, 60), t: Date.now() } }).catch(() => { });
 }
 // 6 nov (dono: «we cannot ruin gameplay… be economical»): jogo escondido há 2 min (outra app, ecrã desligado) → larga a ligação ao
 // Realtime (cada ligação conta para o limite e para a conta). Ao voltar, liga tudo outra vez e atualiza o estado — o jogador não nota.
@@ -1357,7 +1360,8 @@ function sincronizarPresenca() {
     const m = metas[metas.length - 1]; vistos.add(k); VIPS.set(k, { ate: m.v ? Date.now() + 600000 : 0, visto: Date.now() }); if (typeof lembrarNome === 'function') lembrarNome(k, m.n);
     let o = outros.get(k);
     if (!o) { o = novoPersonagem(k, m.n, m.a, m.x, m.y, { idade: m.i }); outros.set(k, o); }
-    else { o.ap = m.a; o.nome = m.n; o.idade = m.i; if (!o.path.length && (Math.floor(o.x) !== m.x || Math.floor(o.y) !== m.y)) { const p = caminho(cena.bloq, cena.W, cena.H, Math.floor(o.x), Math.floor(o.y), m.x, m.y); if (p) o.path = p.slice(1); else { o.x = m.x + 0.5; o.y = m.y + 0.5; } } }
+    else { o.ap = m.a; o.nome = m.n; o.idade = m.i; /* 27 nov: a presença guarda uma posição antiga (até 15 s); já NÃO manda quem está na sala andar para lá (era isso que fazia «fantasmas» voltarem atrás). Só corrige quem ficou parado e muito longe (anda perdido). */
+      if (!o.path.length && !o.andando && Date.now() - (o.vistoEm || 0) > 20000 && Math.hypot(o.x - m.x - 0.5, o.y - m.y - 0.5) > 3) { o.x = m.x + 0.5; o.y = m.y + 0.5; } }
     o.vz = !!m.vz;   // 9 nov: voz ligada (salas privadas)
   }
   for (const k of [...outros.keys()]) if (!vistos.has(k)) outros.delete(k);
@@ -2777,6 +2781,7 @@ async function viajar(dest, meio, opts = {}) {   // opts.com: aparência de quem
   const fp = viagemPrimeiraPessoa(meio, bairro(dest).nome, opts);
   const r = await acao('viajar', { p_destino: dest, p_meio: meio });
   if (!r) { fp.fim(); return; }
+  sairDoCanal();   // 27 nov: quem vai na chapa/carro desaparece logo do bairro para os outros (antes ficava lá «parado» na chapa)
   await fp.promessa;
   await irParaBairro(dest, true); toast(r.msg, 'info', 4500);
   // LL5: às vezes há um encontro à chegada (vem como uma escolha)

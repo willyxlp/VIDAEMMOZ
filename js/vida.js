@@ -128,7 +128,7 @@ async function irAoEncontro(e, meio = 'taxi') {
     // a viagem até lá, os dois juntos, no transporte que quem convidou escolheu (quem convidou já pagou)
     const ja = cena?.tipo === 'bairro' && cena.id === L.bairro;
     // dono 1 nov: «anytime there is a journey, ads» — mesmo no mesmo bairro há a viagem até ao sítio (com os anúncios)
-    { const fp = viagemPrimeiraPessoa(meio, ja ? tr(L.nome) : bairro(L.bairro).nome, { com: par?.aparencia }); await fp.promessa; if (!ja) await irParaBairro(L.bairro, true); }
+    { const fp = viagemPrimeiraPessoa(meio, ja ? tr(L.nome) : bairro(L.bairro).nome, { com: par?.aparencia }); if (!ja) sairDoCanal(); await fp.promessa; if (!ja) await irParaBairro(L.bairro, true); }
     const o = cena.objetos.find(x => x.spec?.nome === S.lugar);
     if (S.dentro && o && typeof entrarEdificio === 'function') entrarEdificio(o);
     else if (o) {   // ao ar livre: ao lado do sítio
@@ -257,7 +257,7 @@ async function esperarDesafio(d) {
     if (data?.meio) {
       feito = true; clearInterval(t); fecharSheets();
       const { data: par } = await sb.from('jogadores').select('aparencia').eq('id', d.com).maybeSingle();
-      const fp = viagemPrimeiraPessoa(data.meio, bairro(L.dest).nome, { com: par?.aparencia }); await fp.promessa;
+      const fp = viagemPrimeiraPessoa(data.meio, bairro(L.dest).nome, { com: par?.aparencia }); sairDoCanal(); await fp.promessa;
       const { data: est } = await sb.rpc('estado'); if (est?.jogador) setJogador(est.jogador);   // o servidor já te pôs lá
       await irParaBairro(J.bairro, true);
       setTimeout(() => d.jogo === 'jetski' ? jogarJetski(false, d) : jogarKart(d), 600);
@@ -378,7 +378,7 @@ async function responderPedido(id, sim) {
   const r = await acao('responder_pedido', { p_id: id, p_aceitar: sim });
   if (r && eraCasamento) setTimeout(perguntarCasamentos, 600);
   await atualizarPedidos();
-  if (r?.visita) { fecharTelemovel(); fecharSheets?.(); const fp = viagemPrimeiraPessoa('taxi', r.visita.nome || bairro(J.bairro).nome); await fp.promessa; await irParaBairro(J.bairro, true); irParaCasa(r.visita, { convite: true }); return r; }   // convite para casa: vais lá de táxi (com os anúncios da viagem)
+  if (r?.visita) { fecharTelemovel(); fecharSheets?.(); const fp = viagemPrimeiraPessoa('taxi', r.visita.nome || bairro(J.bairro).nome); sairDoCanal(); await fp.promessa; await irParaBairro(J.bairro, true); irParaCasa(r.visita, { convite: true }); return r; }   // convite para casa: vais lá de táxi (com os anúncios da viagem)
   if (r?.encontro) { esperarEncontro(r.encontro); return r; }   // 0cy (7): quem convidou escolhe o transporte e vão os dois   // 0n: o encontro acontece no sítio — vais lá
   if (r?.desafio) { esperarDesafio(r.desafio); return r; }   // 0cz (4): quem desafiou escolhe o transporte e vão os dois juntos
   if (r?.ludo) { fecharTelemovel(); fecharSheets?.(); ludoAbrir(r.ludo); return r; }   // 0cq: sentaste-te à mesa de Ludo   // 0ck: escolher o transporte, viajar e jogar
