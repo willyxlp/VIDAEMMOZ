@@ -46,29 +46,60 @@ async function renderDolares(body) {
 }
 
 /* ---------- 🎲 Sorte ---------- */
+// 27 nov: tudo na Sorte anda pelo relógio de Maputo (o mesmo do jogo). O servidor fecha o sorteio das 20h e cada jogo à sua hora
+// (no pulso de 1 em 1 minuto e sempre que se abre a Sorte); aqui só mostramos a contagem e voltamos a ler quando chega a hora.
+let _sorteRelogio = null, _sorteRecarga = null;
+function contagemSorte(body, s) {
+  clearInterval(_sorteRelogio);
+  const el = body.querySelector('[data-conta]'), alvo = s.proxima?.sorteio_ms;
+  if (!el || !alvo) return;
+  const fmt = falta => { const t = Math.floor(falta / 1000), h = Math.floor(t / 3600), m = Math.floor(t % 3600 / 60), seg = t % 60; return h ? `${h} h ${String(m).padStart(2, '0')} min` : `${m} min ${String(seg).padStart(2, '0')} s`; };
+  const tique = () => {
+    if (!el.isConnected) { clearInterval(_sorteRelogio); return; }
+    const falta = alvo - (Date.now() + s.desvio);
+    if (falta <= 0) { el.textContent = tr('a sortear…'); clearInterval(_sorteRelogio); return; }
+    el.textContent = fmt(falta);
+  };
+  tique(); _sorteRelogio = setInterval(tique, 1000);
+}
+// volta a ler a Sorte 4 s depois da próxima hora que importa (sorteio das 20h ou o apito inicial de um jogo com aposta tua)
+function agendarAtualizacaoSorte(body, s) {
+  clearTimeout(_sorteRecarga);
+  const horas = [];
+  if (s.proxima?.sorteio_ms && s.meusBil.length) horas.push(s.proxima.sorteio_ms);
+  for (const a of s.aps) if (a.premio == null) { const g = s.jogos.find(x => x.id === a.jogo_id); if (g) horas.push(Date.parse(`${g.dia}T${g.hora}+02:00`)); }
+  const agora = Date.now() + s.desvio, proxima = Math.min(...horas.filter(h => h > agora));
+  if (!isFinite(proxima)) return;
+  _sorteRecarga = setTimeout(() => { if (body.isConnected && body.querySelector('[data-sorte]')) abrirTelemovel('sorte'); }, Math.min(proxima - agora + 4000, 2147000000));
+}
 async function renderSorte(body) {
   body.innerHTML = '<div class="empty">A carregar…</div>';
-  const [{ data: jg, error }, lot, bil, aps] = await Promise.all([
+  // 27 nov: a lotaria e os jogos vêm de funções do servidor (que também fecham sorteios e jogos pela hora de Maputo)
+  const [{ data: jg, error }, lot, aps] = await Promise.all([
     sb.rpc('jogos_hoje'),
-    sb.from('lotaria').select('*').order('dia', { ascending: false }).limit(3),
-    sb.from('bilhetes').select('*').eq('jogador_id', uid).order('id', { ascending: false }).limit(20),
-    sb.from('apostas').select('*').eq('jogador_id', uid).order('id', { ascending: false }).limit(15)]);
+    sb.rpc('lotaria_estado'),
+    sb.from('apostas').select('*').eq('jogador_id', uid).order('criado_em', { ascending: false }).limit(15)]);
   if (error) { body.innerHTML = '<div class="empty">Esta parte ainda está a ser instalada no servidor. Tenta mais tarde!</div>'; return; }
-  const agora = new Date(jg.agora), hojeStr = jg.agora.slice(0, 10), horaAgora = jg.agora.slice(11, 16);
+  const L = lot.data || {};
+  const hojeStr = jg.agora.slice(0, 10), horaAgora = jg.agora.slice(11, 16);
+  const desvio = Date.parse((L.agora || jg.agora) + '+02:00') - Date.now();   // relógio do servidor (Maputo, UTC+2) menos o do aparelho
   const jogos = jg.jogos || [];
-  const proxima = (lot.data || []).find(l => !l.sorteado), ultima = (lot.data || []).find(l => l.sorteado);
-  const meusBil = (bil.data || []).filter(b => !proxima || b.dia === proxima.dia);
-  const aberto = g => g.dia > hojeStr || (g.dia === hojeStr && g.hora.slice(0, 5) > horaAgora);
+  const proxima = L.proxima || null, ultima = L.ultima || null;
+  const meusBil = (L.bilhetes || []).filter(b => b.numero != null);
+  const aberto = g => g.aberto !== false && (g.dia > hojeStr || (g.dia === hojeStr && g.hora.slice(0, 5) > horaAgora));
   const nomeJogo = id => { const g = jogos.find(x => x.id === id); return g ? `${g.casa} x ${g.fora}` : 'Jogo'; };
   const dataCurta = d => d === hojeStr ? 'Hoje' : d.slice(8, 10) + '/' + d.slice(5, 7);
-  if (typeof ui2 === 'function' && ui2()) return ui2Sorte(body, { jogos, proxima, ultima, meusBil, aberto, nomeJogo, dataCurta, aps: aps.data || [] });   // 8 nov: redesenho (teste)
+  const s = { jogos, proxima, ultima, meusBil, aberto, nomeJogo, dataCurta, desvio, aps: aps.data || [] };
+  agendarAtualizacaoSorte(body, s);
+  if (typeof ui2 === 'function' && ui2()) return ui2Sorte(body, s);   // 8 nov: redesenho (teste)
   body.innerHTML = (J?.comprou_kz ? `<div class="row lock sem-jogos"><span class="e">🚫</span><div class="t"><b>${tr('Os jogos a dinheiro estão fechados para ti')}</b><small>${tr('Compraste MT (nesta conta ou noutra do mesmo aparelho). Quem compra MT não pode jogar a dinheiro.')}</small></div></div>` : '') + `<p class="m">🎲 Joga com moderação: a casa ganha sempre a longo prazo. Limite de 500.000 MT em apostas por dia.</p>
     <div class="sub2" style="margin-top:6px">🎟️ Raspadinha · 500 MT</div>
     <div class="row"><span class="e">🎟️</span><div class="t"><b>Raspa e vê na hora</b><small>Prémios até 100.000 MT</small></div><button class="btn sm" id="bRaspa">Raspar</button></div>
     <div class="sub2">🎰 Lotaria · sorteio todos os dias às 20h</div>
     <div class="rel" style="margin-top:0">
       <div class="lbl"><span>💰 Pote${proxima ? ' de ' + dataCurta(proxima.dia) : ''}</span><span class="price">${fmtMt(proxima?.pote ?? 1000000)}</span></div>
-      <small style="display:block;color:var(--muted);font-size:12px;margin-top:4px">Bilhete: 1.000 MT. Acerta os 3 números para levar o pote (se ninguém acertar, acumula). Acertar os 2 últimos dá 10.000 MT.${ultima ? ` Último número: <b>${String(ultima.numero).padStart(3, '0')}</b>${ultima.vencedores ? ` (${ultima.vencedores} vencedor${ultima.vencedores > 1 ? 'es' : ''})` : ' — ninguém acertou'}.` : ''}</small>
+      <small style="display:block;color:var(--muted);font-size:12px;margin-top:4px">Sorteio às 20h · falta <b data-conta>--</b>. Cada bilhete comprado soma 1.000 MT ao pote.</small>
+      <small style="display:block;color:var(--muted);font-size:12px;margin-top:4px">Bilhete: 1.000 MT (máx. 10 por sorteio). Acerta os 3 números para levar o pote (se ninguém acertar, acumula). Acertar os 2 últimos dá 10.000 MT.${ultima ? ` Último número: <b>${String(ultima.numero).padStart(3, '0')}</b>${ultima.vencedores ? ` (${ultima.vencedores} vencedor${ultima.vencedores > 1 ? 'es' : ''})` : ' — ninguém acertou, o pote acumulou'}.${ultima.meu_premio > 0 ? ` Ganhaste <b>${fmtMt(ultima.meu_premio)}</b>!` : ''}` : ''}</small>
       ${meusBil.length ? `<div class="chips" style="margin-top:8px">${meusBil.map(b => `<span class="chip">🎫 ${String(b.numero).padStart(3, '0')}${b.premio ? ' · ' + fmtMt(b.premio) : ''}</span>`).join('')}</div>` : ''}
       <div style="display:flex;gap:6px;margin-top:10px"><input class="inp" id="iNum" type="number" min="0" max="999" placeholder="Nº (000–999) ou vazio = sorte" style="flex:1;padding:8px 10px"><button class="btn sm" id="bBilhete">Comprar</button></div>
     </div>
@@ -77,6 +108,7 @@ async function renderSorte(body) {
       <div class="grelha" style="grid-template-columns:repeat(3,1fr)">${[['1', g.odd1, 'Casa'], ['X', g.oddx, 'Empate'], ['2', g.odd2, 'Fora']].map(([k, o, t]) => `<button data-ap="${g.id}:${k}:${o}" style="justify-content:center;flex-direction:column;gap:0"><b>${k} · ${fmtTaxa(o)}</b><small style="color:var(--dim);font-size:11px">${t}</small></button>`).join('')}</div></div>`).join('') || '<div class="empty">Não há jogos abertos agora.</div>'}</div>
     ${jogos.some(g => g.golos_casa != null) ? `<div class="sub2">Resultados</div><div class="feed">${jogos.filter(g => g.golos_casa != null).map(g => `<div class="ev">${dataCurta(g.dia)} · ${esc(g.casa)} <b>${g.golos_casa}-${g.golos_fora}</b> ${esc(g.fora)}</div>`).join('')}</div>` : ''}
     ${(aps.data || []).length ? `<div class="sub2">As tuas apostas</div><div class="list">${aps.data.map(a => `<div class="row"><span class="e">${a.premio == null ? '⏳' : a.premio > 0 ? '✅' : '❌'}</span><div class="t"><b>${esc(nomeJogo(a.jogo_id))}</b><small>${a.escolha} @ ${fmtTaxa(a.odd)} · apostaste ${fmtMt(a.valor)}</small></div><span class="price" style="color:${a.premio > 0 ? 'var(--green)' : 'var(--dim)'}">${a.premio == null ? fmtMt(Math.floor(a.valor * a.odd)) : a.premio > 0 ? '+' + fmtMt(a.premio) : '—'}</span></div>`).join('')}</div>` : ''}`;
+  body.insertAdjacentHTML('beforeend', '<i data-sorte hidden></i>'); contagemSorte(body, s);
   body.querySelector('#bRaspa').onclick = async () => {
     const r = await acao('raspadinha', {}, { silencio: true });
     if (!r) return;

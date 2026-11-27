@@ -735,26 +735,28 @@ function ui2Sorte(body, s) {
   if (sorteSec === 'liga') {
     body.innerHTML = ui2Voltar4('Sorte', 'Liga de Moçambique') + fechado + (jogos.filter(aberto).length ? `<div class="list">${jogos.filter(aberto).map(g => `<div class="rel" style="margin-top:0"><div class="lbl"><span>${esc(g.casa)} x ${esc(g.fora)}</span><span style="color:var(--dim);font-weight:600">${dataCurta(g.dia)} · ${g.hora.slice(0, 5)}</span></div>
       <div class="grelha" style="grid-template-columns:repeat(3,1fr)">${[['1', g.odd1, 'Casa'], ['X', g.oddx, 'Empate'], ['2', g.odd2, 'Fora']].map(([k, o, t]) => `<button data-ap="${g.id}:${k}:${o}" style="justify-content:center;flex-direction:column;gap:0"><b>${k}</b><small>${esc(tr(t))} · ${fmtTaxa(o)}</small></button>`).join('')}</div></div>`).join('')}</div>` : `<div class="empty">${esc(tr('Não há jogos abertos agora.'))}</div>`)
-      + (jogos.some(g => g.golos_casa != null) ? `<div class="ui2-rot">${esc(tr('Resultados'))}</div><div class="ui2-caixa">${jogos.filter(g => g.golos_casa != null).map(g => `<div class="ui2-nota"><span class="t"><b>${esc(g.casa)} ${g.golos_casa}-${g.golos_fora} ${esc(g.fora)}</b><small>${dataCurta(g.dia)}</small></span></div>`).join('')}</div>` : '');
+      + (jogos.some(g => g.golos_casa != null) ? `<div class="ui2-rot">${esc(tr('Resultados'))}</div><div class="ui2-caixa">${jogos.filter(g => g.golos_casa != null).slice().reverse().map(g => `<div class="ui2-nota"><span class="t"><b>${esc(g.casa)} ${g.golos_casa}-${g.golos_fora} ${esc(g.fora)}</b><small>${dataCurta(g.dia)}</small></span></div>`).join('')}</div>` : '');
     body.querySelector('[data-ui2v]').onclick = () => { sorteSec = null; ui2Sorte(body, s); };
   } else {
     const hojeAbertos = jogos.filter(aberto).length;
     body.innerHTML = fechado + `<div class="ui2-lotaria"><span class="ui2-l"><i class="ui2-tag">${esc(tr('Lotaria de hoje'))}</i><small>${meusBil.length ? esc(tr('Os teus bilhetes')) + ': ' + meusBil.map(b => String(b.numero).padStart(3, '0')).join(' · ') : ''}</small></span>
-        <small>${esc(tr('Pote'))}</small><b>${fmtMt(proxima?.pote ?? 1000000)}</b>
-        <small>${esc(tr('Acerta os 3 números para levar o pote; os 2 últimos dão 10.000 MT.'))}${ultima ? ' ' + esc(tr('Último número: {0}').replace('{0}', String(ultima.numero ?? '').padStart(3, '0'))) : ''}</small>
+        <small>${esc(tr('Pote'))} · ${esc(tr('sorteio às 20h, falta'))} <span data-conta style="font-weight:700;color:var(--ink)">--</span></small><b>${fmtMt(proxima?.pote ?? 1000000)}</b>
+        <small>${esc(tr('Acerta os 3 números para levar o pote; os 2 últimos dão 10.000 MT. Cada bilhete soma ao pote.'))}${ultima ? ' ' + esc(tr('Último número: {0}').replace('{0}', String(ultima.numero ?? '').padStart(3, '0'))) + (ultima.vencedores ? '' : ' ' + esc(tr('(ninguém acertou, o pote acumulou)'))) + (ultima.meu_premio > 0 ? ' ' + esc(tr('Ganhaste {0}!').replace('{0}', fmtMt(ultima.meu_premio))) : '') : ''}</small>
         <span class="ui2-l"><input class="inp" id="iNum" type="number" min="0" max="999" placeholder="${esc(tr('Nº ou vazio = sorte'))}" aria-label="${esc(tr('Número do bilhete'))}"><button class="btn" id="bBilhete">${esc(tr('Comprar bilhete'))} · ${fmtMt(1000)}</button></span></div>
       <p class="ui2-q">${esc(tr('Ou tenta outra coisa'))}</p>
       <div class="dest-grelha">
         ${ui2Card('id="bRaspa"', '', '🎟️', '#ffcb00', tr('Raspadinha'), tr('Vês na hora · até 100.000'), fmtMt(500) + ' ›')}
         ${ui2Card('data-ss="liga"', '', '⚽', '#4cc38a', tr('Liga de Moçambique'), tr('Aposta 1 X 2'), esc(hojeAbertos ? tr('{0} jogos').replace('{0}', hojeAbertos) : tr('Resultados')) + ' ›')}
       </div>
-      ${aps.length ? `<div class="ui2-rot">${esc(tr('As tuas apostas'))}</div><div class="ui2-caixa">${aps.slice(0, 6).map(a => `<div class="ui2-nota"><span class="t"><b>${esc(nomeJogo(a.jogo_id))} · ${esc(a.escolha)}</b><small>${fmtMt(a.valor)} @ ${fmtTaxa(a.odd)}</small></span><b class="ui2-val" style="color:${a.premio == null ? 'var(--muted)' : a.premio > 0 ? 'var(--green)' : 'var(--red)'}">${a.premio == null ? esc(tr('A decorrer')) : a.premio > 0 ? '+' + fmtMt(a.premio) : esc(tr('Perdeste'))}</b></div>`).join('')}</div>` : ''}
+      ${aps.length ? `<div class="ui2-rot">${esc(tr('As tuas apostas'))}</div><div class="ui2-caixa">${aps.slice(0, 6).map(a => `<div class="ui2-nota"><span class="t"><b>${esc(nomeJogo(a.jogo_id))} · ${esc(a.escolha)}</b><small>${fmtMt(a.valor)} @ ${fmtTaxa(a.odd)}${(g => g ? ' · ' + (g.golos_casa != null ? g.golos_casa + '-' + g.golos_fora : dataCurta(g.dia) + ' ' + g.hora.slice(0, 5)) : '')(jogos.find(x => x.id === a.jogo_id))}</small></span><b class="ui2-val" style="color:${a.premio == null ? 'var(--muted)' : a.premio > 0 ? 'var(--green)' : 'var(--red)'}">${a.premio == null ? esc(tr('A decorrer')) : a.premio > 0 ? '+' + fmtMt(a.premio) : esc(tr('Perdeste'))}</b></div>`).join('')}</div>` : ''}
       <p class="m">${esc(tr('Raspadinha: 500 MT, prémios até 100.000 MT. Lotaria: bilhete de 1.000 MT, sorteio todos os dias às 20h; se ninguém acertar, o pote acumula. Liga de Moçambique: aposta no vencedor ou no empate; se acertares, recebes o valor vezes a odd. Joga só o que podes perder.'))}</p>`;
     body.querySelector('[data-ss]').onclick = () => { sorteSec = 'liga'; ui2Sorte(body, s); body.scrollTop = 0; };
     body.querySelector('#bRaspa').onclick = async () => { const r = await acao('raspadinha', {}, { silencio: true }); if (r) raspar(r.premio, r.msg); };
     body.querySelector('#bBilhete').onclick = async () => { const v = body.querySelector('#iNum').value; if (await acao('comprar_bilhete', { p_numero: v === '' ? null : parseInt(v, 10) })) abrirTelemovel('sorte'); };
     ui2Como(body, 'Regras e jogo responsável');
   }
+  body.insertAdjacentHTML('beforeend', '<i data-sorte hidden></i>');   // 27 nov: marca que a Sorte está aberta (a recarga automática só corre aqui)
+  contagemSorte(body, s);
   body.querySelectorAll('[data-ap]').forEach(b => b.onclick = () => {
     const [id, esc_, odd] = b.dataset.ap.split(':'); const g = jogos.find(x => x.id === +id);
     pedirValor(`Apostar em ${esc_ === '1' ? esc(g.casa) : esc_ === '2' ? esc(g.fora) : 'empate'} · @ ${fmtTaxa(odd)}`, `${esc(g.casa)} x ${esc(g.fora)}, ${g.hora.slice(0, 5)}. Se acertares, recebes o valor × ${fmtTaxa(odd)}.`, 1000,

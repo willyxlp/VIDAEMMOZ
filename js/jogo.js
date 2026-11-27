@@ -2213,6 +2213,7 @@ function tocarObjeto(o) {
     if (!adj) return usar();
     return andarPara(eu, adj[0], adj[1], usar) || usar();
   }
+  if (!o.porta) return;
   const [px, py] = o.porta;
   marcaToque = { x: px, y: py, ate: performance.now() + 700 };
   const fechado = o.spec && horarioLugar(o.spec)?.aberto === false;   // LL14: fechado → não se entra; abre o painel com o aviso

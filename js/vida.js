@@ -1278,7 +1278,7 @@ async function renderFamilia(body) {
 async function aoMudarGeracao() {
   // 8 nov: função com índice próprio (a consulta antiga era a mais pesada da base); se ainda não existir, usa a antiga
   const pdsp = pre('despedida'); let { data, error } = pdsp ? { data: pdsp.v, error: null } : await sb.rpc('minha_ultima_despedida');
-  if (error) ({ data } = await sb.from('eventos').select('*').eq('jogador_id', uid).like('texto', '🕊️%').order('criado_em', { ascending: false }).limit(1));
+  if (error) ({ data } = await sb.from('eventos').select('*').eq('jogador_id', uid).like('tipo', '🕊️%').order('criado_em', { ascending: false }).limit(1));
   const ev = data?.[0]; if (!ev || ls.get('vel_obito_' + uid) === ev.id) return;
   ls.set('vel_obito_' + uid, ev.id);
   try { localStorage.removeItem('vel_ap_' + uid); } catch { }
