@@ -273,7 +273,7 @@ async function renderJornal(body) {
   const corpo = t => t.replace(/^\p{Extended_Pictographic}️?\s*/u, '');
   const emo = t => (t.match(/^\p{Extended_Pictographic}️?/u) || ['📰'])[0];
   body.innerHTML = `<div class="jornal">
-    <div class="masthead">JORNAL DE LUANDA<small>${esc(dataTexto())} · Notícias dos bairros</small></div>
+    <div class="masthead">JORNAL DE MAPUTO<small>${esc(dataTexto())} · Notícias dos bairros</small></div>
     ${capa ? `<div class="capa"><div class="e">${emo(capa.texto)}</div><h3>${esc(corpo(capa.texto))}</h3><small>${esc(bairro(capa.bairro)?.nome || 'Maputo')} · há ${tempoRel(capa.criado_em)}</small></div>` : '<div class="empty">Dia calmo em Maputo. Nada a reportar.</div>'}
     ${coroasHTML(coroas)}
     ${(v.data || []).length ? `<div class="sub2">🔥 Viral no Mbilu</div>${v.data.map(p => `<div class="row"><span class="e">${p.foto || '🔥'}</span><div class="t"><b>"${esc(p.texto.slice(0, 70))}"</b><small>@${esc(p.handle || p.nome)} · ${fmtN(gostosDe(p))} gostos</small></div></div>`).join('')}` : ''}
