@@ -320,7 +320,7 @@
     #chatLog {
       position: absolute;
       left: 10px;
-      bottom: calc(78px + env(safe-area-inset-bottom));
+      bottom: calc(118px + env(safe-area-inset-bottom));
       max-width: min(78vw, 380px);
       max-height: 38vh;
       overflow: hidden;
@@ -332,6 +332,25 @@
     }
     #chatLog:has(~ #chatBox:not(.hide)),
     #chatBox:not(.hide)~#chatHist {
+      bottom: calc(106px + env(safe-area-inset-bottom))
+    }
+
+    #chatBtn {
+      position: absolute;
+      left: 10px;
+      bottom: calc(78px + env(safe-area-inset-bottom));
+      z-index: 6;
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff;
+      background: rgba(14, 11, 9, .75);
+      border: 1px solid rgba(255, 255, 255, .22);
+      border-radius: 999px;
+      padding: 6px 12px;
+      cursor: pointer
+    }
+
+    #chatBox:not(.hide)~#chatBtn {
       bottom: calc(66px + env(safe-area-inset-bottom))
     }
 
@@ -362,7 +381,7 @@
     #chatHist {
       position: absolute;
       left: 10px;
-      bottom: calc(78px + env(safe-area-inset-bottom));
+      bottom: calc(118px + env(safe-area-inset-bottom));
       width: min(86vw, 380px);
       max-height: 45vh;
       overflow-y: auto;
@@ -6099,6 +6118,11 @@
 
       #chatLog,
       #chatHist {
+        bottom: 138px;
+        left: 14px
+      }
+
+      #chatBtn {
         bottom: 96px;
         left: 14px
       }
@@ -6911,7 +6935,7 @@
   <script src="js/tempo_real.js?v=cc62d88"></script>
   <script src="js/salas.js?v=8ad8389d"></script>
   <script src="js/voz.js?v=ba6a093d"></script>
-  <script src="js/jogo.js?v=0779f90"></script>
+  <script src="js/jogo.js?v=7733ffc"></script>
   <script src="js/vida.js?v=06e1e08"></script>
   <script src="js/janelas.js?v=df26d1ae"></script>
   <script src="js/dinheiro.js?v=c156e97"></script>

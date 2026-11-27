@@ -1369,46 +1369,47 @@ function mostrarFala(p, texto, nome) {
   if (nome) adicionarChatLog(nome, texto);
 }
 // 27 nov: mini chat — as linhas esmorecem sozinhas (30 s), dá para esconder e para ver a última hora
-let chatHist = [], chatOculto = false, chatAberto = false, chatNaoLidas = 0, _chatSig = '';
-try { chatOculto = localStorage.getItem('chatOculto') === '1'; } catch { }
+let chatHist = [], chatModo = 'mini', chatNaoLidas = 0, _chatSig = '';   // 'mini' (linhas que esmorecem) · 'cheio' (última hora) · 'oculto'
+try { const m = localStorage.getItem('chatModo'); if (m === 'oculto') chatModo = 'oculto'; } catch { }
 const CHAT_VISIVEL = 30000, CHAT_HORA = 3600000;
 const chatHora = t => new Date(t).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit', timeZone: 'Africa/Maputo' });
 function adicionarChatLog(nome, texto, t) {
   t = t || Date.now(); chatHist.push({ nome, texto, t }); const lim = Date.now() - CHAT_HORA; chatHist = chatHist.filter(m => m.t > lim).slice(-200);
-  if (chatOculto && !chatAberto) chatNaoLidas++;
+  if (chatModo === 'oculto') chatNaoLidas++;
   renderChatLog(); renderChatHist();
 }
 function ligarChatCtl() {
-  if (ligarChatCtl._f || document.getElementById('chatOcultar')) return;
+  if (ligarChatCtl._f || document.getElementById('chatBtn')) return;
   ligarChatCtl._f = true;   // evita recursão (renderChatLog ↔ ligarChatCtl)
-  const log = $('#chatLog'), barra = $('#bFalar'); if (!log || !barra) { ligarChatCtl._f = false; return; }
-  const oc = document.createElement('button'); oc.id = 'chatOcultar'; oc.type = 'button';
-  const ex = document.createElement('button'); ex.id = 'chatExp'; ex.type = 'button'; ex.title = 'Mensagens da última hora';
+  const log = $('#chatLog'); if (!log) { ligarChatCtl._f = false; return; }
+  const btn = document.createElement('button'); btn.id = 'chatBtn'; btn.type = 'button';
   const hist = document.createElement('div'); hist.id = 'chatHist'; hist.className = 'hide'; hist.setAttribute('data-sem-traducao', '');
-  barra.after(oc); oc.after(ex); log.after(hist);
-  $('#chatOcultar').onclick = () => { chatOculto = !chatOculto; try { localStorage.setItem('chatOculto', chatOculto ? '1' : '0'); } catch { } if (!chatOculto) chatNaoLidas = 0; if (chatOculto) chatAberto = false; renderChatLog(); renderChatHist(); };
-  $('#chatExp').onclick = async () => { chatAberto = !chatAberto; if (chatAberto) { chatNaoLidas = 0; await recarregarHoraChat(); } renderChatLog(); renderChatHist(); };
+  log.after(btn); btn.after(hist);
+  btn.onclick = async () => {
+    if (chatModo === 'cheio') chatModo = 'oculto'; else { chatModo = 'cheio'; chatNaoLidas = 0; await recarregarHoraChat(); }
+    try { localStorage.setItem('chatModo', chatModo); } catch { }
+    renderChatLog(); renderChatHist();
+  };
   renderChatLog(); renderChatHist();
 }
 function renderChatLog() {
   ligarChatCtl(); const el = $('#chatLog'); if (!el) return; const agora = Date.now();
-  const vis = chatOculto || chatAberto ? [] : chatHist.filter(m => agora - m.t < CHAT_VISIVEL).slice(-8);
+  const vis = chatModo !== 'mini' ? [] : chatHist.filter(m => agora - m.t < CHAT_VISIVEL).slice(-8);
   const html = vis.map(m => { const idade = agora - m.t, op = idade < 15000 ? 1 : Math.max(0, 1 - (idade - 15000) / 15000); return `<div style="animation:none;opacity:${op.toFixed(2)}"><b>${esc(m.nome)}:</b> ${esc(m.texto)}</div>`; }).join('');
   if (html !== _chatSig) { _chatSig = html; el.innerHTML = html; }
-  const o = $('#chatOcultar'), e = $('#chatExp');
-  if (o) o.innerHTML = chatOculto ? '<span class="e">💬</span>Mostrar' + (chatNaoLidas ? ' (' + chatNaoLidas + ')' : '') : '<span class="e">🙈</span>Esconder';
-  if (e) { e.style.display = chatOculto ? 'none' : ''; e.innerHTML = chatAberto ? '<span class="e">✕</span>Fechar' : '<span class="e">🕑</span>1 hora'; e.classList.toggle('on', chatAberto); }
+  const b = $('#chatBtn');
+  if (b) b.textContent = chatModo === 'cheio' ? '🙈 Esconder' : '💬 Mostrar' + (chatModo === 'oculto' && chatNaoLidas ? ' (' + chatNaoLidas + ')' : '');
 }
 function renderChatHist() {
   const h = $('#chatHist'); if (!h) return;
-  h.classList.toggle('hide', !chatAberto || chatOculto); if (!chatAberto || chatOculto) return;
+  h.classList.toggle('hide', chatModo !== 'cheio'); if (chatModo !== 'cheio') { h._v = 0; return; }
   const lim = Date.now() - CHAT_HORA, l = chatHist.filter(m => m.t > lim);
   const baixo = h.scrollTop + h.clientHeight >= h.scrollHeight - 30;
   h.innerHTML = `<small class="m">Última hora · ${l.length} mensagem${l.length === 1 ? '' : 's'}</small>` + (l.length ? l.map(m => `<div><small>${chatHora(m.t)}</small> <b>${esc(m.nome)}:</b> ${esc(m.texto)}</div>`).join('') : '<div class="m">Ninguém falou na última hora.</div>');
   if (baixo || !h._v) { h.scrollTop = h.scrollHeight; h._v = 1; }
 }
 async function recarregarHoraChat() { if (chatBairro) await carregarHistoricoChat(chatBairro, true); }
-setInterval(() => { if (!chatOculto && !chatAberto) renderChatLog(); }, 1000);
+setInterval(() => { if (chatModo === 'mini') renderChatLog(); }, 1000);
 let chatBairro = null;
 let evPrivadoRecusado = false, chatPrivadoRecusado = false;   // 0fx
 let chatAoMsg = null, chatPeloRt = false;   // 9 nov: com o tempo real próprio, o chat da rua chega pelo canal da sala (evento «nova»)
