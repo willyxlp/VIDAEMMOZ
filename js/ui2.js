@@ -481,7 +481,7 @@ function ui2Justica(body) {
   const linha = (c, grande) => { const t = TIPO_CRIME[c.tipo] || ['⚠️', c.tipo];
     return `<div class="ui2-nota${grande ? ' grande' : ''}"><span class="ui2-ic" style="--c:${c.queixa ? '#4cc38a' : '#ff8fa0'}">${t[0]}</span><span class="t"><b>${esc(tr(t[1]))}${c.valor ? ' · ' + fmtMt(c.valor) : ''}</b><small>${esc(bairro(c.bairro)?.nome || '')} · ${tempoRel(c.criado_em)}</small></span>
       ${c.queixa ? `<span class="dest-preco" style="color:var(--green)">${esc(tr('Queixa feita'))}</span>` : velho(c) ? `<small class="m">${esc(tr('Arquivado'))}</small>` : `<button class="btn sm" data-queixa="${c.id}">${esc(tr('Fazer queixa'))}</button>`}</div>`; };
-  body.innerHTML = (J.detencao ? blocoDetencao() : preso() ? `<div class="ui2-estado mau"><span class="ui2-ic" style="--c:#ff8fa0">⛓️</span><div><b>${esc(tr('Na Cadeia de Viana'))}</b><small>${esc(tr('Faltam {0}. Na oficina sai-se mais cedo; a fiança é {1}.').replace('{0}', tempoFalta(J.preso_ate)).replace('{1}', fmtMt(Math.ceil((new Date(J.preso_ate) - Date.now()) / 3600e3) * 15000)))}</small></div></div>` : '')
+  body.innerHTML = (J.detencao ? blocoDetencao() : preso() ? `<div class="ui2-estado mau"><span class="ui2-ic" style="--c:#ff8fa0">⛓️</span><div><b>${esc(tr('Na Cadeia da Machava'))}</b><small>${esc(tr('Faltam {0}. Na oficina sai-se mais cedo; a fiança é {1}.').replace('{0}', tempoFalta(J.preso_ate)).replace('{1}', fmtMt(Math.ceil((new Date(J.preso_ate) - Date.now()) / 3600e3) * 15000)))}</small></div></div>` : '')
     + `<div class="ui2-grid">
       <div class="ui2-stat"><span><span>🚨 ${esc(tr('Procurado/a'))}</span><b style="color:${cor}">${p}</b></span><i><u style="width:${p}%;background:${cor}"></u></i><small class="m">${esc(tr(p >= 50 ? 'Há um mandado contra ti' : p > 0 ? 'A polícia anda de olho em ti' : 'Ninguém te procura'))}</small></div>
       <div class="ui2-stat"><span><span>📁 ${esc(tr('Cadastro'))}</span><b style="color:${cad ? 'var(--red)' : 'var(--green)'}">${cad}</b></span><i></i><small class="m">${esc(tr(cad ? 'Condenações no registo' : 'Nenhuma condenação'))}</small></div></div>
@@ -711,14 +711,14 @@ function ui2Ouro(body) {
     <p class="ui2-q">${esc(tr('O que queres com o teu Ouro?'))}</p>
     <div class="dest-grelha">
       ${ui2Card('data-os="vip"', '', '💎', '#ffcb00', tr('Passes'), tr('Proteção, salário +10% e mais'), pVip ? `${esc(tr('desde'))} ${pVip} ›` : '›')}
-      ${ui2Card('data-os="casas"', 'img/bairros/ilha.webp', '🏙️', '', tr('Casas VIP'), tr('Penthouse e Mussulo'), `${esc(tr('desde'))} 5.000 ›`)}
+      ${ui2Card('data-os="casas"', 'img/bairros/ilha.webp', '🏙️', '', tr('Casas VIP'), tr('Penthouse e Costa do Sol'), `${esc(tr('desde'))} 5.000 ›`)}
       ${ui2Card('data-os="extras"', '', '🦜', '#8fa8ff', tr('Móveis, animais e carros'), tr('Piano, trono, papagaio…'), pExt ? `${esc(tr('desde'))} ${pExt} ›` : '›')}
       ${ui2Card('data-os="protecao"', '', '🛡️', '#4cc38a', tr('Proteção'), tr('Contra roubos'), esc(tr('Ver')) + ' ›')}
     </div>
     <div class="ui2-eu" id="ui2PagarOuro" style="cursor:pointer"><span class="t"><b>${esc(tr('Pagar compras com Ouro'))}</b><small>${esc(tr('1 Ouro = 100 MT nas lojas'))}</small></span><span class="ui2-sw${pagarComOuro() ? ' on' : ''}" role="switch" aria-checked="${pagarComOuro()}"><i></i></span></div>`;
   body.prepend(casa);
   casa.querySelectorAll('[data-os]').forEach(b => b.onclick = () => {
-    if (b.dataset.os === 'casas') { const el = sheet(`<h3>${esc(tr('Casas VIP'))}</h3><p class="m">${esc(tr('A Penthouse VIP fica na Torre VIP da Marginal, na Baixa. As vivendas VIP ficam no Mussulo. Vai lá e toca no prédio para comprar com Ouro.'))}</p><button class="btn full" data-ir-paragem>${esc(tr('Ir à paragem'))}</button>`); el.querySelector('[data-ir-paragem]').onclick = () => { fecharSheets(); irParaParagem(); }; return; }
+    if (b.dataset.os === 'casas') { const el = sheet(`<h3>${esc(tr('Casas VIP'))}</h3><p class="m">${esc(tr('A Penthouse VIP fica na Marginal, no Bairro Central. A vivenda VIP fica na Costa do Sol. Vai lá e toca no prédio para comprar com Ouro.'))}</p><button class="btn full" data-ir-paragem>${esc(tr('Ir à paragem'))}</button>`); el.querySelector('[data-ir-paragem]').onclick = () => { fecharSheets(); irParaParagem(); }; return; }
     ouroSec = b.dataset.os; ui2Ouro(body);
   });
   casa.querySelector('#ui2PagarOuro').onclick = () => { try { localStorage.setItem('vel_pagar', pagarComOuro() ? 'kz' : 'ouro'); } catch { } renderOuro(body); };

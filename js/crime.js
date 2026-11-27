@@ -58,7 +58,7 @@ async function renderJustica(body) {
   const p = Math.round(J.procurado || 0);
   let h = '';
   if (J.detencao) h += blocoDetencao();
-  else if (preso()) h += `<div class="rel" style="margin-top:0;text-align:center"><div style="font-size:40px">⛓️</div><h3 style="margin:4px 0">Na Cadeia de Viana</h3><p class="m" style="margin:0">Faltam <b>${tempoFalta(J.preso_ate)}</b>. Na oficina sai-se mais cedo; a fiança é ${fmtMt(Math.ceil((new Date(J.preso_ate) - Date.now()) / 3600e3) * 15000)}.</p></div>`;
+  else if (preso()) h += `<div class="rel" style="margin-top:0;text-align:center"><div style="font-size:40px">⛓️</div><h3 style="margin:4px 0">Na Cadeia da Machava</h3><p class="m" style="margin:0">Faltam <b>${tempoFalta(J.preso_ate)}</b>. Na oficina sai-se mais cedo; a fiança é ${fmtMt(Math.ceil((new Date(J.preso_ate) - Date.now()) / 3600e3) * 15000)}.</p></div>`;
   h += `<div class="rel" ${J.detencao || preso() ? '' : 'style="margin-top:0"'}>
       <div class="lbl"><span>🚨 Procurado/a pela polícia</span><span>${p}</span></div>
       <div class="meter"><u style="left:0;width:${p}%;background:${p >= 50 ? 'var(--red)' : p > 0 ? 'var(--gold)' : 'var(--green)'}"></u></div>

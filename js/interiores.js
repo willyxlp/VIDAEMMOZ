@@ -111,7 +111,7 @@ function gerarInterior(o) {
     pon(mvInt('som_kuduro', 'som', 1, 1, '#141012', 'Coluna'), Math.floor(W / 2) - 2, 0, 0, null); pon(mvInt('som_kuduro', 'som', 1, 1, '#141012', 'Coluna'), Math.floor(W / 2) + 2, 0, 0, null);
     balcao(0, H - 4, 3, 1, todas, 'Bar — bebidas');
     staffEm(Math.floor(W / 2) + 0.5, 1.5, { pele: 4, cabelo: 0, corCabelo: 0, camisa: '#cc092f', calca: '#141012' }, 'DJ', ['Toca a mexer!', 'Próxima é um kuduro!', 'Pede a tua música!']);
-    staffEm(1.5, H - 2.5, { pele: 2, cabelo: 2, corCabelo: 0, camisa: '#141012', calca: '#141012' }, 'Barman', ['Uma Cuca bem gelada?', 'O que vai beber?']);
+    staffEm(1.5, H - 2.5, { pele: 2, cabelo: 2, corCabelo: 0, camisa: '#141012', calca: '#141012' }, 'Barman', ['Uma 2M bem gelada?', 'O que vai beber?']);
     for (let k = 0; k < 4; k++) clientes.push([Math.floor(W / 2) - 1 + (k % 2) * 2, Math.floor(H / 2) + Math.floor(k / 2)]);
     pon(mvInt('sofa', 'sofa', 2, 1, '#7a1fd0', 'Sofá'), W - 3, H - 1, 0, null);
   } else if (cat === 'ginasio') {

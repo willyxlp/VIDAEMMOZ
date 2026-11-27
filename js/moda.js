@@ -1,6 +1,6 @@
 /* ============================================================
    Vida na Banda — LOJA DE MODA e GUARDA-ROUPA (FILA 0dn-4, dono 6 nov)
-   «When you click Hang Out at Talatona Shopping, it should take you to… the actual drops in the clothes stores…
+   «When you click Hang Out at Maputo Shopping Center, it should take you to… the actual drops in the clothes stores…
    charge MT for some things and Ouro for some things… vary the prices based on the size of the trend.
    The whole wardrobe scene where you change clothes is what it should look like… try on… buy and they go to your
    wardrobe… the background changes to your home, while in the store the background is the store.»
@@ -70,7 +70,7 @@ function desenharLojaModa(v, st) {
   const pecas = pecasDoModo(st), N = 3, max = Math.max(0, pecas.length - N);
   st.i = Math.min(st.i, max);
   const sel = pecas.find(p => p.id === st.sel);
-  const sitio = J.bairro === 'talatona' ? 'Talatona Shopping' : (bairro(J.bairro)?.nome || J.bairro);
+  const sitio = J.bairro === 'sommerschield' ? 'Maputo Shopping Center' : (bairro(J.bairro)?.nome || J.bairro);
   const titulo = st.modo === 'casa' ? '👗 ' + tr('O meu guarda-roupa') : '🛍️ ' + tr('Loja de moda') + ' · ' + sitio;
   const sub = st.modo === 'casa' ? tr('Experimenta e veste o que é teu.') : tr('Coleção nova todas as segundas-feiras.');
   const TABS = st.modo === 'casa' ? [['roupa', '👗 ' + tr('Roupa')], ['acess', '💍 ' + tr('Acessórios')]] : [['esta', tr('Esta semana')], ['passada', tr('Semana passada')]];

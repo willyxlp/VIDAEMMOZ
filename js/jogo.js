@@ -2318,7 +2318,7 @@ async function abrirLugar(o) {
     if (a.t === 'moveis') {
       const lista = D.moveis.filter(m => m.preco > 0 && (a.loja === 'fina' || m.preco <= 16000));
       h += `<p class="m">Compra e depois vai a casa carregar em 🔨 Decorar para pôr onde quiseres.</p><div class="list">${lista.map(m => `<div class="row">${miniaturaHTML('movel', m.id)}<div class="t"><b>${esc(m.nome)}</b><small>${esc(m.efeito)}</small></div><button class="btn sm" data-a="comprar_movel" data-v="${m.id}">${fmtMt(m.preco)}</button></div>`).join('')}</div>`;
-      if (a.loja !== 'fina') h += `<p class="m" style="margin-top:10px">Móveis de luxo (cama de casal, TV, geleira, AC…) estão no Casa & Design, em Talatona.</p>`;
+      if (a.loja !== 'fina') h += `<p class="m" style="margin-top:10px">Móveis de luxo (cama de casal, TV, geleira, AC…) estão no Casa & Design, em Sommerschield.</p>`;
     }
     if (a.t === 'casa') {
       const c = casaDe(a.id);
@@ -2564,7 +2564,7 @@ function linhaDestino(b, meios, nota) {
     <div class="t"><b>${esc(b.nome)}</b>${nota ? `<small>${esc(nota)}</small>` : ''}</div>
     <span class="dest-preco">${esc(tr('desde'))} ${barato ? fmtMt(barato) : esc(tr('Grátis'))} ›</span></button>`;
 }
-// FILA 0dn-9 (dono 6 nov): Cemitério do Camama — campas das personagens que morreram e das figuras do bairro; pôr flores
+// FILA 0dn-9 (dono 6 nov): Cemitério de Lhanguene — campas das personagens que morreram e das figuras do bairro; pôr flores
 async function campasCemiterio(div) {
   const { data, error } = await sb.rpc('cemiterio_campas');
   if (error || !data) { div.innerHTML = `<div class="empty">${esc(tr('Tenta outra vez daqui a pouco.'))}</div>`; return; }
@@ -2921,7 +2921,7 @@ function rotaPara(dest) {
   const aqui = provDe(J.bairro), longe = provDe(dest) !== aqui;
   if (J.bairro === 'mussulo') return { dest: 'ilha', meios: ['barco'], nota: tr('Primeiro o barco para a Ilha') };
   if (dest === 'mussulo') return J.bairro === 'ilha' ? { dest, meios: ['barco'] } : { dest: 'ilha', meios: ['candongueiro', 'kupapata', 'taxi'], nota: tr('Primeiro até à Ilha; daí, o barco') };
-  if (dest === 'cabinda' || J.bairro === 'cabinda') return AEROPORTOS.includes(J.bairro) ? { dest, meios: ['aviao'] } : { dest: 'maianga', meios: ['candongueiro', 'kupapata', 'taxi'], nota: tr('Primeiro até ao aeroporto (Maianga)') };
+  if (dest === 'cabinda' || J.bairro === 'cabinda') return { dest, meios: ['aviao'] };
   const meios = longe ? ['autocarro'] : ['candongueiro', 'kupapata', 'taxi'];
   if (!longe && temMota()) meios.push('mota'); if (temCarro()) meios.push('carro');
   if (longe && AEROPORTOS.includes(J.bairro) && AEROPORTOS.includes(dest)) meios.push('aviao');

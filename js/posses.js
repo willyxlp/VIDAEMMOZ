@@ -39,7 +39,7 @@ async function abrirPosesCarro(id) {
 document.addEventListener('click', e => { const el = e.target.closest && e.target.closest('[data-posar]'); if (el) { e.preventDefault(); abrirPosesCarro(el.dataset.posar); } });
 function linhaItem(i, podeComprar) {
   const meu = tem(i.id);
-  const onde = tr(i.onde === 'stand' ? 'No Stand Automóvel (Talatona)' : i.onde === 'feira' ? 'Na Feira dos Animais (Viana)' : '');
+  const onde = tr(i.onde === 'stand' ? 'No Stand Automóvel (Sommerschield)' : i.onde === 'feira' ? 'Na Feira dos Animais (Magoanine)' : '');
   const pose = posarCom(i);
   return `<div class="row ${meu ? 'mine' : ''}">${pose ? `<button class="posar-mini" data-posar="${i.id}" aria-label="${esc(tr('Ver-me com este carro'))}">${miniaturaHTML('item', i.id)}<span>📸</span></button>` : miniaturaHTML('item', i.id)}<div class="t"${pose ? ` data-posar="${i.id}"` : ''}><b>${esc(tr(i.nome))} ${diamantes(i.nivel)}</b>${pose ? `<small class="posar-txt">📸 ${esc(tr('Ver-me com este carro'))}</small>` : ''}<small>${esc(tr(i.descricao))}${custoDiario(i) ? ' · <b class="custo-dia">' + esc(tr('Custa {0} por dia (piloto, seguro, manutenção)').replace('{0}', fmtMt(custoDiario(i)))) + '</b>' : ''}${!meu && !podeComprar && onde ? ' · ' + onde : ''}</small></div>
     ${meu ? `<button class="btn sm ghost" data-vender="${i.id}">Vender ${fmtMt(Math.round(i.preco / 2))}</button>` : podeComprar ? `<button class="btn sm" data-a="comprar" data-v="${i.id}" ${J.kumbu < i.preco ? 'disabled' : ''}>${fmtMt(i.preco)}</button>` : i.onde === 'stand' ? (encomendados.has(i.id) ? `<span class="price">🚚 A caminho</span>` : `<button class="btn sm ghost" data-encomendar="${i.id}" ${J.kumbu < comEntrega(i.preco) ? 'disabled' : ''}>🚚 ${fmtMt(comEntrega(i.preco))}</button>`) : `<span class="price">${fmtMt(i.preco)}</span>`}</div>`;
@@ -82,7 +82,7 @@ function renderLoja(body) {
       ${gruposMoveis(D.moveis.filter(m => m.preco > 0 && (!(typeof ui2 === 'function' && ui2()) || !lojaSala || catMovel(m.tipo) === lojaSala)).sort((a, z) => a.preco - z.preco), ms => `<div class="list">${ms.map(m => `<div class="row">${miniaturaHTML('movel', m.id)}<div class="t"><b>${esc(m.nome)} ${m.preco >= 90000 ? '💎' : ''}</b><small>${esc(m.efeito)} · na loja ${fmtMt(m.preco)}</small></div><button class="btn sm" data-a="comprar_online" data-v="${m.id}">${fmtMt(online(m.preco))}</button></div>`).join('')}</div>`)}`;
   } else {
     const lista = D.itens.filter(i => i.preco_ouro == null && (i.categoria || 'outros') === lojaCat).sort((a, z) => (a.ordem || 0) - (z.ordem || 0));
-    const fisico = lojaCat === 'aviao' ? 'Aviões e helicópteros. Só os mais ricos: cada um desbloqueia quando o teu património chega ao valor indicado.' : lojaCat === 'veiculo' ? 'Compra no Stand Automóvel (Talatona) ou toca em 🚚 para encomendar aqui: +10% e chega em 2 dias.' : lojaCat === 'animal' ? 'Os animais compram-se na <b>Feira dos Animais</b>, em Viana.' : '';
+    const fisico = lojaCat === 'aviao' ? 'Aviões e helicópteros. Só os mais ricos: cada um desbloqueia quando o teu património chega ao valor indicado.' : lojaCat === 'veiculo' ? 'Compra no Stand Automóvel (Sommerschield) ou toca em 🚚 para encomendar aqui: +10% e chega em 2 dias.' : lojaCat === 'animal' ? 'Os animais compram-se na <b>Feira dos Animais</b>, em Viana.' : '';
     h += `<p class="m">${fisico || 'Entregue onde estiveres.'} 💎 = Estilo (as posses de luxo dão reputação e nível de Estilo). Podes vender por metade do preço.</p>
       <div class="list">${lista.map(i => linhaItem(i, !i.onde)).join('')}</div>`;
   }
@@ -252,7 +252,7 @@ const meusCarros = () => (J.itens || []).map(id => D.itens?.find(i => i.id === i
 const resumoAcab = a => [a.pintura === 'ouro' ? '🟡 ' + tr('Dourado') : a.pintura === 'diamante' ? '💎 ' + tr('Diamante') : '', a.neon ? '🌈 ' + tr('Néon') : '', a.matricula ? '🔤 ' + a.matricula : ''].filter(Boolean).join(' · ');
 function acabamentosListaHTML() {
   const cs = meusCarros();
-  if (!cs.length) return `<p class="m">${tr('Compra um carro ou uma mota no Stand (Talatona) para lhe pores acabamentos de luxo.')}</p>`;
+  if (!cs.length) return `<p class="m">${tr('Compra um carro ou uma mota no Stand (Sommerschield) para lhe pores acabamentos de luxo.')}</p>`;
   return `<p class="m">${tr('Dourado, diamante, luz néon e matrícula só tua. O acabamento fica no carro: se o venderes, perde-se.')}</p>
     <div class="list">${cs.map(i => { const a = J.acabamentos?.[i.id] || {};
       return `<div class="row">${miniaturaHTML('item', idVisual(i.id))}<div class="t"><b>${esc(tr(i.nome))}</b><small>${esc(resumoAcab(a)) || tr('Sem acabamentos')}</small></div><button class="btn sm" data-acab="${esc(i.id)}">✨ ${tr('Personalizar')}</button></div>`; }).join('')}</div>`;

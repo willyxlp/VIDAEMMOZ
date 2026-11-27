@@ -105,13 +105,13 @@ const SITIO_ENCONTRO = {
   praia: { lugar: 'Bar da Praia', dentro: false, falas: ['Que água tão azul! 🌊', 'Anda, vamos molhar os pés 😄', 'Isto é que é vida 🌴'] },
   marginal: { lugar: 'Costa do Sol', dentro: false, falas: ['Olha o pôr do sol na baía 🌅', 'Maputo é linda daqui', 'Que brisa boa 😌'] },
   kizomba: { lugar: 'Bar do Largo', dentro: true, falas: ['Dança comigo? 💃', 'Tu danças bem! 😄', 'Mais uma música! 🎶'] },
-  cinema: { lugar: 'Talatona Shopping', dentro: true, falas: ['Pipocas ou gelado? 🍿', 'Esse filme é bom?', 'Senta-te aqui ao pé de mim 😊'] },
+  cinema: { lugar: 'Maputo Shopping Center', dentro: true, falas: ['Pipocas ou gelado? 🍿', 'Esse filme é bom?', 'Senta-te aqui ao pé de mim 😊'] },
   restaurante: { lugar: 'Restaurante Coconuts', dentro: true, falas: ['Que vista linda 🌊', 'O peixe está divinal 🐟', 'Brindamos? 🥂'] },
   s_karaoke: { lugar: 'Bar do Largo', dentro: true, falas: ['Escolhe tu a música! 🎤', 'Desafinaste tanto 😂', 'Agora em dueto! 🎶'] },
-  s_futebol: { lugar: 'Campo do Cazenga', dentro: false, falas: ['Passa a bola! ⚽', 'Golooo! 🥅', 'Mais um jogo? 😅'] },
-  s_relaxar: { lugar: 'Bar da Praia', dentro: false, falas: ['Isto é que é vida 😎', 'Uma Cuca bem gelada? 🍺', 'Olha o pôr do sol 🌅'] },
-  s_shopping: { lugar: 'Talatona Shopping', dentro: true, falas: ['Vamos ver ténis? 👟', 'Um gelado? 🍦', 'Tanta coisa gira aqui 🛍️'] },
-  s_cinema: { lugar: 'Talatona Shopping', dentro: true, falas: ['Pipocas grandes! 🍿', 'Esse filme é bom?', 'Que final! 😮'] },
+  s_futebol: { lugar: 'Campo de Maxaquene', dentro: false, falas: ['Passa a bola! ⚽', 'Golooo! 🥅', 'Mais um jogo? 😅'] },
+  s_relaxar: { lugar: 'Bar da Praia', dentro: false, falas: ['Isto é que é vida 😎', 'Uma 2M bem gelada? 🍺', 'Olha o pôr do sol 🌅'] },
+  s_shopping: { lugar: 'Maputo Shopping Center', dentro: true, falas: ['Vamos ver ténis? 👟', 'Um gelado? 🍦', 'Tanta coisa gira aqui 🛍️'] },
+  s_cinema: { lugar: 'Maputo Shopping Center', dentro: true, falas: ['Pipocas grandes! 🍿', 'Esse filme é bom?', 'Que final! 😮'] },
 };
 let emEncontro = false;
 async function irAoEncontro(e, meio = 'taxi') {
@@ -157,7 +157,7 @@ async function irAoEncontro(e, meio = 'taxi') {
     const el = sheet(`<h3>${L.e} ${esc(tr(L.nome))}</h3><p class="m">${esc(tr('Com {0}').replace('{0}', nomePar))}</p>
       <div class="row mine"><span class="e">${amigos ? '🎉' : e.d > 0 ? '💖' : '😬'}</span><div class="t"><b>${esc(tr(e.res))}</b><small>${esc(tr('Relação'))} ${sinal}${e.d}</small></div></div>
       <button class="btn full" data-fechar>${esc(tr(e.local === 's_shopping' ? 'Ir à loja de moda' : 'Continuar'))}</button>`);
-    if (e.local === 's_shopping' && typeof abrirLojaModa === 'function') el.querySelector('[data-fechar]')?.addEventListener('click', () => abrirLojaModa('loja'));   // dono 6 nov: o passeio no Talatona Shopping leva à loja de moda
+    if (e.local === 's_shopping' && typeof abrirLojaModa === 'function') el.querySelector('[data-fechar]')?.addEventListener('click', () => abrirLojaModa('loja'));   // dono 6 nov: o passeio no Maputo Shopping Center leva à loja de moda
     // o par fica mais um bocado e depois vai-se embora
     setTimeout(() => { const i = npcs.indexOf(parP); if (i >= 0) npcs.splice(i, 1); }, 25000);
     return el;
@@ -1372,7 +1372,7 @@ async function renderGrupos(body) {
   const meus = gs.filter(g => g.eu), outros = gs.filter(g => !g.eu);
   const fundou = gs.some(g => g.criado_por === uid);
   if (typeof ui2 === 'function' && ui2()) return ui2Grupos(body, gs, fundou, `<form id="fGrupo"><label>Tipo</label><select class="inp" id="gTipo"><option value="clube">⚽ Equipa de futebol</option><option value="igreja">⛪ Igreja</option><option value="associacao">🤝 Associação</option></select>
-      <label>Nome</label><input class="inp" id="gNome" maxlength="40" required placeholder="ex: Kilamba Leões">
+      <label>Nome</label><input class="inp" id="gNome" maxlength="40" required placeholder="ex: Maxaquene Leões">
       <label>Descrição (opcional)</label><input class="inp" id="gDesc" maxlength="140">
       <small style="display:block;color:var(--dim);font-size:12px;margin-top:6px">Fica sediado em ${esc(bairro(J.bairro)?.nome || '')}, o bairro onde estás agora.</small>
       <button class="btn full" type="submit">Fundar</button></form>`, async el => { if (await acao('criar_grupo', { p_tipo: el.querySelector('#gTipo').value, p_nome: el.querySelector('#gNome').value, p_descricao: el.querySelector('#gDesc').value || null })) { fecharSheets(); abrirTelemovel('grupos'); } });   // 8 nov: redesenho (teste)
@@ -1383,7 +1383,7 @@ async function renderGrupos(body) {
     <div class="list">${outros.map(linhaGrupo).join('') || '<div class="empty">Já estás em todos!</div>'}</div>
     ${fundou ? '' : `<div class="sub2">Fundar um grupo · ${fmtMt(50000)}</div>
     <form id="fGrupo"><label>Tipo</label><select class="inp" id="gTipo"><option value="clube">⚽ Equipa de futebol</option><option value="igreja">⛪ Igreja</option><option value="associacao">🤝 Associação</option></select>
-      <label>Nome</label><input class="inp" id="gNome" maxlength="40" required placeholder="ex: Kilamba Leões">
+      <label>Nome</label><input class="inp" id="gNome" maxlength="40" required placeholder="ex: Maxaquene Leões">
       <label>Descrição (opcional)</label><input class="inp" id="gDesc" maxlength="140">
       <small style="display:block;color:var(--dim);font-size:12px;margin-top:6px">Fica sediado em ${esc(bairro(J.bairro)?.nome || '')}, o bairro onde estás agora.</small>
       <button class="btn full" type="submit">Fundar</button></form>`}`;
