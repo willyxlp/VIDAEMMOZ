@@ -1378,7 +1378,7 @@ let chatAoMsg = null, chatPeloRt = false;   // 9 nov: com o tempo real próprio,
 async function carregarHistoricoChat(b) {
   try {
     const desde = new Date(Date.now() - 10 * 60000).toISOString(), sala = typeof salaAtual !== 'undefined' ? salaAtual : 1;
-    const { data } = await sb.from('chat_bairro').select('nome,texto,jogador_id').eq('bairro', b).eq('sala', sala).gte('criado_em', desde).order('criado_em', { ascending: false }).limit(8);
+    const { data } = await sb.from('chat_bairro').select('nome,texto,jogador_id').eq('bairro', b).eq('sala', String(sala)).gte('criado_em', desde).order('criado_em', { ascending: false }).limit(8);
     if (!data?.length || chatBairro !== b) return;
     chatMsgs = data.reverse().filter(m => !bloqueados.has(m.jogador_id)).map(m => ({ nome: m.nome, texto: typeof filtrarTexto === 'function' ? filtrarTexto(m.texto) : m.texto }));
     $('#chatLog').innerHTML = chatMsgs.map(m => `<div><b>${esc(m.nome)}:</b> ${esc(m.texto)}</div>`).join('');
@@ -1403,7 +1403,7 @@ async function ligarChat(b) {
   chatPeloRt = false;
   chatPrivadoRecusado = true;   // 27 nov: o chat da rua vive na tabela chat_bairro (mudanças na base)
   carregarHistoricoChat(b);
-  if (chatPrivadoRecusado) { chatCanal = sb.channel('chat-' + b + (typeof salaAtual !== 'undefined' && salaAtual > 1 ? ':' + salaAtual : '')).on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_bairro', filter: 'bairro=eq.' + b }, p => aoMsg({ new: { ...p.new, jogador_id: p.new.jogador_id } })).subscribe(); return; }   // 0fx
+  if (chatPrivadoRecusado) { chatCanal = sb.channel('chat-' + b + (typeof salaAtual !== 'undefined' && salaAtual !== 1 ? ':' + salaAtual : '')).on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_bairro', filter: 'bairro=eq.' + b }, p => aoMsg({ new: { ...p.new, jogador_id: p.new.jogador_id } })).subscribe(); return; }   // 0fx
   let reserva = false, ligou = false;
   let este = null;
   este = chatCanal = sb.channel(typeof salaChat === 'function' ? salaChat(b) : 'bairro:' + b, { config: { private: true } }) // 8 nov (0ez): salas
@@ -1468,7 +1468,7 @@ $('#fChat').onsubmit = async e => {
     if (r.ok) return;
     if (r.erro) { toast(limparErro(r.erro), 'mau'); $('#iMsg').value = t; return; }
   }
-  const { error } = await sb.rpc('enviar_mensagem', { p_texto: t, p_sala: typeof salaAtual !== 'undefined' ? salaAtual : 1 });
+  const { error } = await sb.rpc('enviar_mensagem', { p_texto: t, p_sala: String(typeof salaAtual !== 'undefined' ? salaAtual : 1) });
   if (error) { toast(limparErro(error.message), 'mau'); $('#iMsg').value = t; return; }
   const ft = typeof filtrarTexto === 'function' ? filtrarTexto(t) : t;   // 27 nov: a minha fala aparece logo (balão e mini chat)
   eu.fala = { txt: ft, ate: performance.now() + 15000 }; adicionarChatLog(J.nome, ft);
