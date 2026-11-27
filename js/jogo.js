@@ -1882,6 +1882,8 @@ try {
 } catch { }
 // 26 out (dono): o 3D é para todos. Quem escolheu no Perfil manda; se o aparelho for lento demais, volta sozinho ao desenho clássico.
 function querer3D() {
+  // 27 nov (dono: «quero ver o boneco 3D sempre»): uma só vez, limpa o «voltar ao 2D» que ficou guardado (queda automática ou escolha antiga)
+  try { if (!localStorage.getItem('vel_3d_mig27')) { localStorage.removeItem('vel_3d_auto'); if (localStorage.getItem('vel_3d') === '0') localStorage.removeItem('vel_3d'); localStorage.setItem('vel_3d_mig27', '1'); } } catch { }
   let v = null, auto = null; try { v = localStorage.getItem('vel_3d'); auto = localStorage.getItem('vel_3d_auto'); } catch { }
   if (v === '1') return true;
   if (v === '0') return false;
@@ -1963,11 +1965,7 @@ function vigiar3D() {
   if (vigia.lentos < 5) return;
   vigia.lentos = 0; vigia.t0 = agora;
   if (vigia.nivel === 0 && M3D.leve) { M3D.leve(); vigia.nivel = 1; return; }
-  if (f < 10 && !forcado) {
-    m3dPedido = false; try { localStorage.setItem('vel_3d_auto', '0'); } catch { }
-    M3D.esconder(); cv.style.background = '';
-    toast(tr('Os gráficos 3D estavam lentos neste aparelho — voltámos ao desenho clássico. Podes ligar outra vez no Perfil.'));
-  }
+  // 27 nov: já não cai para o desenho 2D por ser lento — fica sempre em 3D (no modo leve, sem sombras e com menos detalhe)
 }
 const viagemAtiva = () => !!document.getElementById('viagemFP') || !!document.getElementById('jetski');
 function desenhar(t) {
