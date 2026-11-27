@@ -95,8 +95,8 @@ function gerarInterior(o) {
     pon(mvInt('frigorifico', 'frigorifico', 1, 1, '#f2f2f2', 'Geleira'), 4, 0, 0, null);
     // 0r (play-test): a «Tia da cantina» só nas cantinas/tascas; nos restaurantes e bares é o empregado de mesa
     if (/cantina|tasca|quitanda|roulotte/i.test(o.spec.nome || ''))
-      staffEm(2.5, 1.5, { pele: 3, cabelo: 3, corCabelo: 0, camisa: '#f5f5f5', calca: '#333' }, 'Tia da cantina', ['O que vai ser hoje?', 'Hoje o calulu está divinal!', 'Pão com chouriço acabadinho de fazer.']);
-    else staffEm(2.5, 1.5, { pele: 5, cabelo: 1, corCabelo: 0, camisa: '#1d1d1d', calca: '#1d1d1d' }, 'Empregado de mesa', ['Bem-vindo! Mesa para quantos?', 'O prato do dia é muamba de galinha.', 'Já vos trago a carta.']);
+      staffEm(2.5, 1.5, { pele: 3, cabelo: 3, corCabelo: 0, camisa: '#f5f5f5', calca: '#333' }, 'Tia da cantina', ['O que vai ser hoje?', 'Hoje a matapa está divinal!', 'Pão com chouriço acabadinho de fazer.']);
+    else staffEm(2.5, 1.5, { pele: 5, cabelo: 1, corCabelo: 0, camisa: '#1d1d1d', calca: '#1d1d1d' }, 'Empregado de mesa', ['Bem-vindo! Mesa para quantos?', 'O prato do dia é frango à zambeziana.', 'Já vos trago a carta.']);
     for (let ty = 5; ty < H - 1; ty += 3) for (let tx = 1; tx < W - 3; tx += 3) {
       if (!pon(mvInt('int_mesa_rest', 'mesa', 1, 1, '#c8a27a', 'Mesa'), tx + 1, ty, 0, todas, 'Mesa — comer aqui')) continue;
       // 0cy (4): as cadeiras viradas para a mesa (antes ficavam de lado — «the chair is backwards»)
@@ -110,7 +110,7 @@ function gerarInterior(o) {
     pon(mvInt('int_dj', 'mesa', 3, 1, '#1e1e24', 'Cabine do DJ'), Math.floor(W / 2) - 1, 0, 0, ['lazer', 'emprego'], 'DJ — pedir uma música');
     pon(mvInt('som_kuduro', 'som', 1, 1, '#141012', 'Coluna'), Math.floor(W / 2) - 2, 0, 0, null); pon(mvInt('som_kuduro', 'som', 1, 1, '#141012', 'Coluna'), Math.floor(W / 2) + 2, 0, 0, null);
     balcao(0, H - 4, 3, 1, todas, 'Bar — bebidas');
-    staffEm(Math.floor(W / 2) + 0.5, 1.5, { pele: 4, cabelo: 0, corCabelo: 0, camisa: '#cc092f', calca: '#141012' }, 'DJ', ['Toca a mexer!', 'Próxima é um kuduro!', 'Pede a tua música!']);
+    staffEm(Math.floor(W / 2) + 0.5, 1.5, { pele: 4, cabelo: 0, corCabelo: 0, camisa: '#cc092f', calca: '#141012' }, 'DJ', ['Toca a mexer!', 'Próxima é uma marrabenta!', 'Pede a tua música!']);
     staffEm(1.5, H - 2.5, { pele: 2, cabelo: 2, corCabelo: 0, camisa: '#141012', calca: '#141012' }, 'Barman', ['Uma 2M bem gelada?', 'O que vai beber?']);
     for (let k = 0; k < 4; k++) clientes.push([Math.floor(W / 2) - 1 + (k % 2) * 2, Math.floor(H / 2) + Math.floor(k / 2)]);
     pon(mvInt('sofa', 'sofa', 2, 1, '#7a1fd0', 'Sofá'), W - 3, H - 1, 0, null);

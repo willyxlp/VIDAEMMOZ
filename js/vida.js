@@ -980,7 +980,7 @@ function mudarAndarFilhos(filhos) {
 // 🧹 os empregados aparecem em casa e vão fazendo o trabalho deles
 const VISUAL_EMPREGADO = {
   empregada: [{ pele: 4, cabelo: 3, corCabelo: 0, camisa: '#2c6fb0', calca: '#2c6fb0', roupa: 3 }, ['🧹', '🧽', '🧺'], ['A casa está limpinha!', 'Já arrumei o quarto.', 'Cuidado, o chão está molhado!']],
-  cozinheiro: [{ pele: 2, cabelo: 0, corCabelo: 0, camisa: '#f5f5f5', calca: '#333' }, ['🍲', '🍳', '🥘'], ['O funge já está quase!', 'Hoje há muamba.', 'Quer provar o molho?']],
+  cozinheiro: [{ pele: 2, cabelo: 0, corCabelo: 0, camisa: '#f5f5f5', calca: '#333' }, ['🍲', '🍳', '🥘'], ['A xima já está quase!', 'Hoje há matapa.', 'Quer provar o molho?']],
   seguranca: [{ pele: 5, cabelo: 0, corCabelo: 0, camisa: '#141012', calca: '#141012' }, ['🛡️', '👀', '🔦'], ['Tudo calmo por aqui, chefe.', 'Ninguém entra sem eu ver.', 'Portão fechado.']],
   motorista: [{ pele: 3, cabelo: 1, corCabelo: 0, camisa: '#cfd6dc', calca: '#2a3b55' }, ['🚘', '🔑', '🧽'], ['O carro está lavado, chefe.', 'Para onde vamos hoje?', 'Já pus gasolina.']],
 };

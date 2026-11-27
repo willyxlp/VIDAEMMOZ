@@ -1136,7 +1136,7 @@ function sairDeCasa() {
 }
 
 /* ---------- NPCs ---------- */
-const FALAS_NPC = ['Bom dia, mano!', 'Tá-se bem?', 'Epá, este calor…', 'A gasolina subiu outra vez!', 'Vais ao jogo do Petro?', 'Kumbu não cai do céu, né?', 'Olha a zungueira!', 'Bué de trânsito hoje.', 'Já comeste?', 'Fixe! 👍', 'A luz foi ontem a noite toda…', 'Mambo é esse?'];
+const FALAS_NPC = ['Bom dia, mano!', 'Como estás, tio?', 'Kanimambo!', 'Pá, este calor de Maputo…', 'O chapa está cheio outra vez!', 'A EDM cortou a luz ontem à noite…', 'A gasolina subiu outra vez!', 'Vais ao jogo dos Mambas?', 'Dinheiro não cai do céu, pá!', 'Olha o pão quentinho!', 'Muito trânsito na Marginal hoje.', 'Já comeste? Hoje há matapa.', 'Fixe! 👍', 'O xitique este mês é meu!', 'Que se passa, mano?', 'Peixe fresquinho da Costa do Sol!', 'A Baixa está cheia hoje.', 'Tudo bem contigo?', 'Vais à Catembe de ferry?', 'Hoje não há água no bairro…'];   // 27 nov: contexto moçambicano
 function criarNpcs() {
   npcs = [];
   if (cena.tipo !== 'bairro') return;
@@ -1368,13 +1368,22 @@ function mostrarFala(p, texto, nome) {
   if (nome) adicionarChatLog(nome, texto);
 }
 function adicionarChatLog(nome, texto) {
-  chatMsgs.push({ nome, texto }); chatMsgs = chatMsgs.slice(-4);
+  chatMsgs.push({ nome, texto }); chatMsgs = chatMsgs.slice(-8);
   $('#chatLog').innerHTML = chatMsgs.map(m => `<div><b>${esc(m.nome)}:</b> ${esc(m.texto)}</div>`).join('');
-  clearTimeout(adicionarChatLog._t); adicionarChatLog._t = setTimeout(() => { chatMsgs = []; $('#chatLog').innerHTML = ''; }, 30000);
+  clearTimeout(adicionarChatLog._t); adicionarChatLog._t = setTimeout(() => { chatMsgs = []; $('#chatLog').innerHTML = ''; }, 90000);
 }
 let chatBairro = null;
 let evPrivadoRecusado = false, chatPrivadoRecusado = false;   // 0fx
 let chatAoMsg = null, chatPeloRt = false;   // 9 nov: com o tempo real próprio, o chat da rua chega pelo canal da sala (evento «nova»)
+async function carregarHistoricoChat(b) {
+  try {
+    const desde = new Date(Date.now() - 10 * 60000).toISOString(), sala = typeof salaAtual !== 'undefined' ? salaAtual : 1;
+    const { data } = await sb.from('chat_bairro').select('nome,texto,jogador_id').eq('bairro', b).eq('sala', sala).gte('criado_em', desde).order('criado_em', { ascending: false }).limit(8);
+    if (!data?.length || chatBairro !== b) return;
+    chatMsgs = data.reverse().filter(m => !bloqueados.has(m.jogador_id)).map(m => ({ nome: m.nome, texto: typeof filtrarTexto === 'function' ? filtrarTexto(m.texto) : m.texto }));
+    $('#chatLog').innerHTML = chatMsgs.map(m => `<div><b>${esc(m.nome)}:</b> ${esc(m.texto)}</div>`).join('');
+  } catch { }
+}
 async function ligarChat(b) {
   chatBairro = b;
   if (chatCanal) { sb.removeChannel(chatCanal); chatCanal = null; }
@@ -1383,14 +1392,18 @@ async function ligarChat(b) {
     if (cena?.tipo !== 'bairro') return;
     const m = p.new; if (!m || m.bairro !== b || bloqueados.has(m.jogador_id)) return;
     if (typeof salaAtual !== 'undefined' && (m.sala || 1) !== salaAtual) return;   // 8 nov (0ez): salas
-    const quem = m.jogador_id === uid ? eu : outros.get(m.jogador_id);
-    if (quem) quem.fala = { txt: m.texto, ate: performance.now() + 15000 };
-    if (m.jogador_id === uid || (typeof amigos !== 'undefined' && amigos.has(m.jogador_id))) adicionarChatLog(m.nome, m.texto);   // no canto: só amigos
+    if (m.jogador_id === uid) return;   // 27 nov: as minhas já aparecem logo ao enviar
+    const txt = typeof filtrarTexto === 'function' ? filtrarTexto(m.texto) : m.texto;
+    const quem = outros.get(m.jogador_id);
+    if (quem) quem.fala = { txt, ate: performance.now() + 15000 };
+    adicionarChatLog(m.nome, txt);   // 27 nov: mini chat com toda a gente da rua
   };
   chatAoMsg = aoMsg;
   if (canal?._rt) { chatPeloRt = true; return; }   // 9 nov: sem ligação à Supabase para o chat
   chatPeloRt = false;
-  if (chatPrivadoRecusado) { chatCanal = sb.channel('chat-' + b).on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'mensagens', filter: 'bairro=eq.' + b }, aoMsg).subscribe(); return; }   // 0fx
+  chatPrivadoRecusado = true;   // 27 nov: o chat da rua vive na tabela chat_bairro (mudanças na base)
+  carregarHistoricoChat(b);
+  if (chatPrivadoRecusado) { chatCanal = sb.channel('chat-' + b + (typeof salaAtual !== 'undefined' && salaAtual > 1 ? ':' + salaAtual : '')).on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_bairro', filter: 'bairro=eq.' + b }, p => aoMsg({ new: { ...p.new, jogador_id: p.new.jogador_id } })).subscribe(); return; }   // 0fx
   let reserva = false, ligou = false;
   let este = null;
   este = chatCanal = sb.channel(typeof salaChat === 'function' ? salaChat(b) : 'bairro:' + b, { config: { private: true } }) // 8 nov (0ez): salas
@@ -1400,7 +1413,7 @@ async function ligarChat(b) {
       if (ligou || reserva || chatCanal !== este || (st !== 'CHANNEL_ERROR' && st !== 'TIMED_OUT')) return;
       reserva = true; chatPrivadoRecusado = true; sb.removeChannel(chatCanal);
       chatCanal = sb.channel('chat-' + b)
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'mensagens', filter: 'bairro=eq.' + b }, aoMsg).subscribe();
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_bairro', filter: 'bairro=eq.' + b }, aoMsg).subscribe();
     });
 }
 function ligarEventos() {
@@ -1455,8 +1468,11 @@ $('#fChat').onsubmit = async e => {
     if (r.ok) return;
     if (r.erro) { toast(limparErro(r.erro), 'mau'); $('#iMsg').value = t; return; }
   }
-  const { error } = await sb.rpc('enviar_mensagem', { p_texto: t });
-  if (error) { toast(limparErro(error.message), 'mau'); $('#iMsg').value = t; }
+  const { error } = await sb.rpc('enviar_mensagem', { p_texto: t, p_sala: typeof salaAtual !== 'undefined' ? salaAtual : 1 });
+  if (error) { toast(limparErro(error.message), 'mau'); $('#iMsg').value = t; return; }
+  const ft = typeof filtrarTexto === 'function' ? filtrarTexto(t) : t;   // 27 nov: a minha fala aparece logo (balão e mini chat)
+  eu.fala = { txt: ft, ate: performance.now() + 15000 }; adicionarChatLog(J.nome, ft);
+  $('#iMsg').focus();
 };
 $('#bFalar').onclick = () => { $('#chatBox').classList.remove('hide'); $('#barraBaixo').classList.add('hide'); setTimeout(() => $('#iMsg').focus(), 50); };
 $('#fecharChat').onclick = () => { $('#chatBox').classList.add('hide'); $('#barraBaixo').classList.remove('hide'); $('#iMsg').blur(); };
