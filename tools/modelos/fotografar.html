@@ -1,0 +1,24 @@
+<!doctype html><meta charset="utf-8"><body style="margin:0;background:transparent">
+<canvas id="c" width="900" height="900"></canvas>
+<script type="module">
+import * as T from '/js/vendor/three/three.min.js';
+import { MODELOS } from '/js/modelos3d.js';
+const cv = document.getElementById('c'), N = 900, ESC = 90.5;           // px por quadrado = 2 × (64/√2) → imagem a 2×
+const R = new T.WebGLRenderer({ canvas: cv, antialias: true, alpha: true, preserveDrawingBuffer: true });
+R.setSize(N, N, false); R.setClearColor(0, 0); R.outputColorSpace = T.SRGBColorSpace; R.toneMapping = T.ACESFilmicToneMapping; R.toneMappingExposure = 1.05;
+R.shadowMap.enabled = true; R.shadowMap.type = T.PCFSoftShadowMap;
+const cam = new T.OrthographicCamera(-N / 2 / ESC, N / 2 / ESC, N / 2 / ESC, -N / 2 / ESC, -50, 50);
+const e = Math.PI / 6, d = 20; cam.position.set(d * Math.cos(e) / Math.SQRT2, d * Math.cos(e) / Math.SQRT2, d * Math.sin(e)); cam.up.set(0, 0, 1); cam.lookAt(0, 0, 0);
+window.foto = (id, r, pivo) => {
+  const sc = new T.Scene(), raiz = new T.Group(); raiz.matrixAutoUpdate = false; raiz.matrix.set(0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1); sc.add(raiz);   // x↔y como no jogo
+  const m = MODELOS[id].criar(T); const g = new T.Group(); g.add(m);
+  if (pivo === 'centro') { const b = new T.Box3().setFromObject(m); g.position.set(-(b.min.x + b.max.x) / 2, -(b.min.y + b.max.y) / 2, 0); m.updateMatrixWorld(); }
+  const rot = new T.Group(); rot.rotation.z = r * Math.PI / 2; rot.add(g); raiz.add(rot);
+  rot.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+  const sol = new T.DirectionalLight(0xfff1dc, 2.4); sol.position.set(-9, 6, 24); sol.castShadow = true; sol.shadow.mapSize.set(2048, 2048);
+  Object.assign(sol.shadow.camera, { left: -6, right: 6, top: 6, bottom: -6, near: 1, far: 60 }); sc.add(sol, sol.target); sc.add(new T.HemisphereLight(0xdfe8ff, 0x5a4a36, 1.1));
+  const chao = new T.Mesh(new T.PlaneGeometry(40, 40), new T.ShadowMaterial({ opacity: 0.28 })); chao.receiveShadow = true; sc.add(chao);
+  R.render(sc, cam); return cv.toDataURL('image/png');
+};
+window.pronto = true;
+</script>
