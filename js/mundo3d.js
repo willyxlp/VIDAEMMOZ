@@ -511,7 +511,6 @@ function construir(cena) {
           if (g) {
             g.userData.obj = o;
             // incluir meshes diretos do grupo e dos filhos (fundir pode criar ambos)
-            g.traverse(m => { if (m.isMesh) pickaveis.push(m); });
           }
         }
       } else if (o.kind === 'decoracao') {
@@ -553,7 +552,7 @@ function construir(cena) {
           g = null; // já colocado, não repor em por() abaixo
         }
       }
-      if (g) por(g, o.x, o.y, 0, o);
+      if (g) por(g, o.x, o.y, 0, (o.spec || o.kind === 'escada') ? o : null);   // só o que é interativo no 2D se toca
     } catch (e) {
       console.warn('[mundo3d] objeto falhou:', o.kind, e);
     }
@@ -603,12 +602,15 @@ function _makeArvore(tipo) {
 function _makeCandeeiro() {
   const g = new T.Group();
   const ferro = new T.MeshStandardMaterial({ color: 0x2b2e33, metalness: 0.6, roughness: 0.4 });
-  const poste = new T.Mesh(new T.CylinderGeometry(0.035, 0.05, 1.7, 8), ferro);
-  poste.rotation.x = Math.PI / 2; poste.position.z = 0.85; g.add(poste);
+  const poste = new T.Mesh(new T.CylinderGeometry(0.035, 0.05, 1.9, 8), ferro);
+  poste.rotation.x = Math.PI / 2; poste.position.z = 0.95; g.add(poste);
+  const base = new T.Mesh(new T.CylinderGeometry(0.09, 0.11, 0.14, 8), ferro); base.rotation.x = Math.PI / 2; base.position.z = 0.07; g.add(base);
+  const braco = new T.Mesh(new T.CylinderGeometry(0.022, 0.022, 0.42, 6), ferro); braco.rotation.z = Math.PI / 2; braco.position.set(0.2, 0, 1.88); g.add(braco);
   const luz = new T.MeshStandardMaterial({ color: 0xfff3c4, emissive: 0xffc864, emissiveIntensity: 0 });
   luz.userData.lampada = true;
-  const b = new T.Mesh(new T.BoxGeometry(0.18, 0.12, 0.06), luz);
-  b.position.set(0.34, 0, 1.64); g.add(b);
+  const capa = new T.Mesh(new T.BoxGeometry(0.26, 0.14, 0.05), ferro); capa.position.set(0.4, 0, 1.9); g.add(capa);
+  const b = new T.Mesh(new T.BoxGeometry(0.2, 0.1, 0.04), luz);
+  b.position.set(0.4, 0, 1.865); g.add(b);
   return g;
 }
 function _makeAbrigo(o, cor) {
