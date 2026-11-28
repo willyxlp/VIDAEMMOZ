@@ -15,6 +15,9 @@ const hash = s => [...String(s)].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>>
 const PAREDES = ['#e8dcc4', '#d9c0a0', '#c98f6f', '#b9a58a', '#d7d2c8', '#c47c5e', '#a9b4b8', '#e2c7a5', '#bfa88a', '#9fb1bd'];
 const TELHADOS = ['#cfc6b4', '#b8ad9a', '#a89d8c', '#c9b79c', '#8f8a82'];
 
+const PAREDES_H = ['#d9cbb0', '#e6d5a8', '#c7d3c0', '#d8b7a6', '#b9c7d6', '#f0e0c0', '#c9b79c', '#e8c9a0'];
+const ZINCOS = ['#8f979c', '#a9b0b4', '#7a6a60', '#9a5a44', '#6f7a80'];
+function normal(a, b, c) { const u = [b[0] - a[0], b[1] - a[1], b[2] - a[2]], v = [c[0] - a[0], c[1] - a[1], c[2] - a[2]], n = [u[1] * v[2] - u[2] * v[1], u[2] * v[0] - u[0] * v[2], u[0] * v[1] - u[1] * v[0]], l = Math.hypot(...n) || 1; return n.map(x => x / l); }
 function texturaJanelas(T, cor) {
   const c = document.createElement('canvas'); c.width = 64; c.height = 64;
   const g = c.getContext('2d');
@@ -50,6 +53,23 @@ function caixaCompleta(a, x0, y0, z0, w, d, h, cor) {   // roof slab / cubos de 
   face(a, [[x0, y0, z0], [x1, y0, z0], [x1, y0, z1], [x0, y0, z1]], [0, -1, 0], u, lado);
   face(a, [[x0, y0, z1], [x1, y0, z1], [x1, y1, z1], [x0, y1, z1]], [0, 0, 1], u, cor);
 }
+// telhado de zinco de uma água (como as casinhas dos bairros): sobe do lado y0 para y1 (ou x0 para x1 se eixo = 'x')
+function zinco(a, x0, y0, z0, w, d, subida, cor, eixo) {
+  const o = 0.18, X0 = x0 - o, X1 = x0 + w + o, Y0 = y0 - o, Y1 = y0 + d + o, u = [[0, 0], [1, 0], [1, 1], [0, 1]], esc = [cor[0] * 0.8, cor[1] * 0.8, cor[2] * 0.8];
+  const zb = z0, za = z0 + subida;
+  let sup;
+  if (eixo === 'y') { sup = [[X0, Y0, zb], [X1, Y0, zb], [X1, Y1, za], [X0, Y1, za]];
+    face(a, sup, normal(sup[0], sup[1], sup[2]), u, cor);
+    face(a, [[X1, Y1, za], [X0, Y1, za], [X0, Y1, zb - 0.1], [X1, Y1, zb - 0.1]], [0, 1, 0], u, esc);
+    face(a, [[X1, Y0, zb], [X1, Y1, za], [X1, Y1, zb - 0.1], [X1, Y0, zb - 0.1]], [1, 0, 0], u, esc);
+    face(a, [[X0, Y1, za], [X0, Y0, zb], [X0, Y0, zb - 0.1], [X0, Y1, zb - 0.1]], [-1, 0, 0], u, esc);
+  } else { sup = [[X0, Y0, zb], [X1, Y0, za], [X1, Y1, za], [X0, Y1, zb]];
+    face(a, sup, normal(sup[0], sup[1], sup[2]), u, cor);
+    face(a, [[X1, Y0, za], [X1, Y1, za], [X1, Y1, zb - 0.1], [X1, Y0, zb - 0.1]], [1, 0, 0], u, esc);
+    face(a, [[X0, Y0, zb], [X1, Y0, za], [X1, Y0, zb - 0.1], [X0, Y0, zb - 0.1]], [0, -1, 0], u, esc);
+    face(a, [[X1, Y1, za], [X0, Y1, zb], [X0, Y1, zb - 0.1], [X1, Y1, zb - 0.1]], [0, 1, 0], u, esc);
+  }
+}
 function malha(T, a, mat, sombra) {
   const g = new T.BufferGeometry();
   g.setAttribute('position', new T.Float32BufferAttribute(a.pos, 3));
@@ -70,6 +90,11 @@ export function arredores(T, cena) {
   const R = R_ANEL, x0 = -R, y0 = -R, LX = W + 2 * R, LY = H + 2 * R;
   const mar = !!(cena.chao && cena.chao[0] === 3);
   let marL = 0; if (mar) while (marL < W && cena.chao[marL] === 3) marL++;   // quadrados de mar na borda oeste do mapa                    // bairro de ilha/praia: o lado oeste continua mar
+  let nTerra = 0, nTot = 0; if (cena.chao) for (let i = 0; i < cena.chao.length; i += 3) { const t = cena.chao[i]; if (t === 4 || t === 5 || t === 7) continue; nTot++; if (t === 1) nTerra++; }
+  const nCasinhas = (cena.objetos || []).filter(o => o.kind === 'casinha').length;
+  const humilde = (nTot > 0 && nTerra / nTot > 0.5) || nCasinhas >= 10;          // bairros humildes: casas baixas de zinco, ruas de terra
+  const terra = nTot > 0 && nTerra / nTot > 0.5;
+  const COR_BASE = terra ? '#b4683f' : '#d9c9a8', COR_PASSEIO = terra ? '#a8643c' : '#cdbfa3', COR_RUA = terra ? '#8d5a38' : '#4a4b51';
   const alto = hid % 3 === 0 ? 1.35 : hid % 3 === 1 ? 1 : 0.8;        // cada bairro com a sua altura de prédios
   const area = Math.max(1, hid % 5);
   const ruasP = (cena.estradas || []).filter(e => e.eixo === 'h').map(e => e.p);
@@ -80,15 +105,15 @@ export function arredores(T, cena) {
   // ── chão: areia, passeios, asfalto, relvados e mar, numa só textura ──
   const S = 8, cv = document.createElement('canvas'); cv.width = LX * S; cv.height = LY * S;
   const g = cv.getContext('2d');
-  g.fillStyle = '#d9c9a8'; g.fillRect(0, 0, cv.width, cv.height);
+  g.fillStyle = COR_BASE; g.fillRect(0, 0, cv.width, cv.height);
   for (let i = 0; i < 2600; i++) { g.fillStyle = `rgba(${150 + rnd() * 40},${120 + rnd() * 40},${70 + rnd() * 30},.06)`; g.fillRect(rnd() * cv.width, rnd() * cv.height, 2 + rnd() * 8, 2 + rnd() * 5); }
   const px = (x, y, w, h, cor) => { g.fillStyle = cor; g.fillRect((x - x0) * S, (y - y0) * S, w * S, h * S); };
   // passeios e asfalto
   for (const e of ruas) {
-    px(e - 1, y0, LARG_RUA + 2, LY, '#cdbfa3'); px(x0, e - 1, LX, LARG_RUA + 2, '#cdbfa3');
-    px(e, y0, LARG_RUA, LY, '#4a4b51'); px(x0, e, LX, LARG_RUA, '#4a4b51');
+    px(e - 1, y0, LARG_RUA + 2, LY, COR_PASSEIO); px(x0, e - 1, LX, LARG_RUA + 2, COR_PASSEIO);
+    px(e, y0, LARG_RUA, LY, COR_RUA); px(x0, e, LX, LARG_RUA, COR_RUA);
   }
-  g.fillStyle = 'rgba(255,255,255,.55)';
+  g.fillStyle = terra ? 'rgba(0,0,0,0)' : 'rgba(255,255,255,.55)';
   const emRua = t => ruas.some(e => t > e - 1.5 && t < e + LARG_RUA + 0.5);
   for (const e of ruas) for (let t = y0; t < y0 + LY; t += 2) { if (emRua(t)) continue; g.fillRect((e + 0.95 - x0) * S, (t - y0) * S, 0.1 * S, 1 * S); g.fillRect((t - x0) * S, (e + 0.95 - y0) * S, 1 * S, 0.1 * S); }
   if (mar) {
@@ -114,9 +139,18 @@ export function arredores(T, cena) {
     if (mar && bx < e0) continue;                        // a faixa da praia fica livre
     const dist = Math.max(0, bx < 0 ? -bx : bx - W, by < 0 ? -by : by - H);
     const t = rnd();
-    if (t < 0.13) {                                      // parque: relva + palmeiras
+    if (t < (humilde ? 0.05 : 0.13)) {                    // parque / campo: relva + palmeiras
       px(bx, by, bw, bd, '#6f9b4a'); for (let k = 0; k < 60; k++) { g.fillStyle = 'rgba(40,90,30,.25)'; g.fillRect((bx - x0 + rnd() * bw) * S, (by - y0 + rnd() * bd) * S, 2, 4); }
       for (let k = 0; k < 4; k++) palmas.push({ tipo: rnd() < 0.7 ? 'palmeira' : 'acacia', x: bx + 1 + rnd() * (bw - 2), y: by + 1 + rnd() * (bd - 2) });
+      continue;
+    }
+    if (humilde) {                                       // casas baixas, todas da mesma tipologia, com quintais
+      const n = 3 + Math.floor(rnd() * 2), cel = [[0, 0], [1, 0], [0, 1], [1, 1]].sort(() => rnd() - 0.5), cw = bw / 2;
+      for (let k = 0; k < n; k++) {
+        const [cx, cy] = cel[k], w = 2.2 + rnd() * 1.0, d = 2.2 + rnd() * 0.9;
+        lonjas.push({ x: bx + cx * cw + 0.1 + rnd() * (cw - w - 0.2), y: by + cy * cw + 0.1 + rnd() * (cw - d - 0.2), w, d, dist, casa: true });
+      }
+      if (n < 4 && rnd() < 0.7) palmas.push({ tipo: rnd() < 0.6 ? 'palmeira' : 'acacia', x: bx + (cel[3][0] + 0.5) * cw, y: by + (cel[3][1] + 0.5) * cw });
       continue;
     }
     if (t < 0.55) {                                      // um prédio grande
@@ -146,6 +180,12 @@ export function arredores(T, cena) {
     }
   }
   for (const L of lonjas) {
+    if (L.casa) {
+      const h = 0.85 + rnd() * 0.3 + (rnd() < 0.08 ? 0.7 : 0), cor = PAREDES_H[Math.floor(rnd() * PAREDES_H.length)], P = matPar(cor);
+      caixaParedes(P.a, L.x, L.y, 0, L.w, L.d, h, 1);
+      zinco(A.teto, L.x, L.y, h, L.w, L.d, 0.35, cor3(ZINCOS[Math.floor(rnd() * ZINCOS.length)]), L.w > L.d ? 'y' : 'x');
+      continue;
+    }
     const base = L.grande ? 3 + Math.floor(rnd() * 3 * alto) + Math.floor(L.dist / 16) : 1 + Math.floor(rnd() * 2) + Math.floor(L.dist / 28);
     const pisos = Math.max(1, Math.min(13, Math.round(base * (L.grande ? alto : 1) + area * 0.1)));
     const h = pisos * 0.62, cor = PAREDES[Math.floor(rnd() * PAREDES.length)], P = matPar(cor);
@@ -163,5 +203,5 @@ export function arredores(T, cena) {
   chao.position.set(x0 + LX / 2, y0 + LY / 2, -0.03); chao.receiveShadow = true; grupo.add(chao);
   for (const { a, mat } of parede.values()) grupo.add(malha(T, a, mat, true));
   grupo.add(malha(T, A.teto, new T.MeshStandardMaterial({ vertexColors: true, roughness: 0.95 }), true));
-  return { grupo, palmas, mar };
+  return { grupo, palmas, mar, fundo: mar ? 0x8fb3c4 : terra ? 0xc99b73 : 0xd9c9a8 };
 }

@@ -19,7 +19,7 @@
 
 import * as T from './vendor/three/three.min.js';
 import { MODELOS, predio, pessoaRig, QUALIDADE, animal3d } from './modelos3d.js';
-import { arredores } from './arredores3d.js?v=e94204f';
+import { arredores } from './arredores3d.js?v=aa7f40f';
 
 QUALIDADE.folhas = 0.1; QUALIDADE.seg = 0.35;   // leve para telemóveis
 
@@ -556,7 +556,7 @@ function construir(cena) {
       const ar = arredores(T, cena);
       raiz.add(ar.grupo); estaticos.push(ar.grupo);
       for (const p of ar.palmas) repetir(p.tipo, () => MODELOS[p.tipo]?.criar(T) || _makeArvore(p.tipo), p.x, p.y, 0, true);
-      corFundo = ar.mar ? 0x8fb3c4 : 0xd9c9a8;
+      corFundo = ar.fundo;
     } catch (e) { console.warn('[mundo3d] arredores falharam:', e); }
   }
 
