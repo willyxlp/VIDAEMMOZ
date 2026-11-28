@@ -19,7 +19,7 @@
 
 import * as T from './vendor/three/three.min.js';
 import { MODELOS, predio, pessoaRig, QUALIDADE, animal3d } from './modelos3d.js';
-import { arredores } from './arredores3d.js?v=2d6f300';
+import { arredores } from './arredores3d.js?v=e94204f';
 
 QUALIDADE.folhas = 0.1; QUALIDADE.seg = 0.35;   // leve para telemóveis
 

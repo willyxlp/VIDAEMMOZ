@@ -68,7 +68,8 @@ function malha(T, a, mat, sombra) {
 export function arredores(T, cena) {
   const { W, H } = cena, rnd = semente(hash(cena.id) + 17), hid = hash(cena.id);
   const R = R_ANEL, x0 = -R, y0 = -R, LX = W + 2 * R, LY = H + 2 * R;
-  const mar = !!(cena.chao && cena.chao[0] === 3);                    // bairro de ilha/praia: o lado oeste continua mar
+  const mar = !!(cena.chao && cena.chao[0] === 3);
+  let marL = 0; if (mar) while (marL < W && cena.chao[marL] === 3) marL++;   // quadrados de mar na borda oeste do mapa                    // bairro de ilha/praia: o lado oeste continua mar
   const alto = hid % 3 === 0 ? 1.35 : hid % 3 === 1 ? 1 : 0.8;        // cada bairro com a sua altura de prédios
   const area = Math.max(1, hid % 5);
   const ruasP = (cena.estradas || []).filter(e => e.eixo === 'h').map(e => e.p);
@@ -90,7 +91,17 @@ export function arredores(T, cena) {
   g.fillStyle = 'rgba(255,255,255,.55)';
   const emRua = t => ruas.some(e => t > e - 1.5 && t < e + LARG_RUA + 0.5);
   for (const e of ruas) for (let t = y0; t < y0 + LY; t += 2) { if (emRua(t)) continue; g.fillRect((e + 0.95 - x0) * S, (t - y0) * S, 0.1 * S, 1 * S); g.fillRect((t - x0) * S, (e + 0.95 - y0) * S, 1 * S, 0.1 * S); }
-  if (mar) { px(x0, y0, -x0, LY, '#2b84ad'); for (let i = 0; i < 500; i++) { g.fillStyle = 'rgba(255,255,255,.07)'; g.fillRect(rnd() * (-x0) * S, rnd() * cv.height, 6 + rnd() * 14, 2); } }
+  if (mar) {
+    // costa que continua para norte e sul: areia até à 1.ª rua, espuma e mar mais claro junto à praia
+    px(marL, y0, e0 - marL, LY, '#e9d39c');
+    for (let i = 0; i < 900; i++) { g.fillStyle = `rgba(${170 + rnd() * 40},${140 + rnd() * 40},${80 + rnd() * 30},.10)`; g.fillRect((marL - x0 + rnd() * (e0 - marL)) * S, rnd() * cv.height, 2 + rnd() * 6, 2 + rnd() * 4); }
+    const gr = g.createLinearGradient((x0 - x0) * S, 0, (marL - x0) * S, 0);
+    gr.addColorStop(0, '#1d6a90'); gr.addColorStop(0.7, '#2b84ad'); gr.addColorStop(1, '#3a9bc0');
+    g.fillStyle = gr; g.fillRect(0, 0, (marL - x0) * S, cv.height);
+    for (let i = 0; i < 700; i++) { g.fillStyle = 'rgba(255,255,255,.07)'; g.fillRect(rnd() * (marL - x0) * S, rnd() * cv.height, 6 + rnd() * 16, 2); }
+    g.fillStyle = 'rgba(255,255,255,.55)';                                           // espuma
+    for (let t = 0; t < LY; t += 1) g.fillRect((marL - x0 - 0.35 - rnd() * 0.25) * S, t * S, (0.3 + rnd() * 0.3) * S, 0.7 * S);
+  }
   // ── quarteirões ──
   const palmas = [], parede = new Map(), A = { teto: acumulador() }, tex = [];
   const matPar = cor => { if (!parede.has(cor)) { const t = texturaJanelas(T, cor); tex.push(t); parede.set(cor, { a: acumulador(), mat: new T.MeshStandardMaterial({ map: t, roughness: 0.92 }) }); } return parede.get(cor); };
@@ -100,7 +111,7 @@ export function arredores(T, cena) {
   for (let i = 0; i + 1 < ruas.length; i++) for (let j = 0; j + 1 < ruas.length; j++) {
     const bx = ruas[i] + LARG_RUA + 1, by = ruas[j] + LARG_RUA + 1, bw = PASSO - LARG_RUA - 2, bd = bw;   // 7×7 dentro dos passeios
     if (dentroMapa(bx, by, bw, bd)) continue;
-    if (mar && bx < 0) continue;
+    if (mar && bx < e0) continue;                        // a faixa da praia fica livre
     const dist = Math.max(0, bx < 0 ? -bx : bx - W, by < 0 ? -by : by - H);
     const t = rnd();
     if (t < 0.13) {                                      // parque: relva + palmeiras
@@ -120,6 +131,18 @@ export function arredores(T, cena) {
     for (let k = 0; k < 3; k++) if (rnd() < 0.5) {
       const l = rnd() < 0.5;
       palmas.push({ tipo: 'palmeira', x: l ? bx - 0.5 + rnd() * (bw + 1) : (rnd() < 0.5 ? bx - 0.6 : bx + bw + 0.6), y: l ? (rnd() < 0.5 ? by - 0.6 : by + bd + 0.6) : by + rnd() * bd });
+    }
+  }
+  if (mar) {
+    for (let t = y0; t < y0 + LY; t += 2) {
+      if (t > -1 && t < H + 1) continue;               // dentro do mapa já há praia desenhada
+      if (rnd() < 0.55) palmas.push({ tipo: 'palmeira', x: marL + 1.2 + rnd() * (e0 - marL - 2.4), y: t + rnd() * 2 });
+      if (rnd() < 0.22) {                              // chapéu de sol e toalha
+        const bx2 = marL + 0.8 + rnd() * (e0 - marL - 2), by2 = t + rnd() * 1.5, c = [[.85, .15, .2], [.95, .75, .1], [.15, .5, .8], [.2, .65, .35]][Math.floor(rnd() * 4)];
+        caixaCompleta(A.teto, bx2 + 0.4, by2 + 0.4, 0, 0.06, 0.06, 1.0, [.9, .9, .85]);
+        caixaCompleta(A.teto, bx2, by2, 1.0, 0.9, 0.9, 0.07, c);
+        caixaCompleta(A.teto, bx2 + 0.1, by2 + 1.0, 0, 0.5, 0.9, 0.03, [.95, .95, .9]);
+      }
     }
   }
   for (const L of lonjas) {
