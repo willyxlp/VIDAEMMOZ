@@ -25,7 +25,7 @@ export function criarTransito(T, cena, criarModelo, opcoes = {}) {
   const lo = marL ? e0 : -MARGEM, todas = [];
   for (let e = e0 - PASSO * 6; e <= Math.max(W, H) + MARGEM; e += PASSO) todas.push(e);
   const horizontais = todas.filter(e => e >= -MARGEM && e <= H + MARGEM), verticais = todas.filter(e => e >= lo && e <= W + MARGEM);
-  const densidade = opcoes.densidade ?? 1, espaco = 30 / densidade;
+  const densidade = opcoes.densidade ?? 1, espaco = 90 / densidade;
 
   // faixas: conduz-se pela esquerda → para a direção +, a faixa fica do lado "esquerdo" (+y para h, −x para v)
   const faixas = [];
