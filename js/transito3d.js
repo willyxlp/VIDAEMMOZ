@@ -5,7 +5,7 @@
    Tudo é visual (não bloqueia ninguém) e usa uma InstancedMesh por peça de cada modelo → poucos pedidos de desenho.
    ============================================================ */
 
-const PASSO = 11, LARG = 2, MARGEM = 24;
+const PASSO = 11, LARG = 2, MARGEM = 0;
 const MODELOS_TRANSITO = ['citadino', 'sedan', 'carro', 'pickup', 'jipe', 'carrinha', 'suv_luxo', 'carrinha'];   // a carrinha (chapa) aparece duas vezes: é o transporte de todos
 const CICLO = 16;                                                  // s: h verde 0–6,5 · tudo vermelho · v verde 8–14,5 · tudo vermelho
 const verde = (eixo, t) => { const f = t % CICLO; return eixo === 'h' ? f < 6.5 : (f >= 8 && f < 14.5); };
@@ -25,7 +25,7 @@ export function criarTransito(T, cena, criarModelo, opcoes = {}) {
   const lo = marL ? e0 : -MARGEM, todas = [];
   for (let e = e0 - PASSO * 6; e <= Math.max(W, H) + MARGEM; e += PASSO) todas.push(e);
   const horizontais = todas.filter(e => e >= -MARGEM && e <= H + MARGEM), verticais = todas.filter(e => e >= lo && e <= W + MARGEM);
-  const densidade = opcoes.densidade ?? 1, espaco = 90 / densidade;
+  const densidade = opcoes.densidade ?? 1, espaco = 240 / densidade;
 
   // faixas: conduz-se pela esquerda → para a direção +, a faixa fica do lado "esquerdo" (+y para h, −x para v)
   const faixas = [];
@@ -37,7 +37,7 @@ export function criarTransito(T, cena, criarModelo, opcoes = {}) {
   }
   const carros = [];
   for (const f of faixas) {
-    const len = f.max - f.min, n = Math.max(1, Math.round(len / espaco));
+    const len = f.max - f.min, n = Math.floor(len / espaco + rnd() * 0.9);
     for (let i = 0; i < n; i++) {
       const c = { f, s: (i + rnd() * 0.6) * (len / n), v: 0, vmax: 2.4 + rnd() * 1.3, m: Math.floor(rnd() * MODELOS_TRANSITO.length), x: 0, y: 0 };
       f.cars.push(c); carros.push(c);

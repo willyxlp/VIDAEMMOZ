@@ -385,7 +385,7 @@ function desenhaNatureza(ctx, id, x, y, t, vento = 0.012) {
 }
 // a cor da árvore (gerada pela cidade) + o sítio escolhem a espécie: mangueira, árvore de sombra ou acácia rubra
 const ARVORE_COR = { '#4f8f3a': 'mangueira', '#3f7d33': 'mangueira', '#5f9e45': 'arvore_verde' };
-function especieArvore(x, y, cor) { const h = hashXY(x | 0, y | 0); return h % 5 === 0 ? 'acacia' : (ARVORE_COR[cor] || (h % 2 ? 'mangueira' : 'arvore_verde')); }
+function especieArvore(x, y, cor) { const h = hashXY(x | 0, y | 0); return h % 4 === 0 ? 'acacia' : (ARVORE_COR[cor] || (h % 2 ? 'mangueira' : 'arvore_verde')); }
 function desenhaPalmeira(ctx, x, y, t, alt = 70) {
   if (desenhaNatureza(ctx, 'palmeira', x, y, t, 0.022)) return;
   const [bx, by] = iso(x + 0.5, y + 0.5);
@@ -421,6 +421,8 @@ function desenhaArvore(ctx, x, y, t, cor = '#4f8f3a', baobab = false) {
   ctx.fillStyle = shade(cor, 0.12); ctx.beginPath(); ctx.arc(bx - 1 + s, by - 42, 11, 0, 7); ctx.fill();
 }
 // carros estacionados na cidade → modelos 3D (carros comuns; a cor escolhe o modelo)
+const CARROS_2D = ['citadino', 'sedan', 'pickup', 'jipe', 'carro', 'carrinha', 'suv_luxo', 'desportivo'];
+const escolheCarro2D = (x, y) => CARROS_2D[hashXY(x | 0, y | 0) % CARROS_2D.length];
 const CARRO_RUA = { '#c0392b': 'citadino', '#2c6fb0': 'sedan', '#eeeeee': 'pickup', '#222222': 'jipe', '#7f8c8d': 'carro', '#f5b81c': 'citadino' };
 function desenhaCarro(ctx, x, y, cor, rot = 0, tipo = 'carro') {
   if (!rot && typeof desenhaModelo === 'function' && desenhaModelo(ctx, tipo === 'candongueiro' ? 'carrinha' : (CARRO_RUA[cor] || 'sedan'), x, y)) return;

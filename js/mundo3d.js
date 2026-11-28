@@ -19,7 +19,7 @@
 
 import * as T from './vendor/three/three.min.js';
 import { MODELOS, predio, pessoaRig, QUALIDADE, animal3d } from './modelos3d.js';
-import { criarTransito } from './transito3d.js?v=7afd48f';
+import { criarTransito } from './transito3d.js?v=154b2b6';
 import { arredores } from './arredores3d.js?v=aa7f40f';
 
 QUALIDADE.folhas = 0.1; QUALIDADE.seg = 0.35;   // leve para telemóveis

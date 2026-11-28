@@ -441,7 +441,7 @@ function gerarBairro(id) {
       if (d.palmeira && v < (acc += d.palmeira)) { objetos.push({ kind: 'palmeira', x, y, w: 1, d: 1, h: 70 }); marca(x, y, 1, 1); continue; }
       if (d.arvore && v < (acc += d.arvore)) { objetos.push({ kind: 'arvore', x, y, w: 1, d: 1, h: 56, cor: ['#4f8f3a', '#3f7d33', '#5f9e45'][Math.floor(r() * 3)] }); marca(x, y, 1, 1); continue; }
       if (d.baobab && v < (acc += d.baobab)) { objetos.push({ kind: 'baobab', x, y, w: 1, d: 1, h: 60 }); marca(x, y, 1, 1); continue; }
-      if (d.carro && v < (acc += d.carro) && livre(1, 2)) { objetos.push({ kind: 'carro', x, y, w: 1, d: 2, h: 22, cor: ['#c0392b', '#2c6fb0', '#eeeeee', '#222222', '#7f8c8d', '#f5b81c'][Math.floor(r() * 6)], rot: 0 }); marca(x, y, 1, 2); continue; }
+      if (d.carro && v < (acc += d.carro * 0.3) && livre(1, 2)) { objetos.push({ kind: 'carro', x, y, w: 1, d: 2, h: 22, cor: ['#c0392b', '#2c6fb0', '#eeeeee', '#222222', '#7f8c8d', '#f5b81c'][Math.floor(r() * 6)], rot: 0 }); marca(x, y, 1, 2); continue; }
     }
   }
   // FILA 0dn-9: campas no cemitério (decoração, por cima do relvado; não bloqueiam)

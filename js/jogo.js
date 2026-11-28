@@ -1896,7 +1896,7 @@ function carregar3D() {
   if (m3dPedido && !temWebGL()) { m3dPedido = false; m3dFalhou = 'Este aparelho/navegador não tem os gráficos 3D (WebGL) ligados.'; }
   if (!m3dPedido || window.M3D || carregar3D._a) return;
   carregar3D._a = true;
-  import('./mundo3d.js?v=c2d1cea').catch(e => { console.warn('3D não carregou', e); m3dPedido = false; m3dFalhou = 'O mundo 3D não carregou neste aparelho.'; });
+  import('./mundo3d.js?v=720cf19').catch(e => { console.warn('3D não carregou', e); m3dPedido = false; m3dFalhou = 'O mundo 3D não carregou neste aparelho.'; });
 }
 // interiores incluídos — mundo3d.js já sabe desenhar móveis (mesa, cadeira, balcão, etc.)
 const m3dAtivo = () => m3dPedido && !!window.M3D && !!cena && (cena.tipo === 'bairro' || cena.tipo === 'casa' || cena.tipo === 'interior') && !!eu;
