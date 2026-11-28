@@ -19,6 +19,7 @@
 
 import * as T from './vendor/three/three.min.js';
 import { MODELOS, predio, pessoaRig, QUALIDADE, animal3d } from './modelos3d.js';
+import { criarTransito } from './transito3d.js?v=b7a2b22';
 import { arredores } from './arredores3d.js?v=aa7f40f';
 
 QUALIDADE.folhas = 0.1; QUALIDADE.seg = 0.35;   // leve para telemóveis
@@ -37,6 +38,7 @@ const g2w = (x, y, z = 0) => new T.Vector3(y, x, z);
 let renderer = null, cena3 = null, camara = null, raiz = null, sol = null, hemi = null, canvas = null;
 let vistaAlta = null;
 let construida = null, assinatura = '';
+let transito = null, _tT = 0;
 const estaticos = [];
 const pickaveis = [];
 const lampadas = [], vidros = [];
@@ -351,6 +353,7 @@ function por(o, x, y, rot = 0, obj = null) {
 }
 
 function limpar() {
+  if (transito) { raiz.remove(transito.grupo); transito.grupo.children.forEach(im => im.dispose?.()); transito = null; }
   for (const o of estaticos) { raiz.remove(o); if (!o.userData.proto) deitarFora(o); }
   estaticos.length = 0; pickaveis.length = 0;
   lampadas.length = 0; vidros.length = 0;
@@ -526,8 +529,15 @@ function construir(cena) {
         // palmeiras standalone (não via decoracao)
         const tipo = o.tipo || 'palmeira';
         repetir(tipo, () => MODELOS[tipo]?.criar(T) || _makeArvore(tipo), o.x + 0.5, o.y + 0.5, 0, true);
+      } else if (o.kind === 'arvore' || o.kind === 'baobab') {
+        // 28 nov: árvores de verdade (mangueira, acácia, imbondeiro…) em vez de nada/bolas
+        const ids = o.kind === 'baobab' ? ['imbondeiro'] : ['mangueira', 'acacia', 'arvore_verde'];
+        const id = ids[Math.abs(o.x * 7 + o.y * 13) % ids.length];
+        repetir(id, () => MODELOS[id]?.criar(T) || _makeArvore(id), o.x + 0.5, o.y + 0.5, ((Math.abs(o.x * 31 + o.y * 17) % 628) / 100), true);
+      } else if (o.kind === 'candeeiro') {
+        repetir('candeeiro', () => _makeCandeeiro(), o.x + 0.5, o.y + 0.5, 0);
       } else if (o.kind === 'carro') {
-        g = _makeCarro(o);
+        g = _carroModelo(o) || _makeCarro(o);
         if (g) { g.userData.obj = o; }
       } else if (o.kind === 'outdoor') {
         g = _makeOutdoor(o);
@@ -558,6 +568,14 @@ function construir(cena) {
       for (const p of ar.palmas) repetir(p.tipo, () => MODELOS[p.tipo]?.criar(T) || _makeArvore(p.tipo), p.x, p.y, 0, true);
       corFundo = ar.fundo;
     } catch (e) { console.warn('[mundo3d] arredores falharam:', e); }
+  }
+
+  // trânsito: carros a circular, com semáforos e passadeiras
+  if (!dentroAgora && cena.estradas && cena.chao) {
+    try {
+      transito = criarTransito(T, cena, id => proto('carro|' + id + '|', () => MODELOS[id].criar(T)), { densidade: _leve ? 0.5 : 1 });
+      if (transito) raiz.add(transito.grupo);
+    } catch (e) { console.warn('[mundo3d] trânsito falhou:', e); transito = null; }
   }
 
   instanciarRepetidos();
@@ -610,6 +628,14 @@ function _makeAbrigo(o, cor) {
   return g;
 }
 
+// carro parado com os modelos detalhados (citadino, sedan, pickup, jipe, carrinha…), na cor do objeto
+const CARROS_PARADOS = ['citadino', 'sedan', 'carro', 'pickup', 'jipe', 'carrinha', 'suv_luxo'];
+function _carroModelo(o) {
+  const id = o.tipo === 'candongueiro' ? 'carrinha' : CARROS_PARADOS[Math.abs(o.x * 5 + o.y * 11) % CARROS_PARADOS.length];
+  if (!MODELOS[id]) return null;
+  const cor = o.tipo === 'candongueiro' || id === 'carrinha' ? '' : (o.cor || '');
+  return proto('carro|' + id + '|' + cor, () => { const m = MODELOS[id].criar(T); const u = m.userData.carro; if (cor && u?.pintura?.color) u.pintura.color.set(cor); return m; });
+}
 function _makeCarro(o) {
   const g = new T.Group();
   const cor = o.cor || '#c0392b';
@@ -1164,6 +1190,7 @@ function quadro(o) {
 
   atualizarCamara(w, h, o.cam.z, o.eu);
   sincronizarPessoas(o.lista, o.eu);
+  { const ag = performance.now(), dt = _tT ? (ag - _tT) / 1000 : 0; _tT = ag; if (transito) transito.atualizar(dt, o.lista); }
   renderer.render(cena3, camara);
 
   // métricas

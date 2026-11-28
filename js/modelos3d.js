@@ -761,6 +761,21 @@ export function predio(T, sp) {
     box(0.8, 0.25, 0.05, escuro, W / 2 - 0.4, D, 0);
     if (sp.to) { const tl = box(1.25, 0.38, 0.04, new T.MeshStandardMaterial({ color: sp.to, roughness: 0.8 }), W / 2 - 0.62, D, hp + 0.12); tl.rotation.x = -0.35; tl.position.y += 0.14; }
   }
+  // estilos de fachada (28 nov): 'vidro' = escritórios/universidades modernas; 'colonial' = cornija e pilastras como na Baixa de Maputo
+  if (sp.v === 'vidro' && H > 0.9) {
+    const vid2 = new T.MeshPhysicalMaterial({ color: 0x2b4a63, roughness: 0.08, metalness: 0.35, clearcoat: 1 }); vid2.userData.janela = true;
+    const hv = H - 0.4;
+    box(W * 0.86, 0.025, hv, vid2, W * 0.07, D, 0.28); box(W * 0.86, 0.025, hv, vid2, W * 0.07, -0.025, 0.28);
+    box(0.025, D * 0.86, hv, vid2, W, D * 0.07, 0.28); box(0.025, D * 0.86, hv, vid2, -0.025, D * 0.07, 0.28);
+    for (let a2 = 1; a2 < andares + 1; a2++) { const z = 0.28 + hv * a2 / (andares + 1);
+      box(W * 0.86, 0.04, 0.03, caixilho, W * 0.07, D, z); box(W * 0.86, 0.04, 0.03, caixilho, W * 0.07, -0.04, z); }
+    box(W + 0.12, D + 0.12, 0.1, escuro, -0.06, -0.06, H);
+  } else if (sp.v === 'colonial' && H > 0.9) {
+    box(W + 0.16, D + 0.16, 0.11, caixilho, -0.08, -0.08, H - 0.1);                    // cornija
+    box(W + 0.08, D + 0.08, 0.1, escuro, -0.04, -0.04, 0);                              // soco
+    for (const [x, y] of [[-0.02, -0.02], [W - 0.12, -0.02], [-0.02, D - 0.12], [W - 0.12, D - 0.12]]) box(0.14, 0.14, H, caixilho, x, y, 0);   // pilastras
+    for (let u = 0.9; u < W - 0.5; u += 1.1) box(0.05, 0.03, H * 0.55, escuro, u, D + 0.005, 0.2);                                                // persianas
+  }
   // telhados
   if (sp.t === 'plano') {
     const laje = new T.MeshStandardMaterial({ color: 0xffffff, map: texturaReboco(T, 0x9a9690), roughness: 0.97 }); laje.map.repeat.set(W, D);

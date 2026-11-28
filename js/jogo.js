@@ -1896,7 +1896,7 @@ function carregar3D() {
   if (m3dPedido && !temWebGL()) { m3dPedido = false; m3dFalhou = 'Este aparelho/navegador não tem os gráficos 3D (WebGL) ligados.'; }
   if (!m3dPedido || window.M3D || carregar3D._a) return;
   carregar3D._a = true;
-  import('./mundo3d.js?v=9970227').catch(e => { console.warn('3D não carregou', e); m3dPedido = false; m3dFalhou = 'O mundo 3D não carregou neste aparelho.'; });
+  import('./mundo3d.js?v=5eafac9').catch(e => { console.warn('3D não carregou', e); m3dPedido = false; m3dFalhou = 'O mundo 3D não carregou neste aparelho.'; });
 }
 // interiores incluídos — mundo3d.js já sabe desenhar móveis (mesa, cadeira, balcão, etc.)
 const m3dAtivo = () => m3dPedido && !!window.M3D && !!cena && (cena.tipo === 'bairro' || cena.tipo === 'casa' || cena.tipo === 'interior') && !!eu;
@@ -2508,11 +2508,13 @@ async function renderEmpregados(body) {
 /* ---------- 🎓 universidades ---------- */
 const UNIVS = {
   uem:    { nome: 'Universidade Eduardo Mondlane', bairro: 'alto_mae', mult: 1,   txt: 'Pública e barata. A mais antiga de Moçambique.', cursos: ['direito', 'medicina', 'economia', 'engenharia'] },
-  isaf:   { nome: 'ISAF', bairro: 'baixa', mult: 1.3, txt: 'Instituto Superior de Administração e Finanças.', cursos: ['financas', 'gestao', 'economia'] },
-  uor:    { nome: 'Universidade Óscar Ribas', bairro: 'sommerschield', mult: 1.6, txt: 'Privada. Dá reputação (+1 por módulo).', cursos: ['gestao', 'direito', 'informatica', 'comunicacao'] },
-  isptec: { nome: 'ISPTEC', bairro: 'bairro_central', mult: 2, txt: 'A mais cara e a mais respeitada. +1 reputação por módulo.', cursos: ['engenharia', 'petroleo', 'informatica'] },
+  upe:    { nome: 'Universidade Pedagógica', bairro: 'maxaquene', mult: 1.1, txt: 'Pública. Forma professores e gente de ciências sociais.', cursos: ['educacao', 'economia', 'gestao'] },
+  isaf:   { nome: 'ISCAM', bairro: 'baixa', mult: 1.2, txt: 'Instituto Superior de Contabilidade e Auditoria de Moçambique.', cursos: ['financas', 'gestao', 'economia'] },
+  ustm:   { nome: 'Universidade São Tomás', bairro: 'costa_do_sol', mult: 1.4, txt: 'Privada, junto ao mar. Dá reputação (+1 por módulo).', cursos: ['direito', 'gestao', 'informatica', 'comunicacao'] },
+  uor:    { nome: 'Universidade Politécnica', bairro: 'bairro_central', mult: 1.6, txt: 'Privada. Dá reputação (+1 por módulo).', cursos: ['gestao', 'direito', 'informatica', 'comunicacao'] },
+  isptec: { nome: 'ISCTEM', bairro: 'sommerschield', mult: 2, txt: 'A mais cara e a mais respeitada. +1 reputação por módulo.', cursos: ['engenharia', 'petroleo', 'informatica'] },
 };
-const CURSOS = { direito: 'Direito', medicina: 'Medicina', economia: 'Economia', engenharia: 'Engenharia', financas: 'Finanças', gestao: 'Gestão', informatica: 'Informática', comunicacao: 'Comunicação', petroleo: 'Engenharia de Petróleos' };
+const CURSOS = { educacao: 'Educação', direito: 'Direito', medicina: 'Medicina', economia: 'Economia', engenharia: 'Engenharia', financas: 'Finanças', gestao: 'Gestão', informatica: 'Informática', comunicacao: 'Comunicação', petroleo: 'Engenharia de Petróleos' };
 let cursoEscolhido = {};
 function univHTML(id, online) {
   const u = UNIVS[id]; if (!u) return '';

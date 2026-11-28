@@ -82,7 +82,7 @@ const BAIRROS_MAPA = {
       { s: 4, nome: 'Ministério das Obras', emoji: '🏢', w: 4, d: 4, h: 70, cor: '#e8dcc0', telhado: 'plano', toldo: '#c0392b', acao: [{ t: 'governo' }, { t: 'emprego', id: 'funcionario_pub' }] },
       { s: 5, nome: 'Hospital Central', emoji: '🏥', w: 4, d: 5, h: 50, cor: '#f2f2f2', telhado: 'plano', toldo: '#e0313f', acao: [{ t: 'saude', txt: 'O maior hospital público de Moçambique.' }, { t: 'emprego', id: 'medico' }, { t: 'emprego', id: 'enfermeiro' }] },
       { s: 6, nome: 'Pastelaria Rosa', emoji: '☕', w: 3, d: 3, h: 24, cor: '#f2c6a0', telhado: 'plano', toldo: '#e86aa6', acao: [{ t: 'comida', ids: CANTINA }] },
-      { s: 10, nome: 'Universidade Eduardo Mondlane', emoji: '🎓', w: 5, d: 4, h: 48, cor: '#e9dcc4', telhado: 'plano', toldo: '#8a1c2b', acao: [{ t: 'univ', id: 'uem' }] },
+      { s: 10, nome: 'ISCAM — Contabilidade e Auditoria', emoji: '🎓', w: 5, d: 4, h: 48, cor: '#e9dcc4', telhado: 'plano', toldo: '#8a1c2b', v: 'colonial', acao: [{ t: 'univ', id: 'isaf' }] },
       { s: 8, nome: 'Tribunal Judicial', emoji: '⚖️', w: 4, d: 4, h: 46, cor: '#d8d0c0', telhado: 'plano', acao: [{ t: 'info', txt: 'Onde se decide quem tem razão — e quem paga.' }, { t: 'governo' }, { t: 'emprego', id: 'advogado' }] },
       { s: 7, nome: 'Prédio de Apartamentos', emoji: '🏢', w: 4, d: 4, h: 56, cor: '#e8dcc0', telhado: 'plano', toldo: '#8a1c2b', acao: [{ t: 'casa', id: 'apartamento_baixa' }] },
     ]
@@ -96,7 +96,7 @@ const BAIRROS_MAPA = {
       { s: 3, nome: 'Ginásio', emoji: '🏋️', w: 3, d: 4, h: 36, cor: '#1f1f1f', telhado: 'plano', toldo: '#e0313f', acao: [{ t: 'treino', onde: 'ginasio' }] },
       { s: 4, nome: 'Boutique Luxo', emoji: '👗', w: 4, d: 4, h: 34, cor: '#1f1f1f', telhado: 'plano', toldo: '#d4af37', acao: [{ t: 'itens', cats: ['moda', 'telemovel'] }, { t: 'moda' }] },
       { s: 5, nome: 'Clínica Privada', emoji: '🩺', w: 3, d: 5, h: 40, cor: '#f5f8fa', telhado: 'plano', toldo: '#2c6fb0', acao: [{ t: 'saude', txt: 'Clínica privada: rápida, cara e discreta.' }, { t: 'emprego', id: 'medico' }] },
-      { s: 10, nome: 'Escola Internacional', emoji: '🎓', w: 4, d: 4, h: 44, cor: '#1d3c5e', telhado: 'plano', antena: true, acao: [{ t: 'univ', id: 'isptec' }] },
+      { s: 10, nome: 'ISCTEM — Ciências e Tecnologia', emoji: '🎓', w: 4, d: 4, h: 44, cor: '#1d3c5e', telhado: 'plano', antena: true, v: 'vidro', acao: [{ t: 'univ', id: 'isptec' }] },
     ]
   },
   bairro_central: {
@@ -204,6 +204,47 @@ const MODA_NIVEL = a => ['sommerschield', 'bairro_central', 'costa_do_sol'].incl
   }
 })();
 
+// 28 nov (dono): «adicionando universidades nas regiões específicas» — cada universidade fica no seu bairro (UNIVS em jogo.js)
+(function universidadesPorRegiao() {
+  const U = [
+    ['alto_mae', 'Universidade Eduardo Mondlane', 'uem', '#e9dcc4', '#8a1c2b', 'colonial'],
+    ['bairro_central', 'Universidade Politécnica', 'uor', '#d8e2ec', '#2c6fb0', 'vidro'],
+    ['maxaquene', 'Universidade Pedagógica', 'upe', '#f0e2b8', '#2f8f5b', 'colonial'],
+    ['costa_do_sol', 'Universidade São Tomás', 'ustm', '#f6f1e6', '#7a1f3d', 'colonial'],
+  ];
+  for (const [bid, nome, uid, cor, toldo, v] of U) {
+    const b = BAIRROS_MAPA[bid]; if (!b?.lotes || b.lotes.some(l => (l.acao || []).some(a => a.t === 'univ' && a.id === uid))) continue;
+    const n = b.grade || 3, usados = new Set(b.lotes.map(l => l.s));
+    let sl = -1;
+    for (let k = 0; k < n * n * 2; k += 2) if (k !== 9 && !usados.has(k) && !(b.praia && Math.floor(k / 2) % 3 === 0)) { sl = k; break; }
+    if (sl < 0) continue;
+    b.lotes.push({ s: sl, nome, emoji: '🎓', w: 5, d: 4, h: 48, cor, telhado: 'plano', toldo, v, acao: [{ t: 'univ', id: uid }] });
+  }
+})();
+
+// 28 nov (dono): «prédios interativos … mais descentralizados» — em vez de todos nos primeiros quarteirões, cada bairro espalha os seus
+// lotes por todos os quarteirões (sempre igual para todos os jogadores: a ordem vem do id do bairro). Mantém o lado (0 = frente, 1 = direita).
+function espalharLotes(spec, id, n) {
+  const lotes = spec.lotes || []; if (id === 'cadeia' || n < 2 || !lotes.length) return lotes;
+  const r = rng([...id].reduce((a, c) => a * 31 + c.charCodeAt(0), 11));
+  const qs = []; for (let q = 0; q < n * n; q++) if (!(spec.praia && blocoDe(q, n)[0] === 0)) qs.push(q);
+  for (let i = qs.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [qs[i], qs[j]] = [qs[j], qs[i]]; }
+  const grupos = new Map(); for (const l of lotes) { const q = Math.floor(l.s / 2); (grupos.get(q) || grupos.set(q, []).get(q)).push(l); }
+  const usados = new Set([9]), novo = new Map(); let i = 0;
+  const ordem = [...grupos.entries()].sort((a, b) => Math.min(...a[1].map(l => l.s)) - Math.min(...b[1].map(l => l.s)));
+  for (const [, ls] of ordem) {
+    let q2 = -1;
+    for (const q of qs) if (ls.every(l => !usados.has(q * 2 + (l.s % 2)))) { q2 = q; break; }
+    for (const l of ls) {
+      let s2 = q2 >= 0 ? q2 * 2 + (l.s % 2) : l.s;
+      if (usados.has(s2)) for (let k = 0; k < n * n * 2; k++) if (!usados.has(k) && k % 2 === l.s % 2 && !(spec.praia && blocoDe(Math.floor(k / 2), n)[0] === 0)) { s2 = k; break; }
+      usados.add(s2); novo.set(l, s2);
+    }
+    if (q2 >= 0) qs.splice(qs.indexOf(q2), 1);
+  }
+  return lotes.map(l => ({ ...l, s: novo.get(l) ?? l.s }));
+}
+
 /* ---------- 🍲 menus (Vida em Moz): as comidas e bebidas moçambicanas espalhadas pelo jogo ----------
    Cada sítio vende só o que faz sentido lá (cantina, restaurante, bar, café, mercado, praia, paragem); os menus são curtos,
    mudam de bairro para bairro e rodam todos os dias. Os pratos especiais de cada bairro ficam sempre.
@@ -306,8 +347,9 @@ function loteRect(s, w, d, n = 3) {
 }
 
 function gerarBairro(id) {
-  const spec = BAIRROS_MAPA[id];
+  const spec0 = BAIRROS_MAPA[id];
   const G = gradeDe(id), NQ = G.n, ORIG = G.ORIG, ESTRADAS = G.ESTR;
+  const spec = { ...spec0, lotes: espalharLotes(spec0, id, NQ) };
   const W = G.W, H = G.W, N = W * H;
   const chao = new Uint8Array(N).fill(spec.chao), bloq = new Uint8Array(N), ocupado = new Uint8Array(N);
   const r = rng([...id].reduce((a, c) => a * 31 + c.charCodeAt(0), 7));
@@ -343,7 +385,8 @@ function gerarBairro(id) {
   spec.lotes.forEach(l => {
     if (spec.praia && Math.floor(l.s / 2) % 3 === 0) return;
     const R = loteRect(l.s, l.w, l.d, NQ);
-    const o = { kind: 'edificio', x: R.x, y: R.y, w: R.w, d: R.d, h: l.h, spec: l, porta: [R.px, R.py], b: { ...l, x: R.x, y: R.y, w: R.w, d: R.d, porta: R.porta } };
+    const v = l.v || (/Banco|Escrit|Hotel|Embaixada|Minist[eé]rio da Educa|Clínica|Shoprite|Supermercado|Hospital|Boutique|Condom[ií]nio|Advocacia/i.test(l.nome) ? 'vidro' : /Esta[cç][aã]o|Tribunal|Mercado Central|Igreja|Pra[cç]a|Governo|Escola|Minist[eé]rio das Obras/i.test(l.nome) ? 'colonial' : '');
+    const o = { kind: 'edificio', x: R.x, y: R.y, w: R.w, d: R.d, h: l.h, spec: l, porta: [R.px, R.py], b: { ...l, v, x: R.x, y: R.y, w: R.w, d: R.d, porta: R.porta } };
     objetos.push(o); marca(R.x, R.y, R.w, R.d); portas.set(R.px + ',' + R.py, o);
   });
 
@@ -388,7 +431,8 @@ function gerarBairro(id) {
       }
       if (d.predio && v < (acc += d.predio) && livre(3, 3)) {
         const cores = ['#e9a3b4', '#f3d36b', '#9ccf9a', '#8fc4e8', '#f0b27a', '#c5a3e0'];
-        objetos.push({ kind: 'casinha', x, y, w: 3, d: 3, h: 100, b: { x, y, w: 3, d: 3, h: 100, cor: cores[Math.floor(r() * cores.length)], telhado: 'plano', porta: 'y' } }); marca(x, y, 3, 3); continue;
+        const hp = 70 + Math.floor(r() * 90);   // 28 nov: prédios de alturas e fachadas diferentes
+        objetos.push({ kind: 'casinha', x, y, w: 3, d: 3, h: hp, b: { x, y, w: 3, d: 3, h: hp, cor: cores[Math.floor(r() * cores.length)], telhado: 'plano', porta: r() < 0.5 ? 'y' : 'x', v: r() < 0.3 ? 'vidro' : r() < 0.4 ? 'colonial' : '', ta: r() < 0.35, an: r() < 0.25 } }); marca(x, y, 3, 3); continue;
       }
       if (d.torre && v < (acc += d.torre) && livre(2, 2)) {
         objetos.push({ kind: 'casinha', x, y, w: 2, d: 2, h: 90 + Math.floor(r() * 60), b: { x, y, w: 2, d: 2, h: 100, cor: ['#5a7d94', '#7d8b99', '#3f5f73', '#a0b4c0'][Math.floor(r() * 4)], telhado: 'plano', porta: 'y', antena: r() < 0.5 } });
