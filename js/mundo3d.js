@@ -19,6 +19,7 @@
 
 import * as T from './vendor/three/three.min.js';
 import { MODELOS, predio, pessoaRig, QUALIDADE, animal3d } from './modelos3d.js';
+import { arredores } from './arredores3d.js?v=2d6f300';
 
 QUALIDADE.folhas = 0.1; QUALIDADE.seg = 0.35;   // leve para telemóveis
 
@@ -548,6 +549,17 @@ function construir(cena) {
     }
   }
 
+  // arredores: a cidade continua para lá do mapa (sem zona azul vazia)
+  let corFundo = 0x9db8c4;
+  if (!dentroAgora && cena.chao && cena.estradas) {
+    try {
+      const ar = arredores(T, cena);
+      raiz.add(ar.grupo); estaticos.push(ar.grupo);
+      for (const p of ar.palmas) repetir(p.tipo, () => MODELOS[p.tipo]?.criar(T) || _makeArvore(p.tipo), p.x, p.y, 0, true);
+      corFundo = ar.mar ? 0x8fb3c4 : 0xd9c9a8;
+    } catch (e) { console.warn('[mundo3d] arredores falharam:', e); }
+  }
+
   instanciarRepetidos();
 
   // nevoeiro adaptado ao contexto
@@ -555,7 +567,7 @@ function construir(cena) {
     // interior: sem nevoeiro — salas são pequenas e o nevoeiro azulado distorce as cores
     cena3.fog = null;
   } else {
-    cena3.fog = new T.Fog(0x9db8c4, 80, 180);
+    cena3.fog = new T.Fog(corFundo, 90, 210);
   }
 
   cam3.iniciada = false;
